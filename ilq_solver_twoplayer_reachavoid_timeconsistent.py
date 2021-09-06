@@ -1,7 +1,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2019, HJ Reachability Group
+Copyright (c) 2021, Safe Robotics Laboratory
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,11 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
+Author(s): Dennis Anthony ( dennisra@princeton.edu )
 """
 ################################################################################
 #
-# Iterative LQ solver.
+# Reach-Avoid Solver
 #
 ################################################################################
 
@@ -119,36 +119,6 @@ class ILQSolver(object):
         
         self._dynamics_10d = dynamics_10D
         
-        #self._rs
-        #self._total_costs
-        #self._xs
-        #self._us
-        
-        # Insert logic to chose g or l
-        
-        # if cost_info is not None:
-        #     self._car1_pos_indices = cost_info[0][0]
-        #     self._car2_pos_indices = cost_info[0][1]
-        #     self._car1_goal = cost_info[1][0]
-        #     self._car2_goal = cost_info[1][1]
-        #     self._car1_goal_radius = cost_info[2][0]
-        #     self._car2_goal_radius = cost_info[2][1]
-        #     self._car1_desired_sep = cost_info[3][0]
-        #     self._car2_desired_sep = cost_info[3][1]
-        #     #self._obs_center = cost_info[2]
-        #     #self._obs_radius = cost_info[3]
-            
-        #     c1c = PlayerCost()   #player_costs[0]
-        #     c2c = PlayerCost()   #player_costs[1]
-            
-        #     c1gc = ProximityCost(self._pos1, self._goal1, np.inf, "car1_goal")
-        #     c1c.add_cost(c1gc, "x", 10.0) # -1.0
-            
-        #     c2gc = ProximityCost(self._pos2, self._goal2, np.inf, "car2_goal")
-        #     c2c.add_cost(c2gc, "x", 10.0) # -1.0
-            
-        #     player_costs = [c1c, c2c]
-        
         
         self._player_costs = player_costs
 
@@ -159,9 +129,6 @@ class ILQSolver(object):
 
         # Fixed step size for the linesearch.
         self._alpha_scaling = alpha_scaling
-
-        # Reference deviation cost weight.
-        self._reference_deviation_weight = reference_deviation_weight
 
         # Set up visualizer.
         self._visualizer = visualizer
@@ -194,14 +161,9 @@ class ILQSolver(object):
                 self._last_operating_point = self._current_operating_point
                 self._current_operating_point = (xs, us)
             
-            
-            # Initialize each player's player cost to be blank at each new iteration
-            # We need to figure out if we're in the target margin or obstacle margin
-            # for ii in range(self._num_players):
-            #     self._player_costs[ii] = PlayerCost()
                 
             # Set t_react time
-            self._t_react = 20  # Change back to 10 (for time_horizon = 2.0)
+            self._t_react = 20
             
 
 
@@ -253,62 +215,20 @@ class ILQSolver(object):
                 As.append(A)
 
                 for ii in range(self._num_players):
-                    Bs[ii].append(B[ii])
-            
-                    
-            
-            # (3) Here, I get t* and which function comes out of the min-max (target function or obstacle function)
-            # for the given trajectory (xs) and controls for that trajectory (us)
-            #time_star = []
-            #for ii in range(self._num_players):
-            #    #time_star = self._TimeStar(xs, us, ii)
-            #    time_star.append(self._TimeStar(xs, us, ii))
-            #print("time_star is from def: ", time_star)
-            
-            
-            
-            
-            # (4) This is to calculate cost of the current trajectory (now that we know if L or g came out of min-max)
-            # Here I want to add in time_star since cost is zero everywhere else besides that time
-            #costs = [[] for ii in range(self._num_players)]
-            # for k in range(self._horizon):
-            #     for ii in range(self._num_players):
-            #         costs[ii].append(self._player_costs[ii](
-            #             torch.as_tensor(xs[k].copy()),
-            #             [torch.as_tensor(ui) for ui in us],
-            #             k, time_star[ii]))
-                    
+                    Bs[ii].append(B[ii])    
                     
                     
 
             # (5) Quadraticize costs.
             # Get the hessians and gradients. Hess_x (Q) and grad_x (l) are zero besides at t*
             # Hess_u (R) and grad_u (r) are eps * I and eps * u_t, respectfully, for all [0, T]
-            #Qs = [[] for ii in range(self._num_players)]
-            #ls = [[] for ii in range(self._num_players)]
-            #rs = [[] for ii in range(self._num_players)]
             Qs = []
             ls = []
             rs = []
             costs = []
-            #Rs = [[[] for jj in range(self._num_players)]
-            #      for ii in range(self._num_players)]
             Rs = []
             calc_deriv_cost = []
-            total_costs = []
-            # for ii in range(self._num_players):
-            #     for k in range(self._horizon):
-            #         _, r, l, Q, R = self._player_costs[ii].quadraticize(
-            #             xs[k], [uis[k] for uis in us], k, time_star[ii], ii)
-
-            #         Qs[ii].append(Q)
-            #         ls[ii].append(l)
-            #         rs[ii].append(r)
-                    
-
-            #         for jj in range(self._num_players):
-            #             Rs[ii][jj].append(R[jj])
-                        
+            total_costs = [        
                         
                         
             for ii in range(self._num_players):           
@@ -325,6 +245,8 @@ class ILQSolver(object):
                 Rs.append(R[ii])
                     
             
+              
+              
             # Now I'm trying to build everything I need for the 2nd phase where
             # player 1 is controlling everything. So here we need to build 
             # B, Q, q, l and r for this phase
@@ -343,8 +265,6 @@ class ILQSolver(object):
                 rs[0][ii] = np.hstack((rs[0][ii], rs[1][ii]))  # For grad of cost w.r.t. u (change back to hstack)
                 rs[1][ii] = []
                 
-                #ls[0][ii] = np.hstack((ls[0][ii], ls[1][ii])) # For grad of cost w.r.t. x
-                #ls[1][ii] = []
                 
                 Rs[0][0][ii] = block_diag(Rs[0][0][ii], Rs[1][0][ii])
                 Rs[0][1][ii] = block_diag(Rs[0][1][ii], Rs[1][1][ii])
@@ -415,7 +335,6 @@ class ILQSolver(object):
             self._alphas = alphas
 
             # (5) Linesearch.
-            #self._linesearch()
             self._linesearch_new(iteration)
             #print("alpha is: ", self._linesearch_new())
             self._alpha_scaling = self._linesearch_new(iteration)
@@ -787,11 +706,6 @@ class ILQSolver(object):
         
         
         # Pre-allocate hessian and gradient matrices
-        # Qs = [[] for ii in range(self._num_players)]
-        # ls = [[] for ii in range(self._num_players)]
-        # rs = [[] for ii in range(self._num_players)]
-        # Rs = [[[] for jj in range(self._num_players)]
-        #       for ii in range(self._num_players)]
         Qs = [deque() for ii in range(self._num_players)]
         ls = [deque() for ii in range(self._num_players)]
         rs = [deque() for ii in range(self._num_players)]
@@ -860,6 +774,7 @@ class ILQSolver(object):
                         self._player_costs[0].add_cost(c1gc, "x", 1.0)
                         calc_deriv_cost.appendleft("True")
                         self._calc_deriv_true_P1 = True
+                    
                     elif value_func_plus[k] == hold_prox:
                         #print("Obstacle margin func came out!")
                         print("l_{k+1} came out. calc_deriv_cost should be true")
