@@ -144,15 +144,27 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
 
         # Update Zs to be the next step earlier in time (now they
         # correspond to time k+1).
-        if calc_deriv_cost == True:
-            for ii in range(num_players):
-                Zs[ii].appendleft(Q[ii])
+        # if calc_deriv_cost == True:
+        #     for ii in range(num_players):
+        #         Z[ii].appendleft(Q[ii])
+        # else:
+        #     for ii in range(num_players):
+        #         #print("Z[ii] is: ", Z[ii])
+        #         Zs[ii].appendleft(F.T @ Z[ii] @ F + Q[ii] + sum(
+        #             [P_split[jj].T @ R[ii][jj] @ P_split[jj]
+        #              for jj in range(num_players)]))
+                
+        if calc_deriv_cost[k] == 'True':
+            Z[ii] = Q[ii]
+            Zs[ii].appendleft(F.T @ Z[ii] @ F + Q[ii] + sum(
+                [P_split[jj].T @ R[ii][jj] @ P_split[jj]
+                  for jj in range(num_players)]))
+            print("Q[ii] in solve_lq_game is: ", Q[ii])
+        
         else:
-            for ii in range(num_players):
-                #print("Z[ii] is: ", Z[ii])
-                Zs[ii].appendleft(F.T @ Z[ii] @ F + Q[ii] + sum(
-                    [P_split[jj].T @ R[ii][jj] @ P_split[jj]
-                     for jj in range(num_players)]))
+            Zs[ii].appendleft(F.T @ Z[ii] @ F + Q[ii] + sum(
+                [P_split[jj].T @ R[ii][jj] @ P_split[jj]
+                  for jj in range(num_players)]))
 
         # Compute alphas using previously computed zetas.
         # Refer to equation 6.17d in Basar and Olsder.
@@ -195,13 +207,22 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
                 #print("P_split[jj].T @ R[ii][jj].shape is: ", (P_split[jj].T @ R[ii][jj]).shape)
                 # print("r[0][1] is: ", r[0][1])
                 # print("r[1] is:")
-                zetas[ii].appendleft(F.T @ (zeta[ii] + Z[ii] @ beta) + l[ii] + sum(
-                    [P_split[jj].T @ R[ii][jj] @ alpha_split[jj] - P_split[jj].T @ r[ii][jj:jj+1].T
-                     for jj in range(num_players)]))
-                #print("P_split[0] is: ", P_split[0])
-                #print(len([r[0][0][0].T]))
-                #print("len of r[ii][0][jj].T is: ", len(r[ii][0][jj].T))
-                #print("len of r[ii][0][jj] is: ", len(r[ii][0][jj]))
+                # zetas[ii].appendleft(F.T @ (zeta[ii] + Z[ii] @ beta) + l[ii] + sum(
+                #     [P_split[jj].T @ R[ii][jj] @ alpha_split[jj] - P_split[jj].T @ r[ii][jj:jj+1].T
+                #      for jj in range(num_players)]))
+                
+                if calc_deriv_cost[k] == 'True':
+                    zeta[ii] = l[ii]
+                    zetas[ii].appendleft(F.T @ (zeta[ii] + Z[ii] @ beta) + l[ii] + sum(
+                        [P_split[jj].T @ R[ii][jj] @ alpha_split[jj] - P_split[jj].T @ r[ii][jj:jj+1].T
+                          for jj in range(num_players)]))
+                    print("l[ii] in solve_lq_game is: ", l[ii])
+                    
+                else:
+                    zetas[ii].appendleft(F.T @ (zeta[ii] + Z[ii] @ beta) + l[ii] + sum(
+                        [P_split[jj].T @ R[ii][jj] @ alpha_split[jj] - P_split[jj].T @ r[ii][jj:jj+1].T
+                          for jj in range(num_players)]))
+
 
 
     # - P_split[jj].T @ r[ii][0][jj].T

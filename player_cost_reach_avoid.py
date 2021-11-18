@@ -317,9 +317,9 @@ class PlayerCost(object):
              
                 
              
-            hess_x = hess_x + np.identity(len(x)) * 0.01 # Added 0.01 to this. Delete if doesn't work
-            hess_u = [np.identity(2) * 0.3]
-            gradient_u = 0.3 * u[0].T
+            hess_x = hess_x + np.identity(len(x)) * 0.1 # Added 0.01 to this. Delete if doesn't work
+            hess_u = [np.identity(2) * 0.1]
+            gradient_u = 0.1 * u[0].T
             #print("eig of hess_x is: ", np.linalg.eig(hess_x))
             #hess_u = [np.identity(2) * 0.01, np.identity(2) * 0.01]
             #print("hess_x is: ", hess_x)
@@ -351,10 +351,10 @@ class PlayerCost(object):
             # cost = 0.0
             
             #hess_x = np.identity(len(x)) * 0.0
-            hess_x = np.identity(len(x)) * 0.01 # Change back to 0.01
+            hess_x = np.identity(len(x)) * 0.1 # Change back to 0.01
             grad_x = np.zeros((len(x), 1))
-            hess_u = [np.identity(2) * 0.3]
-            gradient_u = 0.3 * u[0].T
+            hess_u = [np.identity(2) * 0.1]
+            gradient_u = 0.1 * u[0].T
             #cost = 0.0
             
             

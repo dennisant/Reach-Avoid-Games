@@ -320,15 +320,17 @@ class PlayerCost(object):
             #print("grad_u is: ", grad_u)
              
                 
-             
-            hess_x = hess_x + np.identity(len(x)) * 0.1 # Added 0.01 to this. Delete if doesn't work
-            hess_u = [np.identity(2) * 0.1, np.identity(2) * 0.1]
+            eps_control = 0.1
+            eps_state = 0.1
+            
+            hess_x = hess_x + np.identity(len(x)) * eps_state # Added 0.01 to this. Delete if doesn't work
+            hess_u = [np.identity(2) * eps_control, np.identity(2) * eps_control]
             
             #gradient_u = np.zeros((2,2))
             #gradient_u[0,:] = 0.3 * u[0].T
             #gradient_u[1,:] = 0.3 * u[1].T
             
-            gradient_u = np.vstack((0.1 * u[0].T, 0.1 * u[1].T))
+            gradient_u = np.vstack((eps_control * u[0].T, eps_control * u[1].T))
             
             
             # if ii == 0:
@@ -356,6 +358,8 @@ class PlayerCost(object):
             #print("cost is: ", cost)
                 
         else:
+            eps_control = 0.1
+            eps_state = 0.1
             #hess_x = np.identity(len(x))
             #grad_x = np.zeros((len(x), 1))
             #hess_u = [np.identity(2), np.identity(2)]
@@ -378,14 +382,14 @@ class PlayerCost(object):
             # cost = 0.0
             
             #hess_x = np.identity(len(x)) * 0.0
-            hess_x = np.identity(len(x)) * 0.1739 # Change back to 0.01
+            hess_x = np.identity(len(x)) * eps_state # Change back to 0.01
             grad_x = np.zeros((len(x), 1))
-            hess_u = [np.identity(2) * 0.1, np.identity(2) * 0.1]
+            hess_u = [np.identity(2) * eps_control, np.identity(2) * eps_control]
             
             #gradient_u = np.zeros((2,2))
             #gradient_u[0,:] = 0.3 * u[0].T
             #gradient_u[1,:] = 0.3 * u[1].T
-            gradient_u = np.vstack((0.1 * u[0].T, 0.1 * u[1].T))
+            gradient_u = np.vstack((eps_control * u[0].T, eps_control * u[1].T))
             #cost = 0.0
             
             

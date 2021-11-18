@@ -156,6 +156,7 @@ class ILQSolver(object):
         # Trying to store stuff in order to plot cost
         store_total_cost = []
         iteration_store = []
+        store_freq = 1
         
         while not self._is_converged():
             # (1) Compute current operating point and update last one.
@@ -167,6 +168,16 @@ class ILQSolver(object):
             # Initialize each player's player cost to be blank at each new iteration
             # We need to figure out if we're in the target margin or obstacle margin
             self._player_costs[0] = PlayerCost()
+            
+            
+            # Storing the states at every 10 iterations
+            if iteration%store_freq == 0:
+                
+                xs_store = [xs_i.flatten() for xs_i in xs]
+                #print(xs_store[0])
+                #print(len(xs_store))
+                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
+                np.savetxt('1player_multobs_timeinconsistent_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
 
@@ -528,7 +539,7 @@ class ILQSolver(object):
         target_radius = 2
         
         # Defining things for obstacle(s)
-        obstacle_position = [(6.5, 15.0), (0.0, 20.0), (16.0, 20.0)]
+        obstacle_position = [(6.5, 15.0), (0.0, 20.0), (12.0, 24.0)]
         obstacle_radius = [4.5, 1.5, 4.0]  # Change back to 4 # Change back to 4
     
         #1.
@@ -664,7 +675,7 @@ class ILQSolver(object):
         target_radius = 2
         
         # Defining things for obstacle(s)
-        obstacle_position = [(6.5, 15.0), (0.0, 20.0), (16.0, 20.0)]
+        obstacle_position = [(6.5, 15.0), (0.0, 20.0), (12.0, 24.0)]
         obstacle_radius = [4.5, 1.5, 4.0]  # Change back to 4
     
     

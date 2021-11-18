@@ -158,6 +158,7 @@ class ILQSolver(object):
         # Trying to store stuff in order to plot cost
         store_total_cost = []
         iteration_store = []
+        store_freq = 1
         
         while not self._is_converged():
             # (1) Compute current operating point and update last one.
@@ -169,6 +170,15 @@ class ILQSolver(object):
             # Initialize each player's player cost to be blank at each new iteration
             # We need to figure out if we're in the target margin or obstacle margin
             self._player_costs[0] = PlayerCost()
+            
+            # Storing the states at every 10 iterations
+            if iteration%store_freq == 0:
+                
+                xs_store = [xs_i.flatten() for xs_i in xs]
+                #print(xs_store[0])
+                #print(len(xs_store))
+                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
+                np.savetxt('1player1obs_timeconsistent_radius4.5_looparound_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
 
@@ -189,6 +199,9 @@ class ILQSolver(object):
                 plt.pause(0.01)
                 plt.clf()
                 #plt.savefig('reach-avod plots.jpg'.format(iteration)) # Trying to save these plots
+                
+            print("This is iteration ", iteration)
+            print("plot is shown above")
 
             # (2) Linearize about this operating point. Make sure to
             # stack appropriately since we will concatenate state vectors
@@ -249,7 +262,7 @@ class ILQSolver(object):
             #             Rs[ii][jj].append(R[jj])
                         
                         
-            Qs, ls, Rs, rs, costs, calc_deriv_cost = self._TimeStar(xs, us)
+            Qs, ls, Rs, rs, costs, calc_deriv_cost, total_costs = self._TimeStar(xs, us)
                         
             self._rs = rs
             self._xs = xs
@@ -280,17 +293,17 @@ class ILQSolver(object):
 
             # (7) Accumulate total costs for all players.
             # This is the total cost for the trajectory we are on now
-            total_costs = [sum(costis).item() for costis in costs]
+            #total_costs = [sum(costis).item() for costis in costs]
             print("Total cost for all players: ", total_costs)
             self._total_costs = total_costs
             
             #Store total cost at each iteration and the iterations
-            store_total_cost.append(total_costs[0])
+            store_total_cost.append(total_costs)
             iteration_store.append(iteration)
             #print("store_total_cost is: ", store_total_cost)
             
             #Plot total cost for all iterations
-            if self._total_costs[0] < 0:
+            if self._total_costs < 0:
                 plt.plot(iteration_store, store_total_cost, color='green', linestyle='dashed', linewidth = 2,
                          marker='o', markerfacecolor='blue', markersize=6)
                 #plt.plot(iteration_store, store_total_cost)
@@ -312,9 +325,9 @@ class ILQSolver(object):
 
             # (5) Linesearch.
             #self._linesearch()
-            self._linesearch_new()
+            self._linesearch_new(iteration)
             #print("alpha is: ", self._linesearch_new())
-            self._alpha_scaling = self._linesearch_new()
+            self._alpha_scaling = self._linesearch_new(iteration)
             # self._alphas = self._alpha_line_search
             iteration += 1
             
@@ -468,13 +481,18 @@ class ILQSolver(object):
 
             #if k == self._horizon:  # if k == self._horizon - 1
             #    break
+        
+        
+            # DELETE THIS IF IT DOESN'T WORK
+            # for ii in range(self._num_players):
+            #     u[ii] = np.clip(u[ii], a_min = 2.0, a_max = 100.0)
 
             # Use 4th order Runge-Kutta to propogate system to next time-step k+1
             xs.append(self._dynamics.integrate(xs[k], u))
 
         #print("xs is: ", xs)
-        print("len(xs) is: ", len(xs))
-        print("len(us[0]) is: ", len(us[0]))
+        #print("len(xs) is: ", len(xs))
+        #print("len(us[0]) is: ", len(us[0]))
         #print("self._aplha_scaling in compute_operating_point is: ", self._alpha_scaling)
         return xs, us
 
@@ -498,7 +516,7 @@ class ILQSolver(object):
         #     if 1 == 2:
         #         return False
         
-        if self._total_costs[0] > 0.0:
+        if self._total_costs > 0.0:
             return False
 
         return True
@@ -643,124 +661,124 @@ class ILQSolver(object):
     
     
     
-    # def _T_Star(self, xs, us):
-    #     """
+    def _T_Star(self, xs, us):
+        """
         
 
-    #     Parameters
-    #     ----------
-    #     xs : TYPE
-    #         DESCRIPTION.
-    #     us : TYPE
-    #         DESCRIPTION.
+        Parameters
+        ----------
+        xs : TYPE
+            DESCRIPTION.
+        us : TYPE
+            DESCRIPTION.
 
-    #     Returns
-    #     -------
-    #     time_star : TYPE
-    #         DESCRIPTION.
+        Returns
+        -------
+        time_star : TYPE
+            DESCRIPTION.
             
-    #     I am mainly using this for the _linesearch_new def. This gives me the
-    #     time_star and player cost for the hallucinated trajectories by doing the
-    #     min-max on this trajectory
+        I am mainly using this for the _linesearch_new def. This gives me the
+        time_star and player cost for the hallucinated trajectories by doing the
+        min-max on this trajectory
 
-    #     """
-    #     # THIS IS ME TRYING TO FIND t* FOR REACHABILITY:
-    #     car1_position_indices = (0,1)
-    #     x_index, y_index = car1_position_indices
-    #     target_position = (6.5, 35.0)
-    #     target_radius = 2
+        """
+        # THIS IS ME TRYING TO FIND t* FOR REACHABILITY:
+        car1_position_indices = (0,1)
+        x_index, y_index = car1_position_indices
+        target_position = (6.5, 35.0)
+        target_radius = 2
         
-    #     # Defining things for obstacle(s)
-    #     obstacle_position = (6.5, 15.0)
-    #     obstacle_radius = 4.5  # Change back to 4
+        # Defining things for obstacle(s)
+        obstacle_position = (6.5, 15.0)
+        obstacle_radius = 6.5  # Change back to 4
     
     
-    #     # Pre-allocation for target stuff
-    #     target_distance_k = 0
-    #     target_margin_func = np.zeros((self._horizon, 1))
+        # Pre-allocation for target stuff
+        target_distance_k = 0
+        target_margin_func = np.zeros((self._horizon, 1))
         
-    #     # Pre-allocation for obstacle stuff
-    #     obs_margin_func = np.zeros((self._horizon, 1))
-    #     payoff = np.zeros((self._horizon, 1))
-    #     t_max_obs = np.zeros((self._horizon, 1))
-        
-        
-    #     # Make player cost empty. Since we are hallucinating trajectories, the new
-    #     # trajectory we get, we need to now if L or g comes out of it
-    #     self._player_costs[0] = PlayerCost()
-        
-    #     #1a. This is for the target (checking the target distance throughout entire trajectory)
-    #     # Once the entire trajectory is checked
-    #     for k in range(self._horizon):
-    #         # Calculate the distance of state at time-step k from center of target
-    #         # and then store it
-    #         target_distance_k = self._TargetDistance(xs[k], car1_position_indices, target_position, target_radius)
-    #         target_margin_func[k] = target_distance_k
+        # Pre-allocation for obstacle stuff
+        obs_margin_func = np.zeros((self._horizon, 1))
+        payoff = np.zeros((self._horizon, 1))
+        t_max_obs = np.zeros((self._horizon, 1))
         
         
+        # Make player cost empty. Since we are hallucinating trajectories, the new
+        # trajectory we get, we need to now if L or g comes out of it
+        self._player_costs[0] = PlayerCost()
         
-    #         #1b. This is for the obstacle (checking the obstacle distance from 0 to k) (CHECK THIS AGAIN!!!!)
-    #         hold_obs = -np.inf # Maybe change back to 0
-    #         hold_new_obs = 0
-    #         k_track_obs = 0
-    #         for j in range(k+1): # Run look to find closest distance to obstacle from time [0, k]
-    #             # for obs:
-    #             #   hold_new_obs0[obs] = self._ObstacleDistance(...)   #psuedo-code
-    #             # hold_new_obs = min(hold_new_obs0)
-    #             # hold_new_obs_index = np.argmin(hold_new_obs0)
-    #             hold_new_obs = self._ObstacleDistance(xs[j], car1_position_indices, obstacle_position, obstacle_radius)
+        #1a. This is for the target (checking the target distance throughout entire trajectory)
+        # Once the entire trajectory is checked
+        for k in range(self._horizon):
+            # Calculate the distance of state at time-step k from center of target
+            # and then store it
+            target_distance_k = self._TargetDistance(xs[k], car1_position_indices, target_position, target_radius)
+            target_margin_func[k] = target_distance_k
         
-    #             # If we're just starting out (time-step 0), the first one is the greatest so far
-    #             if j == 0:
-    #                 hold_obs = hold_new_obs
-    #                 k_track_obs = j
+        
+        
+            #1b. This is for the obstacle (checking the obstacle distance from 0 to k) (CHECK THIS AGAIN!!!!)
+            hold_obs = -np.inf # Maybe change back to 0
+            hold_new_obs = 0
+            k_track_obs = 0
+            for j in range(k+1): # Run look to find closest distance to obstacle from time [0, k]
+                # for obs:
+                #   hold_new_obs0[obs] = self._ObstacleDistance(...)   #psuedo-code
+                # hold_new_obs = min(hold_new_obs0)
+                # hold_new_obs_index = np.argmin(hold_new_obs0)
+                hold_new_obs = self._ObstacleDistance(xs[j], car1_position_indices, obstacle_position, obstacle_radius)
+        
+                # If we're just starting out (time-step 0), the first one is the greatest so far
+                if j == 0:
+                    hold_obs = hold_new_obs
+                    k_track_obs = j
                     
-    #             # Else, if one of the next calculated obstacle distances is greater, 
-    #             # we replace it (in hold_obs) and store time at which this happens (k_track_obs)
-    #             elif hold_new_obs > hold_obs:
-    #                 hold_obs = hold_new_obs
-    #                 k_track_obs = j
+                # Else, if one of the next calculated obstacle distances is greater, 
+                # we replace it (in hold_obs) and store time at which this happens (k_track_obs)
+                elif hold_new_obs > hold_obs:
+                    hold_obs = hold_new_obs
+                    k_track_obs = j
                     
-    #         # 1. Store the max of g from [0, k] and 
-    #         # 2. Store the time between [0, k] where g is max
-    #         obs_margin_func[k] = hold_obs
-    #         t_max_obs[k] = k_track_obs
+            # 1. Store the max of g from [0, k] and 
+            # 2. Store the time between [0, k] where g is max
+            obs_margin_func[k] = hold_obs
+            t_max_obs[k] = k_track_obs
         
                     
                     
-    #         #1c. This is me checking the max between target and obstacle margin function (Equation 4 in Jaime's Reach-Avoid 2015 paper)
-    #         if target_distance_k > hold_obs:
-    #             payoff[k] = target_distance_k
+            #1c. This is me checking the max between target and obstacle margin function (Equation 4 in Jaime's Reach-Avoid 2015 paper)
+            if target_distance_k > hold_obs:
+                payoff[k] = target_distance_k
                 
-    #         else:
-    #             payoff[k] = hold_obs
+            else:
+                payoff[k] = hold_obs
                 
-    #     # Now, we find t when the payoff is min
-    #     t_star = np.argmin(payoff)
+        # Now, we find t when the payoff is min
+        t_star = np.argmin(payoff)
         
     
         
-    #     # Now that we have the min payoff, we need to figure out if l or g is the max at that time
-    #     if target_margin_func[t_star] > obs_margin_func[t_star]:
-    #         c1gc = ProximityCost(self._car_pos, self._car_goal, target_radius, "car1_goal")
-    #         self._player_costs[0].add_cost(c1gc, "x", 1.0) #20.0 # 50 #10
-    #         time_star = t_star
-    #         #print("we are in target_marg")
-    #         #print("target_marg_func at tau* is: ", target_margin_func[t_star])
+        # Now that we have the min payoff, we need to figure out if l or g is the max at that time
+        if target_margin_func[t_star] > obs_margin_func[t_star]:
+            c1gc = ProximityCost(self._car_pos, self._car_goal, target_radius, "car1_goal")
+            self._player_costs[0].add_cost(c1gc, "x", 1.0) #20.0 # 50 #10
+            time_star = t_star
+            #print("we are in target_marg")
+            #print("target_marg_func at tau* is: ", target_margin_func[t_star])
         
-    #     else:
-    #         c1gc = ObstacleDistCost(
-    #                 self._car_pos, self._obs_center[0], self._obs_radius[0], name="obstacle")
-    #         self._player_costs[0].add_cost(c1gc, "x", 1.0) # 20.0 # -50.0 # -20
-    #         time_star = int(t_max_obs[t_star])
-    #         #print("obs_marg_func at tau* is: ", obs_margin_func[time_star])
-    #         #print("we are in obstacle_marg")
+        else:
+            c1gc = ObstacleDistCost(
+                    self._car_pos, self._obs_center[0], obstacle_radius, name="obstacle")
+            self._player_costs[0].add_cost(c1gc, "x", 1.0) # 20.0 # -50.0 # -20
+            time_star = int(t_max_obs[t_star])
+            #print("obs_marg_func at tau* is: ", obs_margin_func[time_star])
+            #print("we are in obstacle_marg")
             
             
-    #     # Print what the time_star outcome is:
-    #     #print("time_star is: ", time_star)
+        # Print what the time_star outcome is:
+        #print("time_star is: ", time_star)
         
-    #     return time_star
+        return time_star
     
     
     
@@ -784,7 +802,7 @@ class ILQSolver(object):
     
     
     
-    def _linesearch_new(self, t=0.25, beta = 0.9):
+    def _linesearch_new(self, iteration, t=0.25, beta = 0.9):
         """ Linesearch for both players separately. """
         """
         x -> us
@@ -821,90 +839,103 @@ class ILQSolver(object):
             #iteration += 1
         
         
+        
+        
         alpha_converged = False
         alpha = 1.0
         
-        while alpha_converged == False:
-            # Use this alpha in compute_operating_point
-            self._alpha_scaling = alpha
-            #print("In line_search_new, self._alpha_scaling is: ", self._alpha_scaling)
+        # while alpha_converged == False:
+        #     # Use this alpha in compute_operating_point
+        #     self._alpha_scaling = alpha
+        #     #print("In line_search_new, self._alpha_scaling is: ", self._alpha_scaling)
             
-            # With this alpha, compute trajectory and controls from self._compute_operating_point
-            # For this trajectory, calculate t* and if L or g comes out of min-max
-            xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
-            Qs, ls, Rs, rs, costs, calc_deriv_cost = self._TimeStar(xs, us)
-            self._time_star = 2
-            #t_star = self._T_Star(xs, us)
+        #     # With this alpha, compute trajectory and controls from self._compute_operating_point
+        #     # For this trajectory, calculate t* and if L or g comes out of min-max
+        #     xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
+        #     #Qs, ls, Rs, rs, costs, calc_deriv_cost = self._TimeStar(xs, us)
+        #     #self._time_star = 2
+        #     t_star = self._T_Star(xs, us)
+        #     self._time_star = t_star
             
-            # Calculate cost for this trajectory
-            # costs = [[] for ii in range(self._num_players)]
-            # for k in range(self._horizon):
-            #     for ii in range(self._num_players):
-            #         costs[ii].append(self._player_costs[ii](
-            #             torch.as_tensor(xs[k].copy()),
-            #             [torch.as_tensor(ui) for ui in us],
-            #             k, t_star)) #maybe change back to self._time_star
+        #     # Calculate cost for this trajectory
+        #     costs = [[] for ii in range(self._num_players)]
+        #     for k in range(self._horizon):
+        #         for ii in range(self._num_players):
+        #             costs[ii].append(self._player_costs[ii](
+        #                 torch.as_tensor(xs[k].copy()),
+        #                 [torch.as_tensor(ui) for ui in us],
+        #                 k, t_star)) #maybe change back to self._time_star
                     
             
-            # Quadraticize the cost (since we need gradients w.r.t. control u)
-            # Qs = [[] for ii in range(self._num_players)]
-            # ls = [[] for ii in range(self._num_players)]
-            # rs = [[] for ii in range(self._num_players)]
-            # # rs = [[[] for jj in range(self._num_players)]
-            # #       for ii in range(self._num_players)]
-            # Rs = [[[] for jj in range(self._num_players)]
-            #       for ii in range(self._num_players)]
-            # for ii in range(self._num_players):
-            #     for k in range(self._horizon):
-            #         _, r, l, Q, R = self._player_costs[ii].quadraticize(
-            #             xs[k], [uis[k] for uis in us], k, t_star)
+        #     # Quadraticize the cost (since we need gradients w.r.t. control u)
+        #     # Qs = [[] for ii in range(self._num_players)]
+        #     # ls = [[] for ii in range(self._num_players)]
+        #     # rs = [[] for ii in range(self._num_players)]
+        #     # # rs = [[[] for jj in range(self._num_players)]
+        #     # #       for ii in range(self._num_players)]
+        #     # Rs = [[[] for jj in range(self._num_players)]
+        #     #       for ii in range(self._num_players)]
+        #     # for ii in range(self._num_players):
+        #     #     for k in range(self._horizon):
+        #     #         _, r, l, Q, R = self._player_costs[ii].quadraticize(
+        #     #             xs[k], [uis[k] for uis in us], k, t_star)
 
-            #         Qs[ii].append(Q)
-            #         ls[ii].append(l)
-            #         rs[ii].append(r)
+        #     #         Qs[ii].append(Q)
+        #     #         ls[ii].append(l)
+        #     #         rs[ii].append(r)
                     
 
-            #         for jj in range(self._num_players):
-            #             Rs[ii][jj].append(R[jj])
+        #     #         for jj in range(self._num_players):
+        #     #             Rs[ii][jj].append(R[jj])
                         
-            # Calculate p (delta_u in our case)
-            delta_u = - self._Ps[0][self._time_star] @ ( xs[self._time_star] - self._current_operating_point[0][self._time_star] ) - self._alphas[0][self._time_star]
+        #     # Calculate p (delta_u in our case)
+        #     delta_u = - self._Ps[0][self._time_star] @ ( xs[self._time_star] - self._current_operating_point[0][self._time_star] ) - self._alphas[0][self._time_star]
             
-            # Determine grad cost w.r.t. u
-            grad_cost_u = self._rs[0][self._time_star]
-            #grad_cost_u = rs[0][t_star]
+        #     # Determine grad cost w.r.t. u
+        #     grad_cost_u = self._rs[0][self._time_star]
+        #     #grad_cost_u = rs[0][t_star]
 
-            t = -0.5 * grad_cost_u @ delta_u
+        #     t = -0.5 * grad_cost_u @ delta_u
             
                     
                         
-            # Calculate total cost of whole trajectory (in this case, the cost is really only at t*)
-            total_costs_new = [sum(costis).item() for costis in costs]
-            #print("self._total_costs is: ", self._total_costs)
-            #print("total_costs_new is: ", total_costs_new)
-            #print("self._total_costs + alpha * t * grad is: ", self._total_costs + alpha * t * grad)
+        #     # Calculate total cost of whole trajectory (in this case, the cost is really only at t*)
+        #     total_costs_new = [sum(costis).item() for costis in costs]
+        #     #print("self._total_costs is: ", self._total_costs)
+        #     #print("total_costs_new is: ", total_costs_new)
+        #     #print("self._total_costs + alpha * t is: ", total_costs_new + alpha * t)
+        #     #print("total_costs_new is: ", total_costs_new)
+        #     #print("alpha is: ", alpha)
+        #     #print("t is: ", t)
+        #     #print("self._total_costs is: ", self._total_costs)
             
-            # If total cost of this trajectory is less than our current trajectory,
-            # then use this alpha. Else, cut alpha down by beta and repeat the above
-            if total_costs_new + alpha * t <= self._total_costs:
-                alpha_converged = True
-                print("current trajectory cost is: ", self._total_costs)
-                print("new trajectory cost is: ", total_costs_new)
-                print("step-size for this is: ", alpha)
-                #print("total_costs_new in _linesearch_new is: ", total_costs_new)
-                #print("self._total_costs in _linesearch_new is: ", self._total_costs)
-                #print("alpha scaling in _linesearch_new is: ", alpha)
-                return alpha
-            else:
-                alpha_converged = False
-                alpha = beta * alpha
-                #print("total_cost_new is: ", total_costs_new)
-                #print("self._total_costs is: ", self._total_costs)
+        #     # If total cost of this trajectory is less than our current trajectory,
+        #     # then use this alpha. Else, cut alpha down by beta and repeat the above
+        #     if total_costs_new + alpha * t <= self._total_costs:
+        #         alpha_converged = True
+        #         print("current trajectory cost is: ", self._total_costs)
+        #         print("new trajectory cost is: ", total_costs_new)
+        #         print("step-size for this is: ", alpha)
+        #         #print("total_costs_new in _linesearch_new is: ", total_costs_new)
+        #         #print("self._total_costs in _linesearch_new is: ", self._total_costs)
+        #         #print("alpha scaling in _linesearch_new is: ", alpha)
+        #         return alpha
+        #     else:
+        #         alpha_converged = False
+        #         alpha = beta * alpha
+        #         #print("total_cost_new is: ", total_costs_new)
+        #         #print("self._total_costs is: ", self._total_costs)
                 
-                if alpha < 0.0000000000000001:
-                    raise ValueError("alpha too small")
+        #         if alpha < 0.0000000000000001:
+        #             raise ValueError("alpha too small")
             
         
+        # if iteration == 0:
+        #     alpha = 1
+        # else:
+        #     alpha = 1 / (1 + iteration * 0.005)
+        alpha = 0.2
+            
         self._alpha_scaling = alpha
         return alpha
         #pass
@@ -949,7 +980,7 @@ class ILQSolver(object):
         
         # Defining things for obstacle(s)
         obstacle_position = (6.5, 15.0)
-        obstacle_radius = 4.5  # Change back to 4
+        obstacle_radius = 6.5  # Change back to 4
     
     
         # Pre-allocation for target stuff
@@ -969,17 +1000,16 @@ class ILQSolver(object):
         
         
         # Pre-allocate hessian and gradient matrices
-        Qs = [[] for ii in range(self._num_players)]
-        ls = [[] for ii in range(self._num_players)]
-        rs = [[] for ii in range(self._num_players)]
-        # calc_deriv_cost = deque()
-        # rs = [[[] for jj in range(self._num_players)]
-        #       for ii in range(self._num_players)]
-        Rs = [[[] for jj in range(self._num_players)]
+        Qs = [deque() for ii in range(self._num_players)]
+        ls = [deque() for ii in range(self._num_players)]
+        rs = [deque() for ii in range(self._num_players)]
+        Rs = [[deque() for jj in range(self._num_players)]
               for ii in range(self._num_players)]
+        
               
         # Pre-allocate cost
-        costs = [[] for ii in range(self._num_players)]
+        #costs = [[] for ii in range(self._num_players)]
+        costs = []
         
         # Keep track if i^*_t = i^*_t+1 is true
         calc_deriv_cost = deque()
@@ -1001,32 +1031,28 @@ class ILQSolver(object):
             obs_margin_func[k] = hold_new_obs
             
             #Calculate value function
-            #if k == self._horizon-1:
-            #    value_func_plus[k] = 0
-            #elif k == self._horizon - 2:
-            #    value_func_plus[k] = np.max((target_distance_k, hold_new_obs))
             if k == self._horizon - 1:
                 value_func_plus[k] = np.max((target_distance_k, hold_new_obs))
             else:
-                value_func_plus[k] = np.max( (obs_margin_func[k+1], np.min((target_margin_func[k+1], value_func_plus[k+1])) ) )
+                value_func_plus[k] = np.max( (hold_new_obs, np.min((target_distance_k, value_func_plus[k+1])) ) )
                 
             
             # Now figure out if l, g or V comes out of max{g_k, min{l_k, V_k^+}}
             if value_func_plus[k] == target_distance_k:
-                print("Target margin func came out!")
+                #print("Target margin func came out!")
                 c1gc = ProximityCost(self._car_pos, self._car_goal, target_radius, "car1_goal")
                 self._player_costs[0].add_cost(c1gc, "x", 1.0)
                 calc_deriv_cost.appendleft("True")
                 self._calc_deriv_true = True
             elif value_func_plus[k] == hold_new_obs:
-                print("Obstacle margin func came out!")
-                c1gc = ObstacleDistCost(self._car_pos, self._obs_center[0], self._obs_radius[0], name="obstacle")
+                #print("Obstacle margin func came out!")
+                c1gc = ObstacleDistCost(self._car_pos, self._obs_center[0], obstacle_radius, name="obstacle")
                 self._player_costs[0].add_cost(c1gc, "x", 1.0)
                 calc_deriv_cost.appendleft("True")
                 self._calc_deriv_true = True
             else:
-                print("Value func came out!")
-                c1gc = ObstacleDistCost(self._car_pos, self._obs_center[0], self._obs_radius[0], name="obstacle")
+                #print("Value func came out!")
+                c1gc = ObstacleDistCost(self._car_pos, self._obs_center[0], obstacle_radius, name="obstacle")
                 self._player_costs[0].add_cost(c1gc, "x", 0.0)
                 calc_deriv_cost.appendleft("False")
                 self._calc_deriv_true = False
@@ -1034,25 +1060,46 @@ class ILQSolver(object):
                 
                 
             # Calculating hessians and gradients at time-step k
-            for ii in range(self._num_players):
-                _, r, l, Q, R = self._player_costs[ii].quadraticize(
-                    xs[k], [uis[k] for uis in us], k, self._calc_deriv_true)
+            _, r, l, Q, R = self._player_costs[0].quadraticize(
+                    xs[k+1], [uis[k] for uis in us], k, self._calc_deriv_true)
     
-                Qs[ii].append(Q)
-                ls[ii].append(l)
-                rs[ii].append(r)
-                
-    
-                for jj in range(self._num_players):
-                    Rs[ii][jj].append(R[jj])
+            Qs[0].appendleft(Q)
+            ls[0].appendleft(l)
+            rs[0].appendleft(r)
+            
+            if self._calc_deriv_true == True:
+                print("Q for P1 is: ", Q)
+                print("This happens at k = ", k)
+            
+
+            for jj in range(self._num_players):   # I DON'T KNOW ABOUT THIS! RE-CHECK!!!!!
+                Rs[0][jj].appendleft(R[jj])
                     
                     
             # Calculae cost at time-step k
             for ii in range(self._num_players):
-                costs[ii].append(self._player_costs[ii](
+                costs.append(self._player_costs[ii](
                     torch.as_tensor(xs[k].copy()),
                     [torch.as_tensor(ui) for ui in us],
                     k, self._calc_deriv_true))
+                
+                
+            total_costs = [sum(costis).item() for costis in costs]
+            total_costs = sum(total_costs)
+            print("total_costs in def _TimeStar is: ", total_costs)
+                
+                
+            
+            a = np.zeros((len(xs[0]), len(xs[0]))) # Change back to 0.01
+            b = np.zeros((len(xs[0]), 1))
+            # a= np.identity(len(xs[0])) * 0.1 # Change back to 0.01
+            # b = np.zeros((len(xs[0]), 1))
+            
+            Qs[ii].append(a)
+            ls[ii].append(b)
+            
+        print("zzz time-step closest to obstacle is: ", np.argmax((obs_margin_func)) )
+        print("obs_margin_func is: ", obs_margin_func)
                 
                 
         # # Calculating hessians and gradients at time-step k
@@ -1081,7 +1128,7 @@ class ILQSolver(object):
             
             #V_[t-1] = np.max{hold_new_obs[]}
             
-        print("zzz costs is: ", costs)  
+        #print("zzz costs is: ", costs)  
         
         
         
@@ -1089,208 +1136,226 @@ class ILQSolver(object):
         
         
         
-        return Qs, ls, Rs, rs, costs, calc_deriv_cost
+        return Qs, ls, Rs, rs, costs, calc_deriv_cost, total_costs
     
     
     
     
     
     
-    def _T_Star(self, xs, us):
-        """
+    # def _T_Star(self, xs, us):
+    #     """
         
 
-        Parameters
-        ----------
-        xs : TYPE
-            DESCRIPTION.
-        us : TYPE
-            DESCRIPTION.
+    #     Parameters
+    #     ----------
+    #     xs : TYPE
+    #         DESCRIPTION.
+    #     us : TYPE
+    #         DESCRIPTION.
 
-        Returns
-        -------
-        time_star : TYPE
-            DESCRIPTION.
+    #     Returns
+    #     -------
+    #     time_star : TYPE
+    #         DESCRIPTION.
             
-        I am mainly using this for the _linesearch_new def. This gives me the
-        time_star and player cost for the hallucinated trajectories by doing the
-        min-max on this trajectory
+    #     I am mainly using this for the _linesearch_new def. This gives me the
+    #     time_star and player cost for the hallucinated trajectories by doing the
+    #     min-max on this trajectory
 
-        """
-        # THIS IS ME TRYING TO FIND t* FOR REACHABILITY:
-        car1_position_indices = (0,1)
-        x_index, y_index = car1_position_indices
-        target_position = (6.5, 35.0)
-        target_radius = 2
+    #     """
+    #     # THIS IS ME TRYING TO FIND t* FOR REACHABILITY:
+    #     car1_position_indices = (0,1)
+    #     x_index, y_index = car1_position_indices
+    #     target_position = (6.5, 35.0)
+    #     target_radius = 2
         
-        # Defining things for obstacle(s)
-        obstacle_position = (6.5, 15.0)
-        obstacle_radius = 4.5  # Change back to 4
+    #     # Defining things for obstacle(s)
+    #     obstacle_position = (6.5, 15.0)
+    #     obstacle_radius = 4.5  # Change back to 4
     
     
-        # Pre-allocation for target stuff
-        target_distance_k = 0
-        target_margin_func = np.zeros((self._horizon, 1))
+    #     # Pre-allocation for target stuff
+    #     target_distance_k = 0
+    #     target_margin_func = np.zeros((self._horizon, 1))
         
-        # Pre-allocation for obstacle stuff
-        obs_margin_func = np.zeros((self._horizon, 1))
-        payoff = np.zeros((self._horizon, 1))
-        t_max_obs = np.zeros((self._horizon, 1))
-        value_func_plus = np.zeros((self._horizon,1))
-        
-        
-        # Make player cost empty. Since we are hallucinating trajectories, the new
-        # trajectory we get, we need to now if L or g comes out of it
-        self._player_costs[0] = PlayerCost()
+    #     # Pre-allocation for obstacle stuff
+    #     obs_margin_func = np.zeros((self._horizon, 1))
+    #     payoff = np.zeros((self._horizon, 1))
+    #     t_max_obs = np.zeros((self._horizon, 1))
+    #     value_func_plus = np.zeros((self._horizon,1))
         
         
-        # Pre-allocate hessian and gradient matrices
-        Qs = [[] for ii in range(self._num_players)]
-        ls = [[] for ii in range(self._num_players)]
-        rs = [[] for ii in range(self._num_players)]
-        # rs = [[[] for jj in range(self._num_players)]
-        #       for ii in range(self._num_players)]
-        Rs = [[[] for jj in range(self._num_players)]
-              for ii in range(self._num_players)]
+    #     # Make player cost empty. Since we are hallucinating trajectories, the new
+    #     # trajectory we get, we need to now if L or g comes out of it
+    #     self._player_costs[0] = PlayerCost()
+        
+        
+    #     # Pre-allocate hessian and gradient matrices
+    #     Qs = [deque() for ii in range(self._num_players)]
+    #     ls = [deque() for ii in range(self._num_players)]
+    #     rs = [deque() for ii in range(self._num_players)]
+    #     Rs = [[deque() for jj in range(2)]
+    #           for ii in range(2)]
+        
               
-        # Pre-allocate cost
-        costs = [[] for ii in range(self._num_players)]
+    #     # Pre-allocate cost
+    #     #costs = [[] for ii in range(self._num_players)]
+    #     costs = []
         
-        # Keep track if i^*_t = i^*_t+1 is true
-        calc_deriv_cost = deque()
+    #     # Keep track if i^*_t = i^*_t+1 is true
+    #     calc_deriv_cost = deque()
         
-        #1a. This is for the target (checking the target distance throughout entire trajectory)
-        # Once the entire trajectory is checked
-        for k in range(self._horizon - 1, -1, -1):
-            # Zero out PlayerCost
-            self._player_costs[0] = PlayerCost()
+    #     #1a. This is for the target (checking the target distance throughout entire trajectory)
+    #     # Once the entire trajectory is checked
+    #     for k in range(self._horizon - 1, -1, -1):
+    #         # Zero out PlayerCost
+    #         self._player_costs[0] = PlayerCost()
             
-            # Calculate target distance at time-step k and then store it
-            target_distance_k = self._TargetDistance(xs[k], car1_position_indices, target_position, target_radius)
-            target_margin_func[k] = target_distance_k
+    #         # Calculate target distance at time-step k and then store it
+    #         target_distance_k = self._TargetDistance(xs[k], car1_position_indices, target_position, target_radius)
+    #         target_margin_func[k] = target_distance_k
             
-            # Calculate obstacle distance at time-step k and store it
-            hold_new_obs = self._ObstacleDistance(xs[k], car1_position_indices, obstacle_position, obstacle_radius)
-            obs_margin_func[k] = hold_new_obs
+    #         # Calculate obstacle distance at time-step k and store it
+    #         hold_new_obs = self._ObstacleDistance(xs[k], car1_position_indices, obstacle_position, obstacle_radius)
+    #         obs_margin_func[k] = hold_new_obs
             
-            #Calculate value function
-            if k == self._horizon-1:
-                value_func_plus[k] = 0
-            elif k == self._horizon - 2:
-                value_func_plus[k] = np.argmax((target_margin_func[k+1], obs_margin_func[k+1]))
-            else:
-                value_func_plus[k] = np.max(obs_margin_func[k+1], np.min(target_margin_func[k+1], value_func_plus[k+1]))
+    #         #Calculate value function
+    #         if k == self._horizon-1:
+    #             value_func_plus[k] = 0
+    #         elif k == self._horizon - 1:
+    #             value_func_plus[k] = np.argmax((target_margin_func[k+1], obs_margin_func[k+1]))
+    #         else:
+    #             value_func_plus[k] = np.max(obs_margin_func[k+1], np.min(target_margin_func[k+1], value_func_plus[k+1]))
                 
             
-            # Now figure out if l, g or V comes out of max{g_k, min{l_k, V_k^+}}
-            if value_func_plus[k] == target_distance_k:
-                c1gc = ProximityCost(self._car_pos, self._car_goal, target_radius, "car1_goal")
-                self._player_costs[0].add_cost(c1gc, "x", 1.0)
-                calc_deriv_cost.appendleft("True")
-            elif value_func_plus[k] == hold_new_obs:
-                c1gc = ObstacleDistCost(self._car_pos, self._obs_center[0], self._obs_radius[0], name="obstacle")
-                self._player_costs[0].add_cost(c1gc, "x", 1.0)
-                calc_deriv_cost.appendleft("True")
-            else:
-                calc_deriv_cost.appendleft("False")
+    #         # Now figure out if l, g or V comes out of max{g_k, min{l_k, V_k^+}}
+    #         if value_func_plus[k] == target_distance_k:
+    #             c1gc = ProximityCost(self._car_pos, self._car_goal, target_radius, "car1_goal")
+    #             self._player_costs[0].add_cost(c1gc, "x", 1.0)
+    #             self._calc_deriv_true = True
+    #             calc_deriv_cost.appendleft("True")
+    #         elif value_func_plus[k] == hold_new_obs:
+    #             c1gc = ObstacleDistCost(self._car_pos, self._obs_center[0], self._obs_radius[0], name="obstacle")
+    #             self._player_costs[0].add_cost(c1gc, "x", 1.0)
+    #             self._calc_deriv_true = True
+    #             calc_deriv_cost.appendleft("True")
+    #         else:
+    #             c1gc = ObstacleDistCost(self._car_pos, self._obs_center[0], self._obs_radius[0], name="obstacle")
+    #             self._player_costs[0].add_cost(c1gc, "x", 0.0)
+    #             self._calc_deriv_true = False
+    #             calc_deriv_cost.appendleft("False")
                 
                 
                 
-            # Calculating hessians and gradients at time-step k
-            for ii in range(self._num_players):
-                _, r, l, Q, R = self._player_costs[ii].quadraticize(
-                    xs[k], [uis[k] for uis in us], k+1, calc_deriv_cost)
+    #         # Calculating hessians and gradients at time-step k
+    #         _, r, l, Q, R = self._player_costs[0].quadraticize(
+    #                 xs[k+1], [uis[k] for uis in us], k, self._calc_deriv_true)
     
-                Qs[ii].append(Q)
-                ls[ii].append(l)
-                rs[ii].append(r)
+    #         Qs.appendleft(Q)
+    #         ls.appendleft(l)
+    #         rs.appendleft(r)
+            
+    #         if self._calc_deriv_true_P1 == True:
+    #             print("Q for P1 is: ", Q)
+    #             print("This happens at k = ", k)
+            
+
+    #         for jj in range(self._num_players):   # I DON'T KNOW ABOUT THIS! RE-CHECK!!!!!
+    #             Rs[ii][jj].appendleft(R[jj])
+                    
+                    
+    #         # Calculae cost at time-step k
+    #         for ii in range(self._num_players):
+    #             costs[ii].append(self._player_costs[ii](
+    #                 torch.as_tensor(xs[k].copy()),
+    #                 [torch.as_tensor(ui) for ui in us],
+    #                 k))
                 
+                
+            
+    #         a = np.zeros((len(xs[0]), len(xs[0]))) # Change back to 0.01
+    #         b = np.zeros((len(xs[0]), 1))
+    #         # a= np.identity(len(xs[0])) * 0.1 # Change back to 0.01
+    #         # b = np.zeros((len(xs[0]), 1))
+            
+    #         Qs[ii].append(a)
+    #         ls[ii].append(b)
+                
+            
+            
+        
+                
+                
+    #         #value_func_plus[k] = arg.min
+            
+    #         #V_[t-1] = np.max{hold_new_obs[]}
+            
+            
+        
+        
+        
+        
+        
+    #     #     #1b. This is for the obstacle (checking the obstacle distance from 0 to k) (CHECK THIS AGAIN!!!!)
+    #     #     hold_obs = -np.inf # Maybe change back to 0
+    #     #     hold_new_obs = 0
+    #     #     k_track_obs = 0
+    #     #     for j in range(k): # Run look to find closest distance to obstacle from time [0, k]
+    #     #         # for obs:
+    #     #         #   hold_new_obs0[obs] = self._ObstacleDistance(...)   #psuedo-code
+    #     #         # hold_new_obs = min(hold_new_obs0)
+    #     #         # hold_new_obs_index = np.argmin(hold_new_obs0)
+    #     #         hold_new_obs = self._ObstacleDistance(xs[j], car1_position_indices, obstacle_position, obstacle_radius)
+        
+    #     #         # If we're just starting out (time-step 0), the first one is the greatest so far
+    #     #         if j == 0:
+    #     #             hold_obs = hold_new_obs
+    #     #             k_track_obs = j
+                    
+    #     #         # Else, if one of the next calculated obstacle distances is greater, 
+    #     #         # we replace it (in hold_obs) and store time at which this happens (k_track_obs)
+    #     #         elif hold_new_obs > hold_obs:
+    #     #             hold_obs = hold_new_obs
+    #     #             k_track_obs = j
+                    
+    #     #     # 1. Store the max of g from [0, k] and 
+    #     #     # 2. Store the time between [0, k] where g is max
+    #     #     obs_margin_func[k] = hold_obs
+    #     #     t_max_obs[k] = k_track_obs
+        
+                    
+                    
+    #     #     #1c. This is me checking the max between target and obstacle margin function (Equation 4 in Jaime's Reach-Avoid 2015 paper)
+    #     #     if target_distance_k > hold_obs:
+    #     #         payoff[k] = target_distance_k
+                
+    #     #     else:
+    #     #         payoff[k] = hold_obs
+                
+    #     # # Now, we find t when the payoff is min
+    #     # t_star = np.argmin(payoff)
+        
     
-                for jj in range(self._num_players):
-                    Rs[ii][jj].append(R[jj])
-                    
-                    
-            # Calculae cost at time-step k
-            for ii in range(self._num_players):
-                costs[ii].append(self._player_costs[ii](
-                    torch.as_tensor(xs[k].copy()),
-                    [torch.as_tensor(ui) for ui in us],
-                    k))
-                
+        
+    #     # # Now that we have the min payoff, we need to figure out if l or g is the max at that time
+    #     # if target_margin_func[t_star] > obs_margin_func[t_star]:
+    #     #     c1gc = ProximityCost(self._car_pos, self._car_goal, target_radius, "car1_goal")
+    #     #     self._player_costs[0].add_cost(c1gc, "x", 1.0) #20.0 # 50 #10
+    #     #     time_star = t_star
+    #     #     #print("we are in target_marg")
+    #     #     #print("target_marg_func at tau* is: ", target_margin_func[t_star])
+        
+    #     # else:
+    #     #     c1gc = ObstacleDistCost(
+    #     #             self._car_pos, self._obs_center[0], self._obs_radius[0], name="obstacle")
+    #     #     self._player_costs[0].add_cost(c1gc, "x", 1.0) # 20.0 # -50.0 # -20
+    #     #     time_star = int(t_max_obs[t_star])
+    #     #     #print("obs_marg_func at tau* is: ", obs_margin_func[time_star])
+    #     #     #print("we are in obstacle_marg")
             
             
+    #     # # Print what the time_star outcome is:
+    #     # #print("time_star is: ", time_star)
         
-                
-                
-            #value_func_plus[k] = arg.min
-            
-            #V_[t-1] = np.max{hold_new_obs[]}
-            
-            
-        
-        
-        
-        
-        
-        #     #1b. This is for the obstacle (checking the obstacle distance from 0 to k) (CHECK THIS AGAIN!!!!)
-        #     hold_obs = -np.inf # Maybe change back to 0
-        #     hold_new_obs = 0
-        #     k_track_obs = 0
-        #     for j in range(k): # Run look to find closest distance to obstacle from time [0, k]
-        #         # for obs:
-        #         #   hold_new_obs0[obs] = self._ObstacleDistance(...)   #psuedo-code
-        #         # hold_new_obs = min(hold_new_obs0)
-        #         # hold_new_obs_index = np.argmin(hold_new_obs0)
-        #         hold_new_obs = self._ObstacleDistance(xs[j], car1_position_indices, obstacle_position, obstacle_radius)
-        
-        #         # If we're just starting out (time-step 0), the first one is the greatest so far
-        #         if j == 0:
-        #             hold_obs = hold_new_obs
-        #             k_track_obs = j
-                    
-        #         # Else, if one of the next calculated obstacle distances is greater, 
-        #         # we replace it (in hold_obs) and store time at which this happens (k_track_obs)
-        #         elif hold_new_obs > hold_obs:
-        #             hold_obs = hold_new_obs
-        #             k_track_obs = j
-                    
-        #     # 1. Store the max of g from [0, k] and 
-        #     # 2. Store the time between [0, k] where g is max
-        #     obs_margin_func[k] = hold_obs
-        #     t_max_obs[k] = k_track_obs
-        
-                    
-                    
-        #     #1c. This is me checking the max between target and obstacle margin function (Equation 4 in Jaime's Reach-Avoid 2015 paper)
-        #     if target_distance_k > hold_obs:
-        #         payoff[k] = target_distance_k
-                
-        #     else:
-        #         payoff[k] = hold_obs
-                
-        # # Now, we find t when the payoff is min
-        # t_star = np.argmin(payoff)
-        
-    
-        
-        # # Now that we have the min payoff, we need to figure out if l or g is the max at that time
-        # if target_margin_func[t_star] > obs_margin_func[t_star]:
-        #     c1gc = ProximityCost(self._car_pos, self._car_goal, target_radius, "car1_goal")
-        #     self._player_costs[0].add_cost(c1gc, "x", 1.0) #20.0 # 50 #10
-        #     time_star = t_star
-        #     #print("we are in target_marg")
-        #     #print("target_marg_func at tau* is: ", target_margin_func[t_star])
-        
-        # else:
-        #     c1gc = ObstacleDistCost(
-        #             self._car_pos, self._obs_center[0], self._obs_radius[0], name="obstacle")
-        #     self._player_costs[0].add_cost(c1gc, "x", 1.0) # 20.0 # -50.0 # -20
-        #     time_star = int(t_max_obs[t_star])
-        #     #print("obs_marg_func at tau* is: ", obs_margin_func[time_star])
-        #     #print("we are in obstacle_marg")
-            
-            
-        # # Print what the time_star outcome is:
-        # #print("time_star is: ", time_star)
-        
-        return Qs, ls, Rs, rs, costs
+    #     return Qs, ls, Rs, rs, costs

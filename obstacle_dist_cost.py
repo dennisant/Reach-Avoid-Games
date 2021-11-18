@@ -21,6 +21,7 @@ class ObstacleDistCost(Cost):
         self._x_index, self._y_index = position_indices
         self._point = point
         self._max_distance = max_distance
+        self._max_distance_radius = 4.5
         super(ObstacleDistCost, self).__init__(name)
 
     def __call__(self, x, k=0):
@@ -49,7 +50,7 @@ class ObstacleDistCost(Cost):
     def render(self, ax=None):
         """ Render this obstacle on the given axes. """
         circle = plt.Circle(
-            (self._point.x, self._point.y), self._max_distance,
+            (self._point.x, self._point.y), self._max_distance_radius,
             color="r", fill=True, alpha=0.75)
         ax.add_artist(circle)
         ax.text(self._point.x - 1.25, self._point.y - 1.25, "obs", fontsize=8)

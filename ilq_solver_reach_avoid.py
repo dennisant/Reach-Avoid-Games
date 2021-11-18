@@ -155,6 +155,7 @@ class ILQSolver(object):
         # Trying to store stuff in order to plot cost
         store_total_cost = []
         iteration_store = []
+        store_freq = 1
         
         while not self._is_converged():
             # (1) Compute current operating point and update last one.
@@ -166,6 +167,16 @@ class ILQSolver(object):
             # Initialize each player's player cost to be blank at each new iteration
             # We need to figure out if we're in the target margin or obstacle margin
             self._player_costs[0] = PlayerCost()
+            
+            
+            # Storing the states at every iteration
+            if iteration%store_freq == 0:
+                
+                xs_store = [xs_i.flatten() for xs_i in xs]
+                #print(xs_store[0])
+                #print(len(xs_store))
+                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
+                np.savetxt('1player1obs_pinchpoint_radius4.5_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
 
@@ -528,7 +539,7 @@ class ILQSolver(object):
         
         # Defining things for obstacle(s)
         obstacle_position = (6.5, 15.0)
-        obstacle_radius = 4.5  # Change back to 4
+        obstacle_radius = 6.5  # Change back to 4
     
         #1.
         # Pre-allocation for target stuff
@@ -608,7 +619,7 @@ class ILQSolver(object):
             #c1gc = ObstacleDistCost(
             #        self._car_pos, point=self._obs_center, max_distance=self._obs_radius, name="obstacle")
             c1gc = ObstacleDistCost(
-                    self._car_pos, self._obs_center[0], self._obs_radius[0], name="obstacle")
+                    self._car_pos, self._obs_center[0], obstacle_radius, name="obstacle")
             self._player_costs[0].add_cost(c1gc, "x", 1.0) #20.0 # -50.0 # -20
             time_star = int(t_max_obs[t_star])
             print("obs_marg_func at tau* is: ", obs_margin_func[time_star])
@@ -663,7 +674,7 @@ class ILQSolver(object):
         
         # Defining things for obstacle(s)
         obstacle_position = (6.5, 15.0)
-        obstacle_radius = 4.5  # Change back to 4
+        obstacle_radius = 6.5  # Change back to 4
     
     
         # Pre-allocation for target stuff
