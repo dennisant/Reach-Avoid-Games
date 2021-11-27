@@ -136,3 +136,18 @@ class ProximityCost(Cost):
             color="g", fill=True, alpha=0.75)
         ax.add_artist(circle)
         ax.text(self._point.x + 1.25, self._point.y + 1.25, "goal", fontsize=10)
+
+class ProximityToBlockCost(Cost):
+    def __init__(self, position_indices, name=""):
+        self._x_index, self._y_index = position_indices
+        super(ProximityToBlockCost, self).__init__(name)
+
+    def __call__(self, x, k=0):
+        distance_to_goal = (torch.min(20 - x[self._x_index, 0], 25 - x[self._y_index, 0]))
+        return distance_to_goal * torch.ones(1, 1, requires_grad=True).double()
+
+    def render(self, ax=None):
+        """ Render this obstacle on the given axes. """
+        ax.plot([0, 20], [25, 25], c = 'r', linewidth = 10, alpha = 0.5)
+        ax.plot([20, 20], [0, 25], c = 'r', linewidth = 10, alpha = 0.5)
+        # ax.text(self._point.x + 1.25, self._point.y + 1.25, "goal", fontsize=10)

@@ -42,11 +42,28 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 
 import torch
 import numpy as np
+import math
 
 from cost import Cost
 
 class ProductStateProximityCost(Cost):
-    def __init__(self, position_indices, max_distance, player_id, name=""):
+    # def __init__(self, position_indices, max_distance, player_id, name=""):
+    #     """
+    #     Initialize with dimension to add cost to and threshold BELOW which
+    #     to impose quadratic cost.
+
+    #     :param position_indices: list of index tuples corresponding to (x, y)
+    #     :type position_indices: [(uint, uint)]
+    #     :param max_distance: maximum value of distance to penalize
+    #     :type max_distance: float
+    #     """
+    #     self._position_indices = position_indices
+    #     self._max_distance = max_distance
+    #     self._num_players = len(position_indices)
+    #     self._player_id = int(player_id)
+    #     super(ProductStateProximityCost, self).__init__(name)
+
+    def __init__(self, g_params, name="proximity"):
         """
         Initialize with dimension to add cost to and threshold BELOW which
         to impose quadratic cost.
@@ -56,11 +73,11 @@ class ProductStateProximityCost(Cost):
         :param max_distance: maximum value of distance to penalize
         :type max_distance: float
         """
-        self._position_indices = position_indices
-        self._max_distance = max_distance
-        self._num_players = len(position_indices)
-        self._player_id = int(player_id)
-        super(ProductStateProximityCost, self).__init__(name)
+        self._position_indices = g_params["position_indices"]
+        self._max_distance = g_params["distance_threshold"]
+        self._num_players = len(self._position_indices)
+        self._player_id = int(g_params["player_id"])
+        super(ProductStateProximityCost, self).__init__("car{}_".format(self._player_id+1)+name)
 
     def __call__(self, x, k=0):
         """
@@ -86,8 +103,8 @@ class ProductStateProximityCost(Cost):
             xj_idx, yj_idx = self._position_indices[jj]
             dx = x[xi_idx, 0] - x[xj_idx, 0]
             dy = x[yi_idx, 0] - x[yj_idx, 0]
-            
-            relative_distance = torch.sqrt(dx*dx + dy*dy)
+
+            relative_distance = torch.sqrt(torch.tensor(dx*dx + dy*dy))
             #total_cost += min(relative_distance - self._max_distance, 0.0)**2
         
         return (self._max_distance - relative_distance) * torch.ones(1, 1, requires_grad=True).double()

@@ -45,6 +45,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 
 import torch
 import numpy as np
+import math
 
 from dynamical_system import DynamicalSystem
 
@@ -85,4 +86,57 @@ class Car5D(DynamicalSystem):
         x_dot[2, 0] = x[4, 0] * tan(x[3, 0]) / self._l
         x_dot[3, 0] = u[0, 0]
         x_dot[4, 0] = u[1, 0]
+        return x_dot
+
+class Car5Dv2(DynamicalSystem):
+    """ 5D car model v2 """
+
+    def __init__(self, T=0.1, **kwargs):
+        self._l = kwargs["wheelbase"]
+        self.length = kwargs["length"]
+        self.width = kwargs["width"]
+        self.R = math.sqrt((0.5 * (self.length - self._l)) ** 2 + (0.5 * self.width) ** 2) 
+        
+        self.state = np.zeros(5)
+        
+        super(Car5Dv2, self).__init__(5, 2, T)
+        
+    def get_poc(self):
+        rear = np.array([self.state[0], self.state[1]]) # rear
+        front = rear + self._l * np.array([math.cos(self.state[2]), math.sin(self.state[2])]) # front
+        return rear, front
+
+    def __call__(self, x, u):
+        """
+        Compute the time derivative of state for a particular state/control.
+        NOTE: `x` and `u` should be 2D (i.e. column vectors).
+
+        :param x: current state
+        :type x: torch.Tensor or np.array
+        :param u: current control input
+        :type u: torch.Tensor or np.array
+        :return: current time derivative of state
+        :rtype: torch.Tensor or np.array
+        """
+        if isinstance(x, np.ndarray):
+            assert isinstance(u, np.ndarray)
+            x_dot = np.zeros((self._x_dim, 1))
+            cos = np.cos
+            sin = np.sin
+            tan = np.tan
+        else:
+            assert isinstance(u, torch.Tensor)
+            x_dot = torch.zeros((self._x_dim, 1))
+            cos = torch.cos
+            sin = torch.sin
+            tan = torch.tan
+
+        x_dot[0, 0] = x[4, 0] * cos(x[2, 0])
+        x_dot[1, 0] = x[4, 0] * sin(x[2, 0])
+        x_dot[2, 0] = x[4, 0] * tan(x[3, 0]) / self._l
+        x_dot[3, 0] = u[0, 0]
+        x_dot[4, 0] = u[1, 0]
+        
+        self.state = x
+        
         return x_dot
