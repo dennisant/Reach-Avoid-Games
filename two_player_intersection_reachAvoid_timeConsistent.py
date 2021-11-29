@@ -118,25 +118,43 @@ dynamics_10D = ProductMultiPlayerDynamicalSystem(
 # We shall assume that lanes are 4 m wide and set the origin to be in the
 # bottom left along the road boundary.
 car1_theta0 = np.pi / 2.0 # 90 degree heading
-car1_v0 = 10.0             # 5 m/s initial speed
+car1_v0 = 5.0             # 5 m/s initial speed
 car1_x0 = np.array([
-    [6.0],
-    [-5.0],
+    [7.0],
+    [0.0],
     [car1_theta0],
     [0.0],
     [car1_v0]
 ])
 
+# car1_v0 = 5.0             # 5 m/s initial speed
+# car1_x0 = np.array([
+#     [6.0],
+#     [-5.0],
+#     [car1_theta0],
+#     [0.0],
+#     [car1_v0]
+# ])
+
 car2_theta0 = -np.pi / 2.0 # -90 degree heading
-car2_v0 = 20.0              # 2 m/s initial speed
+car2_v0 = 5.0              # 2 m/s initial speed
 car2_x0 = np.array([
-    [2.0],
-    [65.0],
+    [4.0],
+    [22.0],
     [car2_theta0],
     [0.0],
     [car2_v0]
 ])
 
+# car2_theta0 = -np.pi / 2.0 # -90 degree heading
+# car2_v0 = 10.0              # 2 m/s initial speed
+# car2_x0 = np.array([
+#     [2.0],
+#     [22.0],
+#     [car2_theta0],
+#     [0.0],
+#     [car2_v0]
+# ])
 
 #ped_vx0 = 0.25 # moving right at 0.25 m/s
 #ped_vy0 = 0.0   # moving normal to traffic flow

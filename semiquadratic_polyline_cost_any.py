@@ -97,64 +97,61 @@ class RoadRulesPenalty(Cost):
         Penalty based on road rules, takes in g_params with position_indices, player_id, road_rules
         """
         self._x_index, self._y_index = g_params["position_indices"][g_params["player_id"]]
-        self.road_rules = g_params["road_rules"]
-        # self.road_logic = g_params["road_logic"]
-        # if self.road_logic["down_lane"] and not self.road_logic["up_lane"]:
-        #   self.road_rules["y_max"] = self.road_rules["y_max"] - self.road_rules["width"]
-        # elif self.road_logic["up_lane"] and not self.road_logic["down_lane"]:
-        #   self.road_rules["y_min"] = self.road_rules["y_min"] + self.road_rules["width"]
         
-        # if self.road_logic["left_lane"] and not self.road_logic["right_lane"]:
-        #   # Can either go straight down or turn left
-        #   self.road_rules["x_max"] = self.road_rules["x_max"] - self.road_rules["width"]
-        # elif self.road_logic["right_lane"] and not self.road_logic["left_lane"]:
-        #   # Can either go straight up or turn right
-        #   self.road_rules["x_min"] = self.road_rules["x_min"] + self.road_rules["width"]
+        self._road_rules = g_params["road_rules"]        
+        self._road_logic = self.get_road_logic_dict(g_params["road_logic"])
+        self._road_rules = self.new_road_rules()
 
-        self.max_func = MaxFuncMux()
+        # if self._road_logic["down_lane"] and not self._road_logic["up_lane"]:
+        #   self._road_rules["y_max"] = self._road_rules["y_max"] - self._road_rules["width"]
+        # elif self._road_logic["up_lane"] and not self._road_logic["down_lane"]:
+        #   self._road_rules["y_min"] = self._road_rules["y_min"] + self._road_rules["width"]
+        
+        # if self._road_logic["left_lane"] and not self._road_logic["right_lane"]:
+        #   # Can either go straight down or turn left
+        #   self._road_rules["x_max"] = self._road_rules["x_max"] - self._road_rules["width"]
+        # elif self._road_logic["right_lane"] and not self._road_logic["left_lane"]:
+        #   # Can either go straight up or turn right
+        #   self._road_rules["x_min"] = self._road_rules["x_min"] + self._road_rules["width"]
+
+        self._max_func = MaxFuncMux()
         super(RoadRulesPenalty, self).__init__("car{}_".format(g_params["player_id"]+1)+name)
 
-    def g_left_of_main(self, x, k=0, required_grad = True, **kwargs):
-      if "road_rules" in kwargs.keys():
-        road_rules = kwargs["road_rules"]
-      else: 
-        road_rules = self.road_rules
+    def get_road_logic_dict(self, road_logic):
+      return {
+        "left_lane": road_logic[0] == 1, 
+        "right_lane": road_logic[1] == 1, 
+        "up_lane": road_logic[2] == 1, 
+        "down_lane": road_logic[3] == 1, 
+        "left_turn": road_logic[4] == 1
+      }
 
-      if required_grad:
-        pass
-        # return (road_rules["x_min"] - x[self._x_index, 0]) * torch.ones(1, 1, requires_grad=True).double()
-      else:
-        return (road_rules["x_min"] - x[self._x_index, 0])
-
-    def g_right_of_main(self, x, k=0, required_grad = True, **kwargs):
+    def g_left_of_main(self, x, k=0, **kwargs):
       if "road_rules" in kwargs.keys():
-        road_rules = kwargs["road_rules"]
+        _road_rules = kwargs["road_rules"]
       else: 
-        road_rules = self.road_rules
+        _road_rules = self._road_rules
+
+      return torch.tensor(_road_rules["x_min"] - x[self._x_index, 0]) * torch.ones(1, 1, requires_grad=True).double()
+
+    def g_right_of_main(self, x, k=0, **kwargs):
+      if "road_rules" in kwargs.keys():
+        _road_rules = kwargs["road_rules"]
+      else: 
+        _road_rules = self._road_rules
       
-      if required_grad:
-        # return (x[self._x_index, 0] - road_rules["x_max"]) * torch.ones(1, 1, requires_grad=True).double()
-        pass
-      else:
-        return (x[self._x_index, 0] - road_rules["x_max"])
+      return torch.tensor(x[self._x_index, 0] - _road_rules["x_max"]) * torch.ones(1, 1, requires_grad=True).double()
 
-    def g_outside_rightband(self, x, k=0, required_grad = True, **kwargs):
+    def g_outside_rightband(self, x, k=0, **kwargs):
       if "road_rules" in kwargs.keys():
-        road_rules = kwargs["road_rules"]
+        _road_rules = kwargs["road_rules"]
       else: 
-        road_rules = self.road_rules
+        _road_rules = self._road_rules
 
-      if required_grad:
-        pass
-        # return max(
-        #     x[self._y_index, 0] - road_rules["y_max"],
-        #     road_rules["y_min"] - x[self._y_index, 0]
-        # ) * torch.ones(1, 1, requires_grad=True).double()
-      else:
-        return max(
-            x[self._y_index, 0] - road_rules["y_max"],
-            road_rules["y_min"] - x[self._y_index, 0]
-        )
+      return torch.max(
+          torch.tensor(x[self._y_index, 0] - _road_rules["y_max"]),
+          torch.tensor(_road_rules["y_min"] - x[self._y_index, 0])
+      ) * torch.ones(1, 1, requires_grad=True).double()
 
     # def g_right_combined_withcurve(self, x):
     #   # first layer
@@ -163,33 +160,33 @@ class RoadRulesPenalty(Cost):
     #   layer_1_road_rules = self.new_road_rules(left_lane = True, right_lane = True, down_lane = True, up_lane = False)
 
     #   min_func = MinFuncMux()
-    #   min_func.store(self.g_right_of_main, self.g_right_of_main(x, road_rules = self.road_rules))
-    #   min_func.store(self.g_outside_rightband, self.g_outside_rightband(x, road_rules = self.road_rules))
+    #   min_func.store(self.g_right_of_main, self.g_right_of_main(x, road_rules = self._road_rules))
+    #   min_func.store(self.g_outside_rightband, self.g_outside_rightband(x, road_rules = self._road_rules))
     #   return min_func.get_min()      
 
     def g_right_combined(self, x):
-      min_func = MinFuncMux()
-      min_func.store(self.g_right_of_main, self.g_right_of_main(x, required_grad=False))
-      min_func.store(self.g_outside_rightband, self.g_outside_rightband(x, required_grad=False))
-      return min_func.get_min()
+      _min_func = MinFuncMux()
+      _min_func.store(self.g_right_of_main, self.g_right_of_main(x).detach().numpy().flatten()[0])
+      _min_func.store(self.g_outside_rightband, self.g_outside_rightband(x).detach().numpy().flatten()[0])
+      return _min_func.get_min()
 
     def g_circle_intersection(self, x):
-      r = self.road_rules["width"]
-      return r**2 - (x[self._x_index, 0] - self.road_rules["x_max"] - r) ** 2 - (x[self._y_index, 0] - self.road_rules["y_max"] - r) ** 2
+      _r = self._road_rules["width"]
+      return _r**2 - (x[self._x_index, 0] - self._road_rules["x_max"] - _r) ** 2 - (x[self._y_index, 0] - self._road_rules["y_max"] - _r) ** 2
 
     def g_road_rules(self, x, **kwargs):
-      # left_turn = self.road_logic["left_turn"]
+      # left_turn = self._road_logic["left_turn"]
 
       # for key in kwargs.keys():
       #   if key == "left_turn":
       #     left_turn = kwargs["left_turn"]
 
       # if not left_turn:
-      self.max_func.store(self.g_left_of_main, self.g_left_of_main(x, required_grad=False))
-      func_of_min_val, min_val = self.g_right_combined(x)
-      self.max_func.store(func_of_min_val, min_val)
-      func_of_max_val, max_val = self.max_func.get_max()
-      return max_val, func_of_max_val
+      self._max_func.store(self.g_left_of_main, self.g_left_of_main(x).detach().numpy().flatten()[0])
+      _func_of_min_val, _min_val = self.g_right_combined(x)
+      self._max_func.store(_func_of_min_val, _min_val)
+      _func_of_max_val, _max_val = self._max_func.get_max()
+      return _max_val, _func_of_max_val
       # else:
       #   return max(
       #     self.g_road_rules(car, False, left_lane = True, right_lane = False, up_lane = True, down_lane = True),
@@ -200,8 +197,8 @@ class RoadRulesPenalty(Cost):
     def __call__(self, x, k=0):
       # signed_distance = self._polyline.signed_distance_to(
       #     Point(x[self._x_index, 0], x[self._y_index, 0]))
-      max_val, func_of_max_val = self.g_road_rules(x)
-      return max_val * torch.ones(1, 1, requires_grad=True).double()
+      _max_val, _func_of_max_val = self.g_road_rules(x)
+      return _max_val * torch.ones(1, 1, requires_grad=True).double(), _func_of_max_val
 
     def render(self, ax=None):
       """ Render this cost on the given axes. """
@@ -212,10 +209,10 @@ class RoadRulesPenalty(Cost):
     def new_road_rules(self, **kwargs):
       import copy
 
-      left_lane = self.road_logic["left_lane"]
-      right_lane = self.road_logic["right_lane"]
-      down_lane = self.road_logic["down_lane"]
-      up_lane = self.road_logic["up_lane"]
+      left_lane = self._road_logic["left_lane"]
+      right_lane = self._road_logic["right_lane"]
+      down_lane = self._road_logic["down_lane"]
+      up_lane = self._road_logic["up_lane"]
 
       for key in kwargs.keys():
         if key == "left_lane":
@@ -227,18 +224,18 @@ class RoadRulesPenalty(Cost):
         if key == "up_lane":
           up_lane = kwargs["up_lane"]
 
-      new_road_rules = copy.deepcopy(self.road_rules)
+      new_road_rules = copy.deepcopy(self._road_rules)
 
       if down_lane and not up_lane:
-        new_road_rules["y_max"] = self.road_rules["y_max"] - self.road_rules["width"]
+        new_road_rules["y_max"] = self._road_rules["y_max"] - self._road_rules["width"]
       elif up_lane and not down_lane:
-        new_road_rules["y_min"] = self.road_rules["y_min"] + self.road_rules["width"]
+        new_road_rules["y_min"] = self._road_rules["y_min"] + self._road_rules["width"]
       
       if left_lane and not right_lane:
         # Can either go straight down or turn left
-        new_road_rules["x_max"] = self.road_rules["x_max"] - self.road_rules["width"]
+        new_road_rules["x_max"] = self._road_rules["x_max"] - self._road_rules["width"]
       elif right_lane and not left_lane:
         # Can either go straight up or turn right
-        new_road_rules["x_min"] = self.road_rules["x_min"] + self.road_rules["width"]
+        new_road_rules["x_min"] = self._road_rules["x_min"] + self._road_rules["width"]
 
       return new_road_rules

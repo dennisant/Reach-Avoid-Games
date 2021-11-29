@@ -138,16 +138,28 @@ class ProximityCost(Cost):
         ax.text(self._point.x + 1.25, self._point.y + 1.25, "goal", fontsize=10)
 
 class ProximityToBlockCost(Cost):
-    def __init__(self, position_indices, name=""):
-        self._x_index, self._y_index = position_indices
+    def __init__(self, g_params, name=""):
+        self._x_index, self._y_index = g_params["position_indices"][g_params["player_id"]]
+        self._goal_x, self._goal_y = g_params["goals"]
+        self._player_id = g_params["player_id"]
         super(ProximityToBlockCost, self).__init__(name)
 
     def __call__(self, x, k=0):
-        distance_to_goal = (torch.min(20 - x[self._x_index, 0], 25 - x[self._y_index, 0]))
-        return distance_to_goal * torch.ones(1, 1, requires_grad=True).double()
+        dx = self._goal_x - x[self._x_index, 0]
+        return dx * torch.ones(1, 1, requires_grad=True).double()
+        # if self._player_id == 0:
+        #     return torch.min(
+        #         self._goal_x - x[self._x_index, 0], 
+        #         self._goal_y - x[self._y_index, 0]
+        #     ) * torch.ones(1, 1, requires_grad=True).double()
+        # else:
+        #     return torch.min(
+        #         self._goal_x - x[self._x_index, 0],
+        #         x[self._y_index, 0] - self._goal_y
+        #     ) * torch.ones(1, 1, requires_grad=True).double()
 
-    def render(self, ax=None):
-        """ Render this obstacle on the given axes. """
-        ax.plot([0, 20], [25, 25], c = 'r', linewidth = 10, alpha = 0.5)
-        ax.plot([20, 20], [0, 25], c = 'r', linewidth = 10, alpha = 0.5)
-        # ax.text(self._point.x + 1.25, self._point.y + 1.25, "goal", fontsize=10)
+    # def render(self, ax=None):
+    #     """ Render this obstacle on the given axes. """
+    #     ax.plot([0, 20], [25, 25], c = 'r', linewidth = 10, alpha = 0.5)
+    #     ax.plot([20, 20], [0, 25], c = 'r', linewidth = 10, alpha = 0.5)
+    #     # ax.text(self._point.x + 1.25, self._point.y + 1.25, "goal", fontsize=10)

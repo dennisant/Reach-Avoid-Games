@@ -45,6 +45,7 @@ import numpy as np
 import math
 
 from cost import Cost
+from utils import MaxFuncMux
 
 class ProductStateProximityCost(Cost):
     # def __init__(self, position_indices, max_distance, player_id, name=""):
@@ -127,3 +128,51 @@ class ProductStateProximityCost(Cost):
         #             relative_distance - self._max_distance, 0.0)**2
 
         #return total_cost
+
+class CollisionPenalty(Cost):
+    def __init__(self, g_params, name="collision_penalty"):
+      self._position_indices = g_params["position_indices"]
+      self._collision_r = g_params["collision_r"]
+      self._car_params = g_params["car_params"]
+      self._theta_indices = g_params["theta_indices"]
+      self._max_func = MaxFuncMux()
+
+      super(CollisionPenalty, self).__init__("car{}_".format(g_params["player_id"]+1)+name)
+        
+    def get_car_state(self, x, index):
+      car_x_index, car_y_index = self._position_indices[index]
+      car_rear = torch.tensor([x[car_x_index, 0], x[car_y_index, 0]])
+      car_front = car_rear + self._car_params["wheelbase"] * torch.tensor([math.cos(x[self._theta_indices[index], 0]), math.sin(x[self._theta_indices[index], 0])])
+      return car_rear, car_front
+
+    def g_coll_ff(self, x, k = 0, **kwargs):
+      _car1_rear, _car1_front = self.get_car_state(x, 0)
+      _car2_rear, _car2_front = self.get_car_state(x, 1)
+      return (4 * self._collision_r**2 - (_car1_front[0] - _car2_front[0]) ** 2 - (_car1_front[1] - _car2_front[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
+
+    def g_coll_fr(self, x, k = 0, **kwargs):
+      _car1_rear, _car1_front = self.get_car_state(x, 0)
+      _car2_rear, _car2_front = self.get_car_state(x, 1)
+      return( 4 * self._collision_r**2 - (_car1_front[0] - _car2_rear[0]) ** 2 - (_car1_front[1] - _car2_rear[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
+
+    def g_coll_rf(self, x, k = 0, **kwargs):
+      _car1_rear, _car1_front = self.get_car_state(x, 0)
+      _car2_rear, _car2_front = self.get_car_state(x, 1)
+      return( 4 * self._collision_r**2 - (_car1_rear[0] - _car2_front[0]) ** 2 - (_car1_rear[1] - _car2_front[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
+
+    def g_coll_rr(self, x, k = 0, **kwargs):
+      _car1_rear, _car1_front = self.get_car_state(x, 0)
+      _car2_rear, _car2_front = self.get_car_state(x, 1)
+      return (4 * self._collision_r**2 - (_car1_rear[0] - _car2_rear[0]) ** 2 - (_car1_rear[1] - _car2_rear[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
+
+    def g_collision(self, x, **kwargs):
+      self._max_func.store(self.g_coll_ff, self.g_coll_ff(x).detach().numpy().flatten()[0])
+      self._max_func.store(self.g_coll_fr, self.g_coll_fr(x).detach().numpy().flatten()[0])
+      self._max_func.store(self.g_coll_rf, self.g_coll_rf(x).detach().numpy().flatten()[0])
+      self._max_func.store(self.g_coll_rr, self.g_coll_rr(x).detach().numpy().flatten()[0])
+      func_of_max_val, max_val = self._max_func.get_max()
+      return max_val, func_of_max_val
+
+    def __call__(self, x, k=0):
+      max_val, func_of_max_val = self.g_collision(x)
+      return max_val * torch.ones(1, 1, requires_grad=True).double(), func_of_max_val
