@@ -145,21 +145,34 @@ class ProximityToBlockCost(Cost):
         super(ProximityToBlockCost, self).__init__(name)
 
     def __call__(self, x, k=0):
-        dx = self._goal_x - x[self._x_index, 0]
-        return dx * torch.ones(1, 1, requires_grad=True).double()
-        # if self._player_id == 0:
-        #     return torch.min(
-        #         self._goal_x - x[self._x_index, 0], 
-        #         self._goal_y - x[self._y_index, 0]
-        #     ) * torch.ones(1, 1, requires_grad=True).double()
-        # else:
-        #     return torch.min(
-        #         self._goal_x - x[self._x_index, 0],
-        #         x[self._y_index, 0] - self._goal_y
-        #     ) * torch.ones(1, 1, requires_grad=True).double()
+        if self._player_id == 0:
+            dy = self._goal_y - x[self._y_index, 0]
+            print(dy)
+            print(self._goal_y)
+            print(self._y_index)
+            print(x[self._y_index, 0])
+            return torch.tensor(dy) * torch.ones(1, 1, requires_grad=True).double()
+            # return torch.min(
+            #     torch.tensor(self._goal_x - x[self._x_index, 0]), 
+            #     torch.tensor(self._goal_y - x[self._y_index, 0])
+            # ) * torch.ones(1, 1, requires_grad=True).double()
+        else:
+            dy = x[self._y_index, 0] - self._goal_y
+            print(dy)
+            print(self._goal_y)
+            print(self._y_index)
+            print(x[self._y_index, 0])
+            return torch.tensor(dy) * torch.ones(1, 1, requires_grad=True).double()
+            # return torch.min(
+            #     torch.tensor(self._goal_x - x[self._x_index, 0]),
+            #     torch.tensor(x[self._y_index, 0] - self._goal_y)
+            # ) * torch.ones(1, 1, requires_grad=True).double()
 
-    # def render(self, ax=None):
-    #     """ Render this obstacle on the given axes. """
-    #     ax.plot([0, 20], [25, 25], c = 'r', linewidth = 10, alpha = 0.5)
-    #     ax.plot([20, 20], [0, 25], c = 'r', linewidth = 10, alpha = 0.5)
-    #     # ax.text(self._point.x + 1.25, self._point.y + 1.25, "goal", fontsize=10)
+    def render(self, ax=None):
+        """ Render this obstacle on the given axes. """
+        ax.plot([0, 20], [25, 25], c = 'r', linewidth = 10, alpha = 0.2)
+        ax.plot([20, 20], [0, 25], c = 'r', linewidth = 10, alpha = 0.2)
+
+        ax.plot([20, 20], [0, 25], c = 'g', linewidth = 10, alpha = 0.2)
+        ax.plot([0, 20], [0, 0], c = 'g', linewidth = 10, alpha = 0.2)
+        # ax.text(self._point.x + 1.25, self._point.y + 1.25, "goal", fontsize=10)

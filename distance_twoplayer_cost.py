@@ -148,22 +148,22 @@ class CollisionPenalty(Cost):
     def g_coll_ff(self, x, k = 0, **kwargs):
       _car1_rear, _car1_front = self.get_car_state(x, 0)
       _car2_rear, _car2_front = self.get_car_state(x, 1)
-      return (4 * self._collision_r**2 - (_car1_front[0] - _car2_front[0]) ** 2 - (_car1_front[1] - _car2_front[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
+      return torch.tensor(4 * self._collision_r**2 - (_car1_front[0] - _car2_front[0]) ** 2 - (_car1_front[1] - _car2_front[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
 
     def g_coll_fr(self, x, k = 0, **kwargs):
       _car1_rear, _car1_front = self.get_car_state(x, 0)
       _car2_rear, _car2_front = self.get_car_state(x, 1)
-      return( 4 * self._collision_r**2 - (_car1_front[0] - _car2_rear[0]) ** 2 - (_car1_front[1] - _car2_rear[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
+      return torch.tensor( 4 * self._collision_r**2 - (_car1_front[0] - _car2_rear[0]) ** 2 - (_car1_front[1] - _car2_rear[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
 
     def g_coll_rf(self, x, k = 0, **kwargs):
       _car1_rear, _car1_front = self.get_car_state(x, 0)
       _car2_rear, _car2_front = self.get_car_state(x, 1)
-      return( 4 * self._collision_r**2 - (_car1_rear[0] - _car2_front[0]) ** 2 - (_car1_rear[1] - _car2_front[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
+      return torch.tensor( 4 * self._collision_r**2 - (_car1_rear[0] - _car2_front[0]) ** 2 - (_car1_rear[1] - _car2_front[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
 
     def g_coll_rr(self, x, k = 0, **kwargs):
       _car1_rear, _car1_front = self.get_car_state(x, 0)
       _car2_rear, _car2_front = self.get_car_state(x, 1)
-      return (4 * self._collision_r**2 - (_car1_rear[0] - _car2_rear[0]) ** 2 - (_car1_rear[1] - _car2_rear[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
+      return torch.tensor(4 * self._collision_r**2 - (_car1_rear[0] - _car2_rear[0]) ** 2 - (_car1_rear[1] - _car2_rear[1]) ** 2) * torch.ones(1, 1, requires_grad=True).double()
 
     def g_collision(self, x, **kwargs):
       self._max_func.store(self.g_coll_ff, self.g_coll_ff(x).detach().numpy().flatten()[0])

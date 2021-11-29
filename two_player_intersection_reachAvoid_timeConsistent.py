@@ -59,7 +59,7 @@ from polyline import Polyline
 #from ilq_solver_horizontal_twoplayer_timeconsistent import ILQSolver
 from ilq_solver_twoplayer_cooperative_time_consistent_refactored import ILQSolver
 #from ilq_solver_time_consistent import ILQSolver
-from proximity_cost_reach_avoid_twoplayer import ProximityCost
+from proximity_cost_reach_avoid_twoplayer import ProximityCost, ProximityToBlockCost
 #from product_state_proximity_cost import ProductStateProximityCost
 from distance_twoplayer_cost import ProductStateProximityCost
 from distance_twoplayer_cost_adversarial import ProductStateProximityCostAdversarial
@@ -78,7 +78,7 @@ from visualizer import Visualizer
 from logger import Logger
 
 # General parameters.
-TIME_HORIZON = 3.0    # s #Change back to 2.0
+TIME_HORIZON = 2.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 LOG_DIRECTORY = "./logs/three_player/"
@@ -137,10 +137,10 @@ car1_x0 = np.array([
 # ])
 
 car2_theta0 = -np.pi / 2.0 # -90 degree heading
-car2_v0 = 5.0              # 2 m/s initial speed
+car2_v0 = 10.0              # 2 m/s initial speed
 car2_x0 = np.array([
     [4.0],
-    [22.0],
+    [25.0],
     [car2_theta0],
     [0.0],
     [car2_v0]
@@ -165,6 +165,20 @@ car2_x0 = np.array([
 #    [ped_vy0]
 #])
 
+###################
+g_params = {
+    "car1": {
+        "position_indices": [(0, 1), (5, 6)],
+        "player_id": 0, 
+        "goals": [20, 25]
+    },
+    "car2": {
+        "position_indices": [(0, 1), (5, 6)],
+        "player_id": 1, 
+        "goals": [20, 0]
+    }
+}
+###################
 
 stacked_x0 = np.concatenate([car1_x0, car2_x0], axis=0)
 
@@ -186,10 +200,11 @@ car1_polyline = Polyline([Point(8.5, -100.0), Point(8.5, 100.0)])
 car1_polyline_cost = QuadraticPolylineCost(
     car1_polyline, car1_position_indices_in_product_state, "car1_polyline")
 
-car1_goal = Point(6.0, 30.0) # Change back to Point(8.5, 15.0)
+car1_goal = Point(12.0, 12.0) # Change back to Point(8.5, 15.0)
 car1_goal_radius = 1
-car1_goal_cost = ProximityCost(
+car1_goal_cost_1 = ProximityCost(
     car1_position_indices_in_product_state, car1_goal, np.inf, "car1_goal")
+car1_goal_cost_2 = ProximityToBlockCost(g_params["car1"])
 
 car1_dist_sep = 2
 
@@ -203,10 +218,11 @@ car2_polyline = Polyline([Point(4.5, 15.0),
 car2_polyline_cost = QuadraticPolylineCost(
     car2_polyline, car2_position_indices_in_product_state, "car2_polyline")
 
-car2_goal = Point(16.0, 12.0)
+car2_goal = Point(20.0, 12.0)
 car2_goal_radius = 1
-car2_goal_cost = ProximityCost(
+car2_goal_cost_1 = ProximityCost(
     car2_position_indices_in_product_state, car2_goal, np.inf, "car2_goal")
+car2_goal_cost_2 = ProximityToBlockCost(g_params["car2"])
 
 car2_dist_sep = 2
 
@@ -323,7 +339,7 @@ car2_proximity_cost = ProductStateProximityCostAdversarial(
 
 # Build up total costs for both players. This is basically a zero-sum game.
 car1_cost = PlayerCost()
-car1_cost.add_cost(car1_goal_cost, "x", 1.0) #30.0 # -1.0
+car1_cost.add_cost(car1_goal_cost_2, "x", 1.0) #30.0 # -1.0
 #car1_cost.add_cost(car1_polyline_cost, "x", 50.0) # 50.0
 #car1_cost.add_cost(car1_polyline_boundary_cost, "x", 200.0) # 200.0
 #car1_cost.add_cost(car1_maxv_cost, "x", 100.0) # 100.0
@@ -336,7 +352,7 @@ car1_player_id = 0
 #car1_cost.add_cost(car1_a_cost, car1_player_id, 1.0) # 1.0
 
 car2_cost = PlayerCost()
-car2_cost.add_cost(car2_goal_cost, "x", 1.0) #30.0 # -1.0
+car2_cost.add_cost(car2_goal_cost_2, "x", 1.0) #30.0 # -1.0
 #car2_cost.add_cost(car2_polyline_cost, "x", 250.0) #50.0
 #car2_cost.add_cost(car2_polyline_boundary_cost, "x", 100.0) # 200.0
 #car2_cost.add_cost(car2_maxv_cost, "x", 80.0) # 100.0
@@ -377,14 +393,16 @@ car2_player_id = 1
 visualizer = Visualizer(
     [car1_position_indices_in_product_state,
      car2_position_indices_in_product_state],
-    [car1_polyline_boundary_cost,
-     car1_goal_cost,
-     car2_goal_cost,
-     car2_polyline_boundary_cost],
+    [car1_goal_cost_1,
+    car1_goal_cost_2,
+     car2_goal_cost_1,
+     car2_goal_cost_2],
     [".-r", ".-g", ".-b"],
     1,
     False,
-    plot_lims=[-10, 30, -10, 70])
+    # plot_lims=[0, 21, -1,  26],
+    plot_lims=[0, 30, -10,  30]
+    )
 
 # Logger.
 if not os.path.exists(LOG_DIRECTORY):

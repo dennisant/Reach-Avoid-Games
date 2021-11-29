@@ -98,7 +98,7 @@ class RoadRulesPenalty(Cost):
         """
         self._x_index, self._y_index = g_params["position_indices"][g_params["player_id"]]
         
-        self._road_rules = g_params["road_rules"]        
+        self._road_rules = g_params["road_rules"]
         self._road_logic = self.get_road_logic_dict(g_params["road_logic"])
         self._road_rules = self.new_road_rules()
 

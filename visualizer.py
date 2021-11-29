@@ -125,6 +125,28 @@ class Visualizer(object):
         for cost in self._renderable_costs:
             cost.render(ax)
 
+        road_rules = {
+            "x_min": 2,
+            "x_max": 9,
+            "y_max": 17,
+            "y_min": 10,
+            "width": 3.5,
+        }
+        x_max = 20
+        y_max = 25
+        # plot road rules
+        x_center = road_rules["x_min"] + 0.5 * (road_rules["x_max"] - road_rules["x_min"])
+        y_center = road_rules["y_min"] + 0.5 * (road_rules["y_max"] - road_rules["y_min"])
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c='k')
+        ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c='k')
+        ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c='k')
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c='k')
+        ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c='k')
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c='k')
+        ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c='k')
+        ax.plot([x_center, x_center], [0, y_max], "--", c = 'b')
+        ax.plot([road_rules["x_max"], x_max], [y_center, y_center], "--", c = 'b')
+
         # Plot the history of trajectories for each player.
         if self._show_last_k < 0 or self._show_last_k >= len(self._history):
             show_last_k = len(self._history)

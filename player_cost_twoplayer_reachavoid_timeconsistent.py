@@ -320,7 +320,7 @@ class PlayerCost(object):
             #print("grad_u is: ", grad_u)
              
                 
-            eps_control = 0.1
+            eps_control = 0.8
             eps_state = 0.1
             
             hess_x = hess_x + np.identity(len(x)) * eps_state # Added 0.01 to this. Delete if doesn't work
@@ -358,7 +358,7 @@ class PlayerCost(object):
             #print("cost is: ", cost)
                 
         else:
-            eps_control = 0.1
+            eps_control = 0.8
             eps_state = 0.1
             #hess_x = np.identity(len(x))
             #grad_x = np.zeros((len(x), 1))

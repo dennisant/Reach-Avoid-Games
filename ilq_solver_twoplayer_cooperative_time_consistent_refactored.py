@@ -367,10 +367,15 @@ class ILQSolver(object):
     
         return relative_distance - target_radius
 
-    def _DistanceToBlockTarget(self, x, position_indices):
+    def _DistanceToBlockTarget(self, player_id, x, position_indices):
         x_index, y_index = position_indices
-        # return min(20 - x[x_index, 0], 25 - x[y_index, 0])
-        return 20 - x[x_index, 0]
+        if player_id == 0:
+            return min(20 - x[x_index, 0], 25 - x[y_index, 0])
+            # return 25 - x[y_index, 0]
+        else:
+            return min(20 - x[x_index, 0], x[y_index, 0] - 0)
+            # return x[y_index, 0] - 0
+        # return 20 - x[x_index, 0]
     
     def _TimeStar(self, xs, us, ii):
         """
@@ -404,8 +409,8 @@ class ILQSolver(object):
         x2_index, y2_index = car2_position_indices
         
         # Center of target for both players
-        target1_position = (6.0, 30.0)
-        target2_position = (16.0, 12.0)
+        target1_position = (12.0, 12.0)
+        target2_position = (20.0, 12.0)
         target_position = [target1_position, target2_position]
         
         # Radius of target for both players
@@ -537,8 +542,8 @@ class ILQSolver(object):
                 self._player_costs[ii] = PlayerCost()
                 
                 # Calculate target distance at time-step k+1 for P1 and store it
-                # hold_new = self._TargetDistance(xs[k+1], car_position_indices[ii], target_position[ii], target_radius[ii])
-                hold_new = self._DistanceToBlockTarget(xs[k+1], car_position_indices[ii])
+                hold_new = self._TargetDistance(xs[k+1], car_position_indices[ii], target_position[ii], target_radius[ii])
+                # hold_new = self._DistanceToBlockTarget(ii, xs[k+1], car_position_indices[ii])
                 target_margin_func[k] = hold_new
                 
                 # Here, I am going through all the functions at time-step k and picking out which one is the max and at what time-step does the max occur
@@ -557,15 +562,16 @@ class ILQSolver(object):
                 if k == self._horizon - 1:
                     value_func_plus[k] = np.max((hold_new, hold_prox))
                 else:
-                    value_func_plus[k] = np.max( (hold_prox, np.min((hold_new, value_func_plus[k+1])) ) )
-                    
-                
+                    value_func_plus[k] = np.max((hold_prox, np.min((hold_new, value_func_plus[k+1])) ) )
+
+                # print("VALUE: k:{},\thold_prox: {:.2f},\thold_new: {:.2f},\tvalue: {:.2f}".format(k, hold_prox, hold_new, value_func_plus[k]))
+
                 # Now figure out if l, g or V comes out of max{g_k, min{l_k, V_k^+}}
                 if value_func_plus[k] == hold_new:
                     #print("Target margin func came out!")
                     print("goal function came out. calc_deriv_cost should be true")
-                    # c1gc = ProximityCost(car_position_indices[ii], target_position[ii], target_radius[ii], "car1_goal")
-                    c1gc = ProximityToBlockCost(g_params["car1"], "car1_goal")
+                    c1gc = ProximityCost(car_position_indices[ii], target_position[ii], target_radius[ii], "car1_goal")
+                    # c1gc = ProximityToBlockCost(g_params["car1"], "car1_goal")
                     self._player_costs[0].add_cost(c1gc, "x", 1.0)
                     calc_deriv_cost.appendleft("True")
                     self._calc_deriv_true_P1 = True
@@ -625,9 +631,7 @@ class ILQSolver(object):
             total_costs = [sum(costis).item() for costis in costs]
             total_costs = sum(total_costs)
             print("total_costs is: ", total_costs)
-            print("calc_deriv_cost for P1 is: ", calc_deriv_cost)
-                
-            
+            print("calc_deriv_cost for P1 is: ", calc_deriv_cost)         
             
             # Adding a extra one to see what happens. DELETE IF IT DOESN'T WORK
             #calc_deriv_cost.appendleft("False") 
@@ -648,8 +652,8 @@ class ILQSolver(object):
                 self._player_costs[ii] = PlayerCost()
                 
                 # Calculate target distance at time-step k+1 for P1 and store it
-                # hold_new = self._TargetDistance(xs[k+1], car_position_indices[ii], target_position[ii], target_radius[ii])
-                hold_new = self._DistanceToBlockTarget(xs[k+1], car_position_indices[ii])
+                hold_new = self._TargetDistance(xs[k+1], car_position_indices[ii], target_position[ii], target_radius[ii])
+                # hold_new = self._DistanceToBlockTarget(ii, xs[k+1], car_position_indices[ii])
                 target_margin_func[k] = hold_new
             
                 
@@ -670,12 +674,20 @@ class ILQSolver(object):
                 else:
                     value_func_plus[k] = np.max( (hold_prox, np.min((hold_new, value_func_plus[k+1])) ) )
                 
+                # print(max_g_func)
+                # print("TEST")
+                # print(k)
+                # print(hold_prox)
+                # print(hold_new)
+                # print(value_func_plus[k])
+                # input()
+
                 # Now figure out if l, g or V comes out of max{g_k, min{l_k, V_k^+}}
                 if value_func_plus[k] == hold_new:
                     #print("Target margin func came out!")
                     print("Goal function came out. calc_deriv_cost should be true")
-                    # c1gc = ProximityCost(car_position_indices[ii], target_position[ii], target_radius[ii], "car2_goal")
-                    c1gc = ProximityToBlockCost(g_params["car2"], "car2_goal")
+                    c1gc = ProximityCost(car_position_indices[ii], target_position[ii], target_radius[ii], "car2_goal")
+                    # c1gc = ProximityToBlockCost(g_params["car2"], "car2_goal")
                     self._player_costs[1].add_cost(c1gc, "x", 1.0)
                     calc_deriv_cost.appendleft("True")
                     self._calc_deriv_true_P2 = True
