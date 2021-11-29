@@ -142,37 +142,144 @@ class ProximityToBlockCost(Cost):
         self._x_index, self._y_index = g_params["position_indices"][g_params["player_id"]]
         self._goal_x, self._goal_y = g_params["goals"]
         self._player_id = g_params["player_id"]
+        self._road_rules = g_params["road_rules"]
+        self._road_logic = self.get_road_logic_dict(g_params["road_logic"])
+        self._road_rules = self.new_road_rules()
+
         super(ProximityToBlockCost, self).__init__(name)
+
+    def get_road_logic_dict(self, road_logic):
+        return {
+        "left_lane": road_logic[0] == 1, 
+        "right_lane": road_logic[1] == 1, 
+        "up_lane": road_logic[2] == 1, 
+        "down_lane": road_logic[3] == 1, 
+        "left_turn": road_logic[4] == 1
+        }
 
     def __call__(self, x, k=0):
         if self._player_id == 0:
-            dy = self._goal_y - x[self._y_index, 0]
-            print(dy)
-            print(self._goal_y)
-            print(self._y_index)
-            print(x[self._y_index, 0])
-            return torch.tensor(dy) * torch.ones(1, 1, requires_grad=True).double()
-            # return torch.min(
-            #     torch.tensor(self._goal_x - x[self._x_index, 0]), 
-            #     torch.tensor(self._goal_y - x[self._y_index, 0])
-            # ) * torch.ones(1, 1, requires_grad=True).double()
+            # dy = self._goal_y - x[self._y_index, 0]
+            # return torch.tensor(dy) * torch.ones(1, 1, requires_grad=True).double()
+            try:
+              value = torch.min(
+                torch.max(
+                  (self._goal_x - x[self._x_index, 0]).clone().detach().requires_grad_(True),
+                  torch.max(
+                    (x[self._y_index, 0] - self._road_rules["y_max"]).clone().detach().requires_grad_(True),
+                    (self._road_rules["y_min"] - x[self._y_index, 0]).clone().detach().requires_grad_(True)
+                  )
+                ),
+                torch.max(
+                  (self._goal_y - x[self._y_index, 0]).clone().detach().requires_grad_(True),
+                  torch.max(
+                    (x[self._x_index, 0] - self._road_rules["x_max"]).clone().detach().requires_grad_(True),
+                    (self._road_rules["x_min"] - x[self._x_index, 0]).clone().detach().requires_grad_(True)
+                  )
+                ),
+              ) * torch.ones(1, 1, requires_grad=True).double()
+            except AttributeError:
+              value = min(
+                max(
+                  (self._goal_x - x[self._x_index, 0]),
+                  max(
+                    (x[self._y_index, 0] - self._road_rules["y_max"]),
+                    (self._road_rules["y_min"] - x[self._y_index, 0])
+                  )
+                ),
+                max(
+                  (self._goal_y - x[self._y_index, 0]),
+                  max(
+                    (x[self._x_index, 0] - self._road_rules["x_max"]),
+                    (self._road_rules["x_min"] - x[self._x_index, 0])
+                  )
+                ),
+              )
+            return value
         else:
-            dy = x[self._y_index, 0] - self._goal_y
-            print(dy)
-            print(self._goal_y)
-            print(self._y_index)
-            print(x[self._y_index, 0])
-            return torch.tensor(dy) * torch.ones(1, 1, requires_grad=True).double()
+            # dy = x[self._y_index, 0] - self._goal_y
+            # return torch.tensor(dy) * torch.ones(1, 1, requires_grad=True).double()
+            
             # return torch.min(
             #     torch.tensor(self._goal_x - x[self._x_index, 0]),
             #     torch.tensor(x[self._y_index, 0] - self._goal_y)
             # ) * torch.ones(1, 1, requires_grad=True).double()
 
+            try:
+              value = torch.min(
+                torch.max(
+                  (self._goal_x - x[self._x_index, 0]).clone().detach().requires_grad_(True),
+                  torch.max(
+                    (x[self._y_index, 0] - self._road_rules["y_max"]).clone().detach().requires_grad_(True),
+                    (self._road_rules["y_min"] - x[self._y_index, 0]).clone().detach().requires_grad_(True)
+                  )
+                ),
+                torch.max(
+                  (x[self._y_index, 0] - self._goal_y).clone().detach().requires_grad_(True),
+                  torch.max(
+                    (x[self._x_index, 0] - self._road_rules["x_max"]).clone().detach().requires_grad_(True),
+                    (self._road_rules["x_min"] - x[self._x_index, 0]).clone().detach().requires_grad_(True)
+                  )
+                ),
+              ) * torch.ones(1, 1, requires_grad=True).double()
+            except AttributeError:
+              value = min(
+                max(
+                  (self._goal_x - x[self._x_index, 0]),
+                  max(
+                    (x[self._y_index, 0] - self._road_rules["y_max"]),
+                    (self._road_rules["y_min"] - x[self._y_index, 0])
+                  )
+                ),
+                max(
+                  (x[self._y_index, 0] - self._goal_y),
+                  max(
+                    (x[self._x_index, 0] - self._road_rules["x_max"]),
+                    (self._road_rules["x_min"] - x[self._x_index, 0])
+                  )
+                ),
+              )
+            return value
+
     def render(self, ax=None):
         """ Render this obstacle on the given axes. """
-        ax.plot([0, 20], [25, 25], c = 'r', linewidth = 10, alpha = 0.2)
-        ax.plot([20, 20], [0, 25], c = 'r', linewidth = 10, alpha = 0.2)
+        if self._player_id == 0:
+          ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'r', linewidth = 10, alpha = 0.2)
+          ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'r', linewidth = 10, alpha = 0.2)
+        else:
+          ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'g', linewidth = 10, alpha = 0.2)
+          ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'g', linewidth = 10, alpha = 0.2)
+    
+    def new_road_rules(self, **kwargs):
+      import copy
 
-        ax.plot([20, 20], [0, 25], c = 'g', linewidth = 10, alpha = 0.2)
-        ax.plot([0, 20], [0, 0], c = 'g', linewidth = 10, alpha = 0.2)
-        # ax.text(self._point.x + 1.25, self._point.y + 1.25, "goal", fontsize=10)
+      left_lane = self._road_logic["left_lane"]
+      right_lane = self._road_logic["right_lane"]
+      down_lane = self._road_logic["down_lane"]
+      up_lane = self._road_logic["up_lane"]
+
+      for key in kwargs.keys():
+        if key == "left_lane":
+          left_lane = kwargs["left_lane"]
+        if key == "right_lane":
+          right_lane = kwargs["right_lane"]
+        if key == "down_lane":
+          down_lane = kwargs["down_lane"]
+        if key == "up_lane":
+          up_lane = kwargs["up_lane"]
+
+      new_road_rules = copy.deepcopy(self._road_rules)
+
+      if down_lane and not up_lane:
+        new_road_rules["y_max"] = self._road_rules["y_max"] - self._road_rules["width"]
+      elif up_lane and not down_lane:
+        new_road_rules["y_min"] = self._road_rules["y_min"] + self._road_rules["width"]
+      
+      if left_lane and not right_lane:
+        # Can either go straight down or turn left
+        new_road_rules["x_max"] = self._road_rules["x_max"] - self._road_rules["width"]
+      elif right_lane and not left_lane:
+        # Can either go straight up or turn right
+        new_road_rules["x_min"] = self._road_rules["x_min"] + self._road_rules["width"]
+
+      return new_road_rules

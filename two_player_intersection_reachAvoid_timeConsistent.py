@@ -78,7 +78,7 @@ from visualizer import Visualizer
 from logger import Logger
 
 # General parameters.
-TIME_HORIZON = 2.0    # s #Change back to 2.0
+TIME_HORIZON = 3.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 LOG_DIRECTORY = "./logs/three_player/"
@@ -137,7 +137,7 @@ car1_x0 = np.array([
 # ])
 
 car2_theta0 = -np.pi / 2.0 # -90 degree heading
-car2_v0 = 10.0              # 2 m/s initial speed
+car2_v0 = 5.0              # 2 m/s initial speed
 car2_x0 = np.array([
     [4.0],
     [25.0],
@@ -166,16 +166,28 @@ car2_x0 = np.array([
 #])
 
 ###################
+road_rules = {
+    "x_min": 2,
+    "x_max": 9,
+    "y_max": 17,
+    "y_min": 10,
+    "width": 3.5
+}
+
 g_params = {
     "car1": {
         "position_indices": [(0, 1), (5, 6)],
         "player_id": 0, 
-        "goals": [20, 25]
+        "goals": [20, 25],
+        "road_logic": [0, 1, 0, 1, 0],
+        "road_rules": road_rules
     },
     "car2": {
         "position_indices": [(0, 1), (5, 6)],
         "player_id": 1, 
-        "goals": [20, 0]
+        "goals": [20, 0],
+        "road_logic": [1, 0, 0, 1, 1],
+        "road_rules": road_rules
     }
 }
 ###################
@@ -393,15 +405,18 @@ car2_player_id = 1
 visualizer = Visualizer(
     [car1_position_indices_in_product_state,
      car2_position_indices_in_product_state],
-    [car1_goal_cost_1,
-    car1_goal_cost_2,
-     car2_goal_cost_1,
-     car2_goal_cost_2],
+    [car1_goal_cost_2,
+    car2_goal_cost_2
+    ],
+    # [car1_goal_cost_1,
+    # car1_goal_cost_2,
+    #  car2_goal_cost_1,
+    #  car2_goal_cost_2],
     [".-r", ".-g", ".-b"],
     1,
     False,
-    # plot_lims=[0, 21, -1,  26],
-    plot_lims=[0, 30, -10,  30]
+    plot_lims=[0, 21, -1,  26]
+    # plot_lims=[0, 30, -10,  30]
     )
 
 # Logger.
