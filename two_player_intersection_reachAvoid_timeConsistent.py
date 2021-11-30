@@ -427,8 +427,8 @@ car2_player_id = 1
 visualizer = Visualizer(
     [car1_position_indices_in_product_state,
      car2_position_indices_in_product_state],
-    [car1_goal_cost_1,
-    car2_goal_cost_1
+    [car1_goal_cost_2,
+    car2_goal_cost_2
     # RoadRulesPenalty(g_params["car2"])
     ],
     # [car1_goal_cost_1,
