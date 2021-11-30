@@ -202,7 +202,7 @@ class ILQSolver(object):
                         
             for ii in range(self._num_players):           
                 Q, l, R, r, costs, total_costss, calc_deriv_cost_ = self._TimeStar(xs, us, ii)
-                
+
                 Qs.append(Q[ii])
                 ls.append(l[ii])
                 rs.append(r[ii])
