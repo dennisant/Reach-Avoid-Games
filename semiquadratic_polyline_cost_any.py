@@ -37,6 +37,7 @@ from cost import Cost
 from point import Point
 from polyline import Polyline
 from utils import MaxFuncMux, MinFuncMux
+import numpy as np
 
 class SemiquadraticPolylineCostAny(Cost):
     # def __init__(self, polyline, distance_threshold, position_indices, name=""):
@@ -114,7 +115,7 @@ class RoadRulesPenalty(Cost):
         #   # Can either go straight up or turn right
         #   self._road_rules["x_min"] = self._road_rules["x_min"] + self._road_rules["width"]
 
-        self._max_func = MaxFuncMux()
+        # self._max_func = MaxFuncMux()
         super(RoadRulesPenalty, self).__init__("car{}_".format(g_params["player_id"]+1)+name)
 
     def get_road_logic_dict(self, road_logic):
@@ -132,7 +133,10 @@ class RoadRulesPenalty(Cost):
       else: 
         _road_rules = self._road_rules
 
-      return torch.tensor(_road_rules["x_min"] - x[self._x_index, 0]) * torch.ones(1, 1, requires_grad=True).double()
+      if type(x) is torch.Tensor:
+        return (_road_rules["x_min"] - x[self._x_index, 0]) * torch.ones(1, 1, requires_grad=True).double()
+      else:
+        return _road_rules["x_min"] - x[self._x_index, 0]
 
     def g_right_of_main(self, x, k=0, **kwargs):
       if "road_rules" in kwargs.keys():
@@ -140,7 +144,10 @@ class RoadRulesPenalty(Cost):
       else: 
         _road_rules = self._road_rules
       
-      return torch.tensor(x[self._x_index, 0] - _road_rules["x_max"]) * torch.ones(1, 1, requires_grad=True).double()
+      if type(x) is torch.Tensor:
+        return (x[self._x_index, 0] - _road_rules["x_max"]) * torch.ones(1, 1, requires_grad=True).double()
+      else:
+        return x[self._x_index, 0] - _road_rules["x_max"]
 
     def g_outside_rightband(self, x, k=0, **kwargs):
       if "road_rules" in kwargs.keys():
@@ -148,10 +155,16 @@ class RoadRulesPenalty(Cost):
       else: 
         _road_rules = self._road_rules
 
-      return torch.max(
-          torch.tensor(x[self._y_index, 0] - _road_rules["y_max"]),
-          torch.tensor(_road_rules["y_min"] - x[self._y_index, 0])
-      ) * torch.ones(1, 1, requires_grad=True).double()
+      if type(x) is torch.Tensor:
+        return torch.max(
+          x[self._y_index, 0] - _road_rules["y_max"],
+          _road_rules["y_min"] - x[self._y_index, 0]
+        ) * torch.ones(1, 1, requires_grad=True).double()
+      else:
+        return max(
+          x[self._y_index, 0] - _road_rules["y_max"],
+          _road_rules["y_min"] - x[self._y_index, 0]
+        )
 
     # def g_right_combined_withcurve(self, x):
     #   # first layer
@@ -166,8 +179,12 @@ class RoadRulesPenalty(Cost):
 
     def g_right_combined(self, x):
       _min_func = MinFuncMux()
-      _min_func.store(self.g_right_of_main, self.g_right_of_main(x).detach().numpy().flatten()[0])
-      _min_func.store(self.g_outside_rightband, self.g_outside_rightband(x).detach().numpy().flatten()[0])
+      if type(x) is torch.Tensor:
+        _min_func.store(self.g_right_of_main, self.g_right_of_main(x).detach().numpy().flatten()[0])
+        _min_func.store(self.g_outside_rightband, self.g_outside_rightband(x).detach().numpy().flatten()[0])
+      else:
+        _min_func.store(self.g_right_of_main, self.g_right_of_main(x))
+        _min_func.store(self.g_outside_rightband, self.g_outside_rightband(x))
       return _min_func.get_min()
 
     def g_circle_intersection(self, x):
@@ -182,10 +199,17 @@ class RoadRulesPenalty(Cost):
       #     left_turn = kwargs["left_turn"]
 
       # if not left_turn:
-      self._max_func.store(self.g_left_of_main, self.g_left_of_main(x).detach().numpy().flatten()[0])
-      _func_of_min_val, _min_val = self.g_right_combined(x)
-      self._max_func.store(_func_of_min_val, _min_val)
-      _func_of_max_val, _max_val = self._max_func.get_max()
+      _max_func = MaxFuncMux()
+      if type(x) is torch.Tensor:
+        _max_func.store(self.g_left_of_main, self.g_left_of_main(x).detach().numpy().flatten()[0])
+        _func_of_min_val, _min_val = self.g_right_combined(x)
+        _max_func.store(_func_of_min_val, _min_val)
+        _func_of_max_val, _max_val = _max_func.get_max()
+      else:
+        _max_func.store(self.g_left_of_main, self.g_left_of_main(x))
+        _func_of_min_val, _min_val = self.g_right_combined(x)
+        _max_func.store(_func_of_min_val, _min_val)
+        _func_of_max_val, _max_val = _max_func.get_max()
       return _max_val, _func_of_max_val
       # else:
       #   return max(
@@ -198,13 +222,28 @@ class RoadRulesPenalty(Cost):
       # signed_distance = self._polyline.signed_distance_to(
       #     Point(x[self._x_index, 0], x[self._y_index, 0]))
       _max_val, _func_of_max_val = self.g_road_rules(x)
-      return _max_val * torch.ones(1, 1, requires_grad=True).double(), _func_of_max_val
+      if type(x) is torch.Tensor:
+        return _max_val * torch.ones(1, 1, requires_grad=True).double(), _func_of_max_val
+      else:
+        return _max_val, _func_of_max_val
 
     def render(self, ax=None):
       """ Render this cost on the given axes. """
-      xs = [pt.x for pt in self._polyline.points]
-      ys = [pt.y for pt in self._polyline.points]
-      ax.plot(xs, ys, "k", alpha=0.25)
+      # xs = [pt.x for pt in self._polyline.points]
+      # ys = [pt.y for pt in self._polyline.points]
+      # ax.plot(xs, ys, "k", alpha=0.25)
+      # plot safety contour
+      
+      x_range = np.arange(0, 25, step = 0.1)
+      y_range = np.arange(0, 30, step = 0.1)
+      zz = np.array([[0]*250]*300)
+      for x in x_range:
+          for y in y_range:
+              xs = np.array([x, y, 0, 0, 0, x, y, 0, 0, 0]).reshape(10, 1)
+              max_val, func_of_max_val = self(xs)
+              zz[int(y*10)][int(x*10)] = max_val.detach().numpy().flatten()[0]
+      contour = ax.contourf(x_range, y_range, zz, cmap = "YlGn", alpha = 0.5, levels = np.arange(-10, 20, step=1))
+      plt.colorbar(contour)
 
     def new_road_rules(self, **kwargs):
       import copy

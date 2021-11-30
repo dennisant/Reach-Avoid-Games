@@ -42,7 +42,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib import animation
 import os
-
+from matplotlib import gridspec
 
 class Visualizer(object):
     def __init__(self,
@@ -107,8 +107,7 @@ class Visualizer(object):
         if not os.path.isdir(results_dir):
             os.makedirs(results_dir)
         
-        
-        plt.figure(self._figure_number)
+        plt.figure(self._figure_number, figsize=(8, 10))
         plt.rc("text", usetex=True)
 
         ax = plt.gca()

@@ -38,6 +38,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 #
 ################################################################################
 
+from typing import Type
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,138 +48,213 @@ from point import Point
 
 class ProximityCost(Cost):
     def __init__(self, position_indices, point,
-                 max_distance, outside_weight=0.1, apply_after_time=1,
-                 name=""): # Maybe change back to apply_after_time=20
-        """
-        Initialize with dimension to add cost to and threshold BELOW which
-        to impose quadratic cost. Above the threshold, we use a very light
-        quadratic cost. The overall cost is continuous.
+                max_distance, outside_weight=0.1, apply_after_time=1,
+                name=""): # Maybe change back to apply_after_time=20
+      """
+      Initialize with dimension to add cost to and threshold BELOW which
+      to impose quadratic cost. Above the threshold, we use a very light
+      quadratic cost. The overall cost is continuous.
 
-        :param position_indices: indices of input corresponding to (x, y)
-        :type position_indices: (uint, uint)
-        :param point: point from which to compute proximity
-        :type point: Point
-        :param max_distance: maximum value of distance to penalize
-        :type threshold: float
-        :param outside_weight: weight of quadratic cost outside threshold
-        :type outside_weight: float
-        :param apply_after_time: only apply proximity time after this time step
-        :type apply_after_time: int
-        """
-        self._x_index, self._y_index = position_indices
-        self._point = point
-        #self._max_squared_distance = max_distance**2
-        self._max_squared_distance = max_distance
-        self._max_distance = max_distance
-        self._outside_weight = outside_weight
-        self._apply_after_time = apply_after_time
-        super(ProximityCost, self).__init__(name)
+      :param position_indices: indices of input corresponding to (x, y)
+      :type position_indices: (uint, uint)
+      :param point: point from which to compute proximity
+      :type point: Point
+      :param max_distance: maximum value of distance to penalize
+      :type threshold: float
+      :param outside_weight: weight of quadratic cost outside threshold
+      :type outside_weight: float
+      :param apply_after_time: only apply proximity time after this time step
+      :type apply_after_time: int
+      """
+      self._x_index, self._y_index = position_indices
+      self._point = point
+      #self._max_squared_distance = max_distance**2
+      self._max_squared_distance = max_distance ** 2
+      self._max_distance = max_distance
+      self._outside_weight = outside_weight
+      self._apply_after_time = apply_after_time
+      super(ProximityCost, self).__init__(name)
 
     def __call__(self, x, k=0):
-        """
-        Evaluate this cost function on the given input state and time.
-        NOTE: `x` should be a column vector.
+      """
+      Evaluate this cost function on the given input state and time.
+      NOTE: `x` should be a column vector.
 
-        :param x: concatenated state of the two systems
-        :type x: torch.Tensor
-        :param k: time step, if cost is time-varying
-        :type k: uint
-        :return: scalar value of cost
-        :rtype: torch.Tensor
-        """
-        # if k < self._apply_after_time:
-        #     return torch.zeros(
-        #         1, 1, requires_grad=True).double()
-        #print("k is: ", k)
-        
-        #else:
-        # Compute relative distance.
-        #print("Goal x-position is: ", self._point.x)
-        #print("Goal y-position is: ", self._point.y)
-        #print("x-position is: ", x[self._x_index, 0])
-        #print("y-position is: ", x[self._y_index, 0])
-        dx = x[self._x_index, 0] - self._point[0]
-        dy = x[self._y_index, 0] - self._point[1]
-        relative_squared_distance = torch.sqrt(dx*dx + dy*dy) # Comment out the original one below
-        #relative_squared_distance = dx*dx + dy*dy
-        
-        return (relative_squared_distance - self._max_distance) * torch.ones(1, 1, requires_grad=True).double()
-        #return relative_squared_distance * torch.ones(1, 1, requires_grad=True).double()
+      :param x: concatenated state of the two systems
+      :type x: torch.Tensor
+      :param k: time step, if cost is time-varying
+      :type k: uint
+      :return: scalar value of cost
+      :rtype: torch.Tensor
+      """
+      # if k < self._apply_after_time:
+      #     return torch.zeros(
+      #         1, 1, requires_grad=True).double()
+      #print("k is: ", k)
+      
+      #else:
+      # Compute relative distance.
+      #print("Goal x-position is: ", self._point.x)
+      #print("Goal y-position is: ", self._point.y)
+      #print("x-position is: ", x[self._x_index, 0])
+      #print("y-position is: ", x[self._y_index, 0])
+      dx = x[self._x_index, 0] - self._point[0]
+      dy = x[self._y_index, 0] - self._point[1]
+      relative_squared_distance = torch.sqrt(dx*dx + dy*dy) # Comment out the original one below
+      #relative_squared_distance = dx*dx + dy*dy
+      
+      return (relative_squared_distance - self._max_distance) * torch.ones(1, 1, requires_grad=True).double()
+      #return relative_squared_distance * torch.ones(1, 1, requires_grad=True).double()
 
-        # # Compute relative distance.
-        # dx = x[self._x_index, 0] - self._point.x
-        # dy = x[self._y_index, 0] - self._point.y
-        # relative_squared_distance = dx*dx + dy*dy
+      # # Compute relative distance.
+      # dx = x[self._x_index, 0] - self._point.x
+      # dy = x[self._y_index, 0] - self._point.y
+      # relative_squared_distance = dx*dx + dy*dy
 
-        # if relative_squared_distance < self._max_squared_distance:
-        #     return -relative_squared_distance * torch.ones(
-        #         1, 1, requires_grad=True).double()
+      # if relative_squared_distance < self._max_squared_distance:
+      #     return -relative_squared_distance * torch.ones(
+      #         1, 1, requires_grad=True).double()
 
-        # # Outside penalty is:
-        # #   ``` outside_weight * (relative_distance - max_distance)**2 ```
-        # # which can be computed from what we have already with only one sqrt.
-        # outside_penalty = self._outside_weight * (
-        #     relative_squared_distance + self._max_squared_distance -
-        #     2.0 * torch.sqrt(
-        #         relative_squared_distance * self._max_squared_distance))
-        # return -outside_penalty - self._max_squared_distance * torch.ones(
-        #     1, 1, requires_grad=True).double()
+      # # Outside penalty is:
+      # #   ``` outside_weight * (relative_distance - max_distance)**2 ```
+      # # which can be computed from what we have already with only one sqrt.
+      # outside_penalty = self._outside_weight * (
+      #     relative_squared_distance + self._max_squared_distance -
+      #     2.0 * torch.sqrt(
+      #         relative_squared_distance * self._max_squared_distance))
+      # return -outside_penalty - self._max_squared_distance * torch.ones(
+      #     1, 1, requires_grad=True).double()
 
     def render(self, ax=None):
-        """ Render this obstacle on the given axes. """
-        if np.isinf(self._max_squared_distance):
-            radius = 1.0 # 1.0
-        else:
-            radius = np.sqrt(self._max_squared_distance)
+      """ Render this obstacle on the given axes. """
+      if np.isinf(self._max_squared_distance):
+          radius = 1.0 # 1.0
+      else:
+          radius = np.sqrt(self._max_squared_distance)
+      circle = plt.Circle(
+          (self._point.x, self._point.y), radius,
+          color="g", fill=True, alpha=0.5)
+      ax.add_artist(circle)
+      ax.text(self._point.x, self._point.y, "goal", fontsize=10)
 
-        circle = plt.Circle(
-            (self._point.x, self._point.y), radius,
-            color="g", fill=True, alpha=0.75)
-        ax.add_artist(circle)
-        ax.text(self._point.x + 1.25, self._point.y + 1.25, "goal", fontsize=10)
+class ProximityCostDuo(Cost):
+    def __init__(self, player_id, position_indices, point,
+                max_distance, outside_weight=0.1, apply_after_time=1,
+                name=""): # Maybe change back to apply_after_time=20
+      """
+      Initialize with dimension to add cost to and threshold BELOW which
+      to impose quadratic cost. Above the threshold, we use a very light
+      quadratic cost. The overall cost is continuous.
+
+      :param position_indices: indices of input corresponding to (x, y)
+      :type position_indices: (uint, uint)
+      :param point: point from which to compute proximity
+      :type point: Point
+      :param max_distance: maximum value of distance to penalize
+      :type threshold: float
+      :param outside_weight: weight of quadratic cost outside threshold
+      :type outside_weight: float
+      :param apply_after_time: only apply proximity time after this time step
+      :type apply_after_time: int
+      """
+      self._x_index, self._y_index = position_indices
+      self._point_1, self._point_2 = point
+      self._max_squared_distance = max_distance ** 2
+      self._max_distance = max_distance
+      self._outside_weight = outside_weight
+      self._apply_after_time = apply_after_time
+      self._player_id = player_id
+      super(ProximityCostDuo, self).__init__(name)
+
+    def __call__(self, x, k=0):
+      """
+      Evaluate this cost function on the given input state and time.
+      NOTE: `x` should be a column vector.
+
+      :param x: concatenated state of the two systems
+      :type x: torch.Tensor
+      :param k: time step, if cost is time-varying
+      :type k: uint
+      :return: scalar value of cost
+      :rtype: torch.Tensor
+      """
+      dx = x[self._x_index, 0] - self._point_1[0]
+      dy = x[self._y_index, 0] - self._point_1[1]
+      relative_squared_distance_1 = torch.sqrt(dx*dx + dy*dy) # Comment out the original one below
+
+      dx = x[self._x_index, 0] - self._point_2[0]
+      dy = x[self._y_index, 0] - self._point_2[1]
+      relative_squared_distance_2 = torch.sqrt(dx*dx + dy*dy) # Comment out the original one below
+      
+      return torch.min(
+        relative_squared_distance_1 - self._max_distance,
+        relative_squared_distance_2 - self._max_distance) * torch.ones(1, 1, requires_grad=True).double()
+
+    def render(self, ax=None):
+      """ Render this obstacle on the given axes. """
+      if np.isinf(self._max_squared_distance):
+          radius = 1.0 # 1.0
+      else:
+          radius = np.sqrt(self._max_squared_distance)
+
+      if self._player_id == 0:
+        color = "r"
+      else:
+        color = "g"
+
+      circle_1 = plt.Circle(
+          (self._point_1.x, self._point_1.y), radius,
+          color=color, fill=True, alpha=0.5)
+      circle_2 = plt.Circle(
+          (self._point_2.x, self._point_2.y), radius,
+          color=color, fill=True, alpha=0.5)
+      ax.add_artist(circle_1)
+      ax.add_artist(circle_2)
+      ax.text(self._point_1.x, self._point_1.y, "goal", fontsize=10)
+      ax.text(self._point_2.x, self._point_2.y, "goal", fontsize=10)
 
 class ProximityToBlockCost(Cost):
     def __init__(self, g_params, name=""):
-        self._x_index, self._y_index = g_params["position_indices"][g_params["player_id"]]
-        self._goal_x, self._goal_y = g_params["goals"]
-        self._player_id = g_params["player_id"]
-        self._road_rules = g_params["road_rules"]
-        self._road_logic = self.get_road_logic_dict(g_params["road_logic"])
-        self._road_rules = self.new_road_rules()
+      self._x_index, self._y_index = g_params["position_indices"][g_params["player_id"]]
+      self._goal_x, self._goal_y = g_params["goals"]
+      self._player_id = g_params["player_id"]
+      self._road_rules = g_params["road_rules"]
+      self._road_logic = self.get_road_logic_dict(g_params["road_logic"])
+      self._road_rules = self.new_road_rules()
 
-        super(ProximityToBlockCost, self).__init__(name)
+      super(ProximityToBlockCost, self).__init__(name)
 
     def get_road_logic_dict(self, road_logic):
-        return {
+      return {
         "left_lane": road_logic[0] == 1, 
         "right_lane": road_logic[1] == 1, 
         "up_lane": road_logic[2] == 1, 
         "down_lane": road_logic[3] == 1, 
         "left_turn": road_logic[4] == 1
-        }
+      }
 
     def __call__(self, x, k=0):
         if self._player_id == 0:
             # dy = self._goal_y - x[self._y_index, 0]
             # return torch.tensor(dy) * torch.ones(1, 1, requires_grad=True).double()
-            try:
+            if type(x) is torch.Tensor:
               value = torch.min(
                 torch.max(
-                  (self._goal_x - x[self._x_index, 0]).clone().detach().requires_grad_(True),
+                  self._goal_x - x[self._x_index, 0],
                   torch.max(
-                    (x[self._y_index, 0] - self._road_rules["y_max"]).clone().detach().requires_grad_(True),
-                    (self._road_rules["y_min"] - x[self._y_index, 0]).clone().detach().requires_grad_(True)
+                    x[self._y_index, 0] - self._road_rules["y_max"],
+                    self._road_rules["y_min"] - x[self._y_index, 0]
                   )
                 ),
                 torch.max(
-                  (self._goal_y - x[self._y_index, 0]).clone().detach().requires_grad_(True),
+                  self._goal_y - x[self._y_index, 0],
                   torch.max(
-                    (x[self._x_index, 0] - self._road_rules["x_max"]).clone().detach().requires_grad_(True),
-                    (self._road_rules["x_min"] - x[self._x_index, 0]).clone().detach().requires_grad_(True)
+                    x[self._x_index, 0] - self._road_rules["x_max"],
+                    self._road_rules["x_min"] - x[self._x_index, 0]
                   )
                 ),
-              ) * torch.ones(1, 1, requires_grad=True).double()
-            except AttributeError:
+              )
+            else:
               value = min(
                 max(
                   (self._goal_x - x[self._x_index, 0]),
@@ -197,32 +273,24 @@ class ProximityToBlockCost(Cost):
               )
             return value
         else:
-            # dy = x[self._y_index, 0] - self._goal_y
-            # return torch.tensor(dy) * torch.ones(1, 1, requires_grad=True).double()
-            
-            # return torch.min(
-            #     torch.tensor(self._goal_x - x[self._x_index, 0]),
-            #     torch.tensor(x[self._y_index, 0] - self._goal_y)
-            # ) * torch.ones(1, 1, requires_grad=True).double()
-
-            try:
+            if type(x) is torch.Tensor:
               value = torch.min(
                 torch.max(
-                  (self._goal_x - x[self._x_index, 0]).clone().detach().requires_grad_(True),
+                  self._goal_x - x[self._x_index, 0],
                   torch.max(
-                    (x[self._y_index, 0] - self._road_rules["y_max"]).clone().detach().requires_grad_(True),
-                    (self._road_rules["y_min"] - x[self._y_index, 0]).clone().detach().requires_grad_(True)
+                    x[self._y_index, 0] - self._road_rules["y_max"],
+                    self._road_rules["y_min"] - x[self._y_index, 0]
                   )
                 ),
                 torch.max(
-                  (x[self._y_index, 0] - self._goal_y).clone().detach().requires_grad_(True),
+                  x[self._y_index, 0] - self._goal_y,
                   torch.max(
-                    (x[self._x_index, 0] - self._road_rules["x_max"]).clone().detach().requires_grad_(True),
-                    (self._road_rules["x_min"] - x[self._x_index, 0]).clone().detach().requires_grad_(True)
+                    x[self._x_index, 0] - self._road_rules["x_max"],
+                    self._road_rules["x_min"] - x[self._x_index, 0]
                   )
                 ),
-              ) * torch.ones(1, 1, requires_grad=True).double()
-            except AttributeError:
+              )
+            else:
               value = min(
                 max(
                   (self._goal_x - x[self._x_index, 0]),
@@ -241,7 +309,7 @@ class ProximityToBlockCost(Cost):
               )
             return value
 
-    def render(self, ax=None):
+    def render(self, ax=None, contour = False, player=0):
         """ Render this obstacle on the given axes. """
         if self._player_id == 0:
           ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'r', linewidth = 10, alpha = 0.2)
@@ -249,6 +317,20 @@ class ProximityToBlockCost(Cost):
         else:
           ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'g', linewidth = 10, alpha = 0.2)
           ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'g', linewidth = 10, alpha = 0.2)
+
+        if contour and self._player_id == player:
+          self.target_contour(ax)
+    
+    def target_contour(self, ax=None):
+        x_range = np.arange(0, 25, step = 0.1)
+        y_range = np.arange(0, 30, step = 0.1)
+        zz = np.array([[0]*250]*300)
+        for x in x_range:
+            for y in y_range:
+                xs = np.array([x, y, 0, 0, 0, x, y, 0, 0, 0]).reshape(10, 1)
+                zz[int(y*10)][int(x*10)] = self(xs)
+        contour = ax.contourf(x_range, y_range, zz, cmap = "YlGn", alpha = 0.5, levels = np.arange(-10, 20, step=1))
+        plt.colorbar(contour)
     
     def new_road_rules(self, **kwargs):
       import copy

@@ -84,7 +84,6 @@ class PlayerCost(object):
             
             if calc_deriv_cost == True:
                 current_term = weight * cost(cost_input, k)
-                
             else:
                 weight = 0.0
                 current_term = weight * cost(cost_input, k)
@@ -278,14 +277,25 @@ class PlayerCost(object):
                     cost_torch, ui_torch, create_graph=True, allow_unused=True)[0]
                 for ui_torch in u_torch]
 
+            # print("RETESFDS")
+            # print(grad_x_torch)
+            # print(x)
+            # print(x_torch)
+            # input()
             # Compute Hessians (and store numpy versions), and be careful to
             # catch Nones (which indicate cost not depending on a particular
             # variable).
             hess_x = np.zeros((len(x), len(x)))
             grad_x = np.zeros((len(x), 1))
-            if grad_x_torch is not None:
+            if grad_x_torch is not None and grad_x_torch.grad_fn is not None:
                 grad_x = grad_x_torch.detach().numpy().copy()
                 for ii in range(len(x)):
+                    # print("CALCULATING HESSIAN")
+                    # print(ii)
+                    # print(grad_x_torch)
+                    # print(grad_x_torch[ii, 0])
+                    # print(x_torch)
+                    # input()
                     hess_row = torch.autograd.grad(
                         grad_x_torch[ii, 0], x_torch, retain_graph=True)[0]  # Added allow_unused=True. Delete that part if not true
                     hess_x[ii, :] = hess_row.detach().numpy().copy().T
@@ -320,7 +330,7 @@ class PlayerCost(object):
             #print("grad_u is: ", grad_u)
              
                 
-            eps_control = 0.8
+            eps_control = 0.1
             eps_state = 0.1
             
             hess_x = hess_x + np.identity(len(x)) * eps_state # Added 0.01 to this. Delete if doesn't work
@@ -358,7 +368,7 @@ class PlayerCost(object):
             #print("cost is: ", cost)
                 
         else:
-            eps_control = 0.8
+            eps_control = 0.1
             eps_state = 0.1
             #hess_x = np.identity(len(x))
             #grad_x = np.zeros((len(x), 1))

@@ -59,12 +59,13 @@ from polyline import Polyline
 #from ilq_solver_horizontal_twoplayer_timeconsistent import ILQSolver
 from ilq_solver_twoplayer_cooperative_time_consistent_refactored import ILQSolver
 #from ilq_solver_time_consistent import ILQSolver
-from proximity_cost_reach_avoid_twoplayer import ProximityCost, ProximityToBlockCost
+from proximity_cost_reach_avoid_twoplayer import ProximityCost, ProximityCostDuo, ProximityToBlockCost
 #from product_state_proximity_cost import ProductStateProximityCost
 from distance_twoplayer_cost import ProductStateProximityCost
 from distance_twoplayer_cost_adversarial import ProductStateProximityCostAdversarial
 from semiquadratic_cost import SemiquadraticCost
 from quadratic_cost import QuadraticCost
+from semiquadratic_polyline_cost_any import RoadRulesPenalty
 #from semiquadratic_polyline_cost import SemiquadraticPolylineCost
 from semiquadratic_polyline_cost_draw import SemiquadraticPolylineCostDraw
 from quadratic_polyline_cost import QuadraticPolylineCost
@@ -84,8 +85,10 @@ HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 LOG_DIRECTORY = "./logs/three_player/"
 
 # Create dynamics.
-car1 = Car5D(4.0)
-car2 = Car5D(4.0)
+# car1 = Car5D(4.0)
+# car2 = Car5D(4.0)
+car1 = Car5D(2.413)
+car2 = Car5D(2.413)
 #ped = PointMass2D()
 dynamics = ProductMultiPlayerDynamicalSystem(
     [car1, car2], T=TIME_RESOLUTION)
@@ -212,10 +215,14 @@ car1_polyline = Polyline([Point(8.5, -100.0), Point(8.5, 100.0)])
 car1_polyline_cost = QuadraticPolylineCost(
     car1_polyline, car1_position_indices_in_product_state, "car1_polyline")
 
-car1_goal = Point(12.0, 12.0) # Change back to Point(8.5, 15.0)
-car1_goal_radius = 1
-car1_goal_cost_1 = ProximityCost(
-    car1_position_indices_in_product_state, car1_goal, np.inf, "car1_goal")
+car1_goal = [
+    Point(7.25, 25.0),
+    Point(20.0, 11.75)
+]
+
+car1_goal_radius = 1.75
+car1_goal_cost_1 = ProximityCostDuo(
+    0, car1_position_indices_in_product_state, car1_goal, car1_goal_radius, "car1_goal")
 car1_goal_cost_2 = ProximityToBlockCost(g_params["car1"])
 
 car1_dist_sep = 2
@@ -230,10 +237,13 @@ car2_polyline = Polyline([Point(4.5, 15.0),
 car2_polyline_cost = QuadraticPolylineCost(
     car2_polyline, car2_position_indices_in_product_state, "car2_polyline")
 
-car2_goal = Point(20.0, 12.0)
-car2_goal_radius = 1
-car2_goal_cost_1 = ProximityCost(
-    car2_position_indices_in_product_state, car2_goal, np.inf, "car2_goal")
+car2_goal = [
+    Point(20.0, 11.75),
+    Point(3.75, 0.0)
+]
+car2_goal_radius = 1.75
+car2_goal_cost_1 = ProximityCostDuo(
+    1, car2_position_indices_in_product_state, car2_goal, car2_goal_radius, "car2_goal")
 car2_goal_cost_2 = ProximityToBlockCost(g_params["car2"])
 
 car2_dist_sep = 2
@@ -307,12 +317,22 @@ car2_a_cost = QuadraticCost(1, 0.0, "car2_a")
 car1_player_id = 0
 car2_player_id = 1
 
+road_rules = {
+    "x_min": 2,
+    "x_max": 9,
+    "y_max": 17,
+    "y_min": 10,
+    "width": 3.5
+}
+
 g_params = {
     "car1": {
-        "position_indices": [0,1],
+        "position_indices": [(0,1), (5, 6)],
         "distance_threshold": 3.0,
         "player_id": car1_player_id, 
         "polyline": car1_polyline,
+        "road_logic": [0, 1, 0, 1, 0],
+        "road_rules": road_rules
         # "road_rules": car1_road_rules,
         # "road_logic": {
         #     "left_lane": False, 
@@ -323,10 +343,12 @@ g_params = {
         # }
     },
     "car2": {
-        "position_indices": [5,6],
+        "position_indices": [(0,1), (5, 6)],
         "distance_threshold": 3.0,
         "player_id": car2_player_id, 
         "polyline": car2_polyline,
+        "road_logic": [1, 0, 0, 1, 1],
+        "road_rules": road_rules
         # "road_rules": car2_road_rules,
         # "road_logic": {
         #     "left_lane": True, 
@@ -351,7 +373,7 @@ car2_proximity_cost = ProductStateProximityCostAdversarial(
 
 # Build up total costs for both players. This is basically a zero-sum game.
 car1_cost = PlayerCost()
-car1_cost.add_cost(car1_goal_cost_2, "x", 1.0) #30.0 # -1.0
+car1_cost.add_cost(car1_goal_cost_1, "x", 1.0) #30.0 # -1.0
 #car1_cost.add_cost(car1_polyline_cost, "x", 50.0) # 50.0
 #car1_cost.add_cost(car1_polyline_boundary_cost, "x", 200.0) # 200.0
 #car1_cost.add_cost(car1_maxv_cost, "x", 100.0) # 100.0
@@ -364,7 +386,7 @@ car1_player_id = 0
 #car1_cost.add_cost(car1_a_cost, car1_player_id, 1.0) # 1.0
 
 car2_cost = PlayerCost()
-car2_cost.add_cost(car2_goal_cost_2, "x", 1.0) #30.0 # -1.0
+car2_cost.add_cost(car2_goal_cost_1, "x", 1.0) #30.0 # -1.0
 #car2_cost.add_cost(car2_polyline_cost, "x", 250.0) #50.0
 #car2_cost.add_cost(car2_polyline_boundary_cost, "x", 100.0) # 200.0
 #car2_cost.add_cost(car2_maxv_cost, "x", 80.0) # 100.0
@@ -405,8 +427,9 @@ car2_player_id = 1
 visualizer = Visualizer(
     [car1_position_indices_in_product_state,
      car2_position_indices_in_product_state],
-    [car1_goal_cost_2,
-    car2_goal_cost_2
+    [car1_goal_cost_1,
+    car2_goal_cost_1
+    # RoadRulesPenalty(g_params["car2"])
     ],
     # [car1_goal_cost_1,
     # car1_goal_cost_2,
@@ -416,7 +439,7 @@ visualizer = Visualizer(
     1,
     False,
     plot_lims=[0, 21, -1,  26]
-    # plot_lims=[0, 30, -10,  30]
+    # plot_lims=[0, 25, -10,  30]
     )
 
 # Logger.
