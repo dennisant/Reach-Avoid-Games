@@ -553,13 +553,6 @@ class ILQSolver(object):
                 "theta_indices": [car1_theta_indices, car2_theta_indices],
                 "road_logic": [0, 1, 0, 1, 0],
                 "goals": [20, 25]
-                # "road_logic": {
-                #     "left_lane": False, 
-                #     "right_lane": True, 
-                #     "up_lane": False, 
-                #     "down_lane": True, 
-                #     "left_turn": False
-                # }
             },
             "car2": {
                 "position_indices": [car1_position_indices, car2_position_indices],
@@ -572,13 +565,6 @@ class ILQSolver(object):
                 "theta_indices": [car1_theta_indices, car2_theta_indices],
                 "road_logic": [1, 0, 0, 1, 1],
                 "goals": [20, 0]
-                # "road_logic": {
-                #     "left_lane": True, 
-                #     "right_lane": False, 
-                #     "up_lane": False, 
-                #     "down_lane": True, 
-                #     "left_turn": True
-                # }
             }
         }
         

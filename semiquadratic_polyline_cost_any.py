@@ -166,9 +166,6 @@ class RoadRulesPenalty(Cost):
       # second layer
       layer_2_road_rules = self.new_road_rules(left_lane = True, right_lane = True, down_lane = True, up_lane = False)
 
-      # _min_func_layer_1 = MinFuncMux()
-      # _min_func_layer_2 = MinFuncMux()
-      # _max_func = MaxFuncMux()
       if type(x) is torch.Tensor:
         value = torch.max(
           torch.min(
@@ -180,14 +177,6 @@ class RoadRulesPenalty(Cost):
             self.g_outside_rightband(x, road_rules = layer_2_road_rules)
           )
         )
-        # _min_func_layer_1.store(self.g_right_of_main, self.g_right_of_main(x, road_rules = layer_1_road_rules).detach().numpy().flatten()[0])
-        # _min_func_layer_1.store(self.g_outside_rightband, self.g_outside_rightband(x, road_rules = layer_1_road_rules).detach().numpy().flatten()[0])
-        # _func_of_min_val, _min_val = _min_func_layer_1.get_min()
-        # _max_func.store(_func_of_min_val, _min_val)
-        # _min_func_layer_2.store(self.g_right_of_main, self.g_right_of_main(x, road_rules = layer_2_road_rules).detach().numpy().flatten()[0])
-        # _min_func_layer_2.store(self.g_outside_rightband, self.g_outside_rightband(x, road_rules = layer_2_road_rules).detach().numpy().flatten()[0])
-        # _func_of_min_val, _min_val = _min_func_layer_2.get_min()
-        # _max_func.store(_func_of_min_val, _min_val)
       else:
         value = max(
           min(
@@ -198,16 +187,7 @@ class RoadRulesPenalty(Cost):
             self.g_right_of_main(x, road_rules = layer_2_road_rules),
             self.g_outside_rightband(x, road_rules = layer_2_road_rules)
           )
-        )
-        # _min_func_layer_1.store(self.g_right_of_main, self.g_right_of_main(x, road_rules = layer_1_road_rules))
-        # _min_func_layer_1.store(self.g_outside_rightband, self.g_outside_rightband(x, road_rules = layer_1_road_rules))
-        # _func_of_min_val, _min_val = _min_func_layer_1.get_min()
-        # _max_func.store(_func_of_min_val, _min_val)
-        # _min_func_layer_2.store(self.g_right_of_main, self.g_right_of_main(x, road_rules = layer_2_road_rules))
-        # _min_func_layer_2.store(self.g_outside_rightband, self.g_outside_rightband(x, road_rules = layer_2_road_rules))
-        # _func_of_min_val, _min_val = _min_func_layer_2.get_min()
-        # _max_func.store(_func_of_min_val, _min_val)
-      # return _max_func.get_max()      
+        )   
       return value
 
     def g_right_combined(self, x):
@@ -257,8 +237,6 @@ class RoadRulesPenalty(Cost):
       return _max_val, _func_of_max_val
 
     def __call__(self, x, k=0):
-      # signed_distance = self._polyline.signed_distance_to(
-      #     Point(x[self._x_index, 0], x[self._y_index, 0]))
       _max_val, _func_of_max_val = self.g_road_rules(x)
       if type(x) is torch.Tensor:
         return _max_val * torch.ones(1, 1, requires_grad=True).double(), _func_of_max_val
@@ -267,11 +245,6 @@ class RoadRulesPenalty(Cost):
 
     def render(self, ax=None):
       """ Render this cost on the given axes. """
-      # xs = [pt.x for pt in self._polyline.points]
-      # ys = [pt.y for pt in self._polyline.points]
-      # ax.plot(xs, ys, "k", alpha=0.25)
-      # plot safety contour
-      
       x_range = np.arange(0, 25, step = 0.1)
       y_range = np.arange(0, 30, step = 0.1)
       zz = np.array([[0]*250]*300)
@@ -280,8 +253,12 @@ class RoadRulesPenalty(Cost):
               xs = np.array([x, y, 0, 0, 0, x, y, 0, 0, 0]).reshape(10, 1)
               max_val, func_of_max_val = self(xs)
               zz[int(y*10)][int(x*10)] = max_val
-      contour = ax.contourf(x_range, y_range, zz, cmap = "YlGn", alpha = 0.5, levels = np.arange(-10, 20, step=1))
-      plt.colorbar(contour)
+      # contour = ax.contourf(x_range, y_range, zz, cmap = "YlGn", alpha = 0.5, levels = np.arange(-10, 30, step=2.5))
+      contour = ax.contourf(x_range, y_range, zz, cmap = "Purples", alpha = 0.3, levels = [-3, -2, -1, 0], extend = "both")
+      ax.clabel(contour, inline=True, fontsize=10, colors="k")
+      contour.cmap.set_under('white')
+      contour.cmap.set_over('navy')
+      # plt.colorbar(contour)
 
     def new_road_rules(self, **kwargs):
       import copy

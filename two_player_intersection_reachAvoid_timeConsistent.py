@@ -79,7 +79,7 @@ from visualizer import Visualizer
 from logger import Logger
 
 # General parameters.
-TIME_HORIZON = 2.0    # s #Change back to 2.0
+TIME_HORIZON = 4.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 LOG_DIRECTORY = "./logs/three_player/"
@@ -428,8 +428,8 @@ visualizer = Visualizer(
     [car1_position_indices_in_product_state,
      car2_position_indices_in_product_state],
     [car1_goal_cost_2,
-    car2_goal_cost_2,
-    RoadRulesPenalty(g_params["car2"])
+    car2_goal_cost_2
+    # RoadRulesPenalty(g_params["car2"])
     ],
     # [car1_goal_cost_1,
     # car1_goal_cost_2,
