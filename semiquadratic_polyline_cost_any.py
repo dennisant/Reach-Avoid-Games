@@ -102,6 +102,7 @@ class RoadRulesPenalty(Cost):
         self._road_rules_original = g_params["road_rules"]
         self._road_logic = self.get_road_logic_dict(g_params["road_logic"])
         self._road_rules = self.new_road_rules()
+        self._collision_r = g_params["collision_r"]
 
         # if self._road_logic["down_lane"] and not self._road_logic["up_lane"]:
         #   self._road_rules["y_max"] = self._road_rules["y_max"] - self._road_rules["width"]
@@ -133,7 +134,7 @@ class RoadRulesPenalty(Cost):
       else: 
         _road_rules = self._road_rules
 
-      return abs(_road_rules["x_min"] - x[self._x_index, 0]) * (_road_rules["x_min"] - x[self._x_index, 0])
+      return abs(_road_rules["x_min"] - x[self._x_index, 0] + self._collision_r) * (_road_rules["x_min"] - x[self._x_index, 0] + self._collision_r)
 
     def g_right_of_main(self, x, k=0, **kwargs):
       if "road_rules" in kwargs.keys():
@@ -141,7 +142,7 @@ class RoadRulesPenalty(Cost):
       else: 
         _road_rules = self._road_rules
       
-      return  abs(x[self._x_index, 0] - _road_rules["x_max"]) * (x[self._x_index, 0] - _road_rules["x_max"])
+      return  abs(x[self._x_index, 0] - _road_rules["x_max"] + self._collision_r) * (x[self._x_index, 0] - _road_rules["x_max"] + self._collision_r)
 
     def g_outside_rightband(self, x, k=0, **kwargs):
       if "road_rules" in kwargs.keys():
@@ -151,13 +152,13 @@ class RoadRulesPenalty(Cost):
 
       if type(x) is torch.Tensor:
         return torch.max(
-          abs(x[self._y_index, 0] - _road_rules["y_max"]) * (x[self._y_index, 0] - _road_rules["y_max"]),
-          abs(_road_rules["y_min"] - x[self._y_index, 0]) * (_road_rules["y_min"] - x[self._y_index, 0])
+          abs(x[self._y_index, 0] - _road_rules["y_max"] + self._collision_r) * (x[self._y_index, 0] - _road_rules["y_max"] + self._collision_r),
+          abs(_road_rules["y_min"] - x[self._y_index, 0] + self._collision_r) * (_road_rules["y_min"] - x[self._y_index, 0] + self._collision_r)
         )
       else:
         return max(
-          abs(x[self._y_index, 0] - _road_rules["y_max"]) * (x[self._y_index, 0] - _road_rules["y_max"]),
-          abs(_road_rules["y_min"] - x[self._y_index, 0]) * (_road_rules["y_min"] - x[self._y_index, 0])
+          abs(x[self._y_index, 0] - _road_rules["y_max"] + self._collision_r) * (x[self._y_index, 0] - _road_rules["y_max"] + self._collision_r),
+          abs(_road_rules["y_min"] - x[self._y_index, 0] + self._collision_r) * (_road_rules["y_min"] - x[self._y_index, 0] + self._collision_r)
         )
 
     def g_right_combined_withcurve(self, x, k=0):

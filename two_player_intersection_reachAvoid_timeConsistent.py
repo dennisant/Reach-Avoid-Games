@@ -77,6 +77,7 @@ from nominal_velocity_deviation_cost import NominalVelocityDeviationCost
 
 from visualizer import Visualizer
 from logger import Logger
+import math
 
 # General parameters.
 TIME_HORIZON = 4.0    # s #Change back to 2.0
@@ -325,6 +326,14 @@ road_rules = {
     "width": 3.5
 }
 
+car_params = {
+    "wheelbase": 2.413, 
+    "length": 4.267,
+    "width": 1.988
+}
+
+collision_r = math.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
+
 g_params = {
     "car1": {
         "position_indices": [(0,1), (5, 6)],
@@ -332,15 +341,8 @@ g_params = {
         "player_id": car1_player_id, 
         "polyline": car1_polyline,
         "road_logic": [0, 1, 0, 1, 0],
-        "road_rules": road_rules
-        # "road_rules": car1_road_rules,
-        # "road_logic": {
-        #     "left_lane": False, 
-        #     "right_lane": True, 
-        #     "up_lane": False, 
-        #     "down_lane": True, 
-        #     "left_turn": False
-        # }
+        "road_rules": road_rules,
+        "collision_r": collision_r
     },
     "car2": {
         "position_indices": [(0,1), (5, 6)],
@@ -348,15 +350,8 @@ g_params = {
         "player_id": car2_player_id, 
         "polyline": car2_polyline,
         "road_logic": [1, 0, 0, 1, 1],
-        "road_rules": road_rules
-        # "road_rules": car2_road_rules,
-        # "road_logic": {
-        #     "left_lane": True, 
-        #     "right_lane": False, 
-        #     "up_lane": False, 
-        #     "down_lane": True, 
-        #     "left_turn": True
-        # }
+        "road_rules": road_rules,
+        "collision_r": collision_r
     }
 }
 
@@ -429,7 +424,7 @@ visualizer = Visualizer(
      car2_position_indices_in_product_state],
     [car1_goal_cost_2,
     car2_goal_cost_2
-    # RoadRulesPenalty(g_params["car2"])
+    # RoadRulesPenalty(g_params["car1"])
     ],
     # [car1_goal_cost_1,
     # car1_goal_cost_2,

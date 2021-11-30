@@ -238,6 +238,7 @@ class ProximityToBlockCost(Cost):
             # dy = self._goal_y - x[self._y_index, 0]
             # return torch.tensor(dy) * torch.ones(1, 1, requires_grad=True).double()
             if type(x) is torch.Tensor:
+              # upward goal
               value = torch.max(
                   abs(self._goal_y - x[self._y_index, 0]) * (self._goal_y - x[self._y_index, 0]),
                   torch.max(
@@ -245,6 +246,17 @@ class ProximityToBlockCost(Cost):
                     abs(self._road_rules["x_min"] - x[self._x_index, 0]) * (self._road_rules["x_min"] - x[self._x_index, 0])
                   )
                 )
+              
+              # right bound goal
+              value = torch.max(
+                  abs(self._goal_x - x[self._x_index, 0]) * (self._goal_x - x[self._x_index, 0]),
+                  torch.max(
+                    abs(x[self._y_index, 0] - self._road_rules["y_max"]) * (x[self._y_index, 0] - self._road_rules["y_max"]),
+                    abs(self._road_rules["y_min"] - x[self._y_index, 0]) * (self._road_rules["y_min"] - x[self._y_index, 0])
+                  )
+                )
+
+              # both goal
               # value = torch.min(
               #   torch.max(
               #     abs(self._goal_x - x[self._x_index, 0]) * (self._goal_x - x[self._x_index, 0]),
@@ -262,13 +274,23 @@ class ProximityToBlockCost(Cost):
               #   )
               # )
             else:
+              # value = max(
+              #     abs(self._goal_y - x[self._y_index, 0]) * (self._goal_y - x[self._y_index, 0]),
+              #     max(
+              #       abs(x[self._x_index, 0] - self._road_rules["x_max"]) * (x[self._x_index, 0] - self._road_rules["x_max"]),
+              #       abs(self._road_rules["x_min"] - x[self._x_index, 0]) * (self._road_rules["x_min"] - x[self._x_index, 0])
+              #     )
+              #   )
+
               value = max(
-                  abs(self._goal_y - x[self._y_index, 0]) * (self._goal_y - x[self._y_index, 0]),
+                  abs(self._goal_x - x[self._x_index, 0]) * (self._goal_x - x[self._x_index, 0]),
                   max(
-                    abs(x[self._x_index, 0] - self._road_rules["x_max"]) * (x[self._x_index, 0] - self._road_rules["x_max"]),
-                    abs(self._road_rules["x_min"] - x[self._x_index, 0]) * (self._road_rules["x_min"] - x[self._x_index, 0])
+                    abs(x[self._y_index, 0] - self._road_rules["y_max"]) * (x[self._y_index, 0] - self._road_rules["y_max"]),
+                    abs(self._road_rules["y_min"] - x[self._y_index, 0]) * (self._road_rules["y_min"] - x[self._y_index, 0])
                   )
                 )
+
+
               # value = min(
               #   max(
               #     abs(self._goal_x - x[self._x_index, 0]) * (self._goal_x - x[self._x_index, 0]),
@@ -288,13 +310,21 @@ class ProximityToBlockCost(Cost):
             return value
         else:
             if type(x) is torch.Tensor:
+              # value = torch.max(
+              #     abs(self._goal_x - x[self._x_index, 0]) * (self._goal_x - x[self._x_index, 0]),
+              #     torch.max(
+              #       abs(x[self._y_index, 0] - self._road_rules["y_max"]) * (x[self._y_index, 0] - self._road_rules["y_max"]),
+              #       abs(self._road_rules["y_min"] - x[self._y_index, 0]) * (self._road_rules["y_min"] - x[self._y_index, 0])
+              #     )
+              #   )
               value = torch.max(
-                  abs(self._goal_x - x[self._x_index, 0]) * (self._goal_x - x[self._x_index, 0]),
+                  abs(x[self._y_index, 0] - self._goal_y) * (x[self._y_index, 0] - self._goal_y),
                   torch.max(
-                    abs(x[self._y_index, 0] - self._road_rules["y_max"]) * (x[self._y_index, 0] - self._road_rules["y_max"]),
-                    abs(self._road_rules["y_min"] - x[self._y_index, 0]) * (self._road_rules["y_min"] - x[self._y_index, 0])
+                    abs(x[self._x_index, 0] - self._road_rules["x_max"]) * (x[self._x_index, 0] - self._road_rules["x_max"]),
+                    abs(self._road_rules["x_min"] - x[self._x_index, 0]) * (self._road_rules["x_min"] - x[self._x_index, 0])
                   )
                 )
+
               # value = torch.min(
               #   torch.max(
               #     abs(self._goal_x - x[self._x_index, 0]) * (self._goal_x - x[self._x_index, 0]),
@@ -312,13 +342,22 @@ class ProximityToBlockCost(Cost):
               #   ),
               # )
             else:
+              # value = max(
+              #     abs(self._goal_x - x[self._x_index, 0]) * (self._goal_x - x[self._x_index, 0]),
+              #     max(
+              #       abs(x[self._y_index, 0] - self._road_rules["y_max"]) * (x[self._y_index, 0] - self._road_rules["y_max"]),
+              #       abs(self._road_rules["y_min"] - x[self._y_index, 0]) * (self._road_rules["y_min"] - x[self._y_index, 0])
+              #     )
+              #   )
+
               value = max(
-                  abs(self._goal_x - x[self._x_index, 0]) * (self._goal_x - x[self._x_index, 0]),
+                  abs(x[self._y_index, 0] - self._goal_y) * (x[self._y_index, 0] - self._goal_y),
                   max(
-                    abs(x[self._y_index, 0] - self._road_rules["y_max"]) * (x[self._y_index, 0] - self._road_rules["y_max"]),
-                    abs(self._road_rules["y_min"] - x[self._y_index, 0]) * (self._road_rules["y_min"] - x[self._y_index, 0])
+                    abs(x[self._x_index, 0] - self._road_rules["x_max"]) * (x[self._x_index, 0] - self._road_rules["x_max"]),
+                    abs(self._road_rules["x_min"] - x[self._x_index, 0]) * (self._road_rules["x_min"] - x[self._x_index, 0])
                   )
                 )
+
               # value = min(
               #   max(
               #     abs(self._goal_x - x[self._x_index, 0]) * (self._goal_x - x[self._x_index, 0]),
@@ -340,11 +379,11 @@ class ProximityToBlockCost(Cost):
     def render(self, ax=None, contour = False, player=0):
         """ Render this obstacle on the given axes. """
         if self._player_id == 0:
-          ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'r', linewidth = 10, alpha = 0.2)
-          # ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'r', linewidth = 10, alpha = 0.2)
+          # ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'r', linewidth = 10, alpha = 0.2)
+          ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'r', linewidth = 10, alpha = 0.2)
         else:
-          ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'g', linewidth = 10, alpha = 0.2)
-          # ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'g', linewidth = 10, alpha = 0.2)
+          # ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'g', linewidth = 10, alpha = 0.2)
+          ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'g', linewidth = 10, alpha = 0.2)
 
         if contour and self._player_id == player:
           self.target_contour(ax)
