@@ -145,13 +145,12 @@ class ILQSolver(object):
             # print(max([x[9] for x in xs]))
             # time.sleep(0.2)
             
-            # if iteration%store_freq == 0:
-                
-            #     xs_store = [xs_i.flatten() for xs_i in xs]
-            #     #print(xs_store[0])
-            #     #print(len(xs_store))
-            #     #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
-            #     np.savetxt('threeplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
+            if iteration%store_freq == 0:
+                xs_store = [xs_i.flatten() for xs_i in xs]
+                #print(xs_store[0])
+                #print(len(xs_store))
+                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
+                np.savetxt('logs/three_player/threeplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
             # Visualization.
