@@ -48,7 +48,7 @@ from collections import deque
 from maneuver_penalty import ManeuverPenalty
 
 from player_cost_twoplayer_reachavoid_timeconsistent import PlayerCost
-from proximity_cost_reach_avoid_twoplayer import ProximityCost, ProximityCostDuo, ProximityToBlockCost
+from proximity_cost_reach_avoid_twoplayer import PedestrianProximityToBlockCost, ProximityCost, ProximityCostDuo, ProximityToBlockCost
 from distance_twoplayer_cost import CollisionPenalty, PedestrianToCarCollisionPenalty, ProductStateProximityCost
 from point import Point
 from polyline import Polyline
@@ -56,6 +56,7 @@ from polyline import Polyline
 from semiquadratic_polyline_cost_any import RoadRulesPenalty, SemiquadraticPolylineCostAny
 from solve_lq_game_reachavoid_threeplayer_timeconsistent import solve_lq_game
 import time
+timestr = time.strftime("%Y-%m-%d-%H_%M")
 
 class ILQSolver(object):
     def __init__(self,
@@ -168,7 +169,9 @@ class ILQSolver(object):
                 # plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
-                plt.savefig('image_outputs/plot-{}.jpg'.format(iteration)) # Trying to save these plots
+                if not os.path.exists("image_outputs_{}".format(timestr)):
+                    os.makedirs("image_outputs_{}".format(timestr))
+                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
                 plt.clf()
             
             # print("plot is shown above")
@@ -264,9 +267,9 @@ class ILQSolver(object):
             print("\rTotal cost for all players:\t{:.3f}\t\t{:.3f}\t\t{:.3f}".format(total_costs[0], total_costs[1], total_costs[2]), end="")
             self._total_costs = total_costs
             
-            if max(total_costs[:2]) < 0.5 or iteration > 400:
-                print("DONE, Enter to continue")
-                input()
+            # if max(total_costs[:2]) < 0.5 or iteration > 300:
+            #     print("DONE, Enter to continue")
+            #     input()
             
             #Store total cost at each iteration and the iterations
             store_total_cost.append(total_costs[0])
@@ -296,15 +299,19 @@ class ILQSolver(object):
             self._alphas = alphas
 
             # (5) Linesearch.
-            #self._linesearch()
-            #self._linesearch_new(iteration)
-            #print("alpha is: ", self._linesearch_new())
-            #self._alpha_scaling = self._linesearch_new(iteration)
-            #print("self._alpha_scaling is: ", self._alpha_scaling)
-            self._alpha_scaling = 0.1
-            # self._alphas = self._alpha_line_search
+            if iteration < 5:
+                self._alpha_scaling = 1.0
+            elif iteration < 25:
+                self._alpha_scaling = 0.5
+            else:
+                self._alpha_scaling = 0.1
+            
+            if max(total_costs[:2]) < 1.0:
+                self._alpha_scaling = 0.05
+            elif max(total_costs[:2]) < 0.7:
+                self._alpha_scaling = 0.02
+            
             iteration += 1
-
 
     def _compute_operating_point(self):
         """
@@ -378,37 +385,6 @@ class ILQSolver(object):
 
         return True
     
-    def _ProximityDistance(self, x, car1_position_indices, car2_position_indices, desired_dist):
-        #x_index, y_index = position_indices
-        self._car1_x_index, self._car1_y_index = car1_position_indices
-        self._car2_x_index, self._car2_y_index = car2_position_indices
-        self._desired_dist = desired_dist
-        
-        dx = x[self._car1_x_index, 0] - x[self._car2_x_index, 0]
-        dy = x[self._car1_y_index, 0] - x[self._car2_y_index, 0]
-    
-        relative_distance = m.sqrt(dx*dx + dy*dy)
-        
-        return self._desired_dist - relative_distance #This is for reachability (eqn 7 in David's paper). Delete this one and uncomment the one below
-        #return -(relative_distance - self._obstacle_radius) # This is for the reach-avoid    
-    
-    def _TargetDistance(self, x, position_indices, target_position, target_radius):
-        x_index, y_index = position_indices
-        dx = x[x_index, 0] - target_position[0][0]
-        dy = x[y_index, 0] - target_position[0][1]
-    
-        relative_distance_1 = m.sqrt(dx*dx + dy*dy)
-
-        dx = x[x_index, 0] - target_position[1][0]
-        dy = x[y_index, 0] - target_position[1][1]
-    
-        relative_distance_2 = m.sqrt(dx*dx + dy*dy)
-    
-        return min(
-            relative_distance_1 - target_radius,
-            relative_distance_2 - target_radius
-        )
-    
     def get_road_logic_dict(self, road_logic):
         return {
             "left_lane": road_logic[0] == 1, 
@@ -416,7 +392,7 @@ class ILQSolver(object):
             "up_lane": road_logic[2] == 1, 
             "down_lane": road_logic[3] == 1, 
             "left_turn": road_logic[4] == 1
-            }
+        }
 
     def new_road_rules(self, road_logic, road_rules):
         import copy
@@ -441,21 +417,6 @@ class ILQSolver(object):
             new_road_rules["x_min"] = road_rules["x_min"] + road_rules["width"]
 
         return new_road_rules
-
-    def _DistanceToBlockTarget(self, x, g_params):
-        x_index, y_index = g_params["position_indices"][g_params["player_id"]]
-        road_rules = self.new_road_rules(self.get_road_logic_dict(g_params["road_logic"]), g_params["road_rules"])
-
-        if g_params["player_id"] == 0:
-            return min(
-                max(20 - x[x_index, 0], max(x[x_index, 0] - road_rules["y_max"], road_rules["y_min"] - x[x_index, 0])),
-                max(25 - x[y_index, 0], max(x[x_index, 0] - road_rules["x_max"], road_rules["x_min"] - x[x_index, 0]))
-            )
-        else:
-            return min(
-                max(20 - x[x_index, 0], max(x[x_index, 0] - road_rules["y_max"], road_rules["y_min"] - x[x_index, 0])),
-                max(x[y_index, 0] - 0, max(x[x_index, 0] - road_rules["x_max"], road_rules["x_min"] - x[x_index, 0]))
-            )
     
     def _TimeStar(self, xs, us, ii):
         """
@@ -478,38 +439,16 @@ class ILQSolver(object):
         min-max on this trajectory
 
         """
-        # THIS IS ME TRYING TO FIND t* FOR REACHABILITY:
-        #Car 1 and Car 2 position indices
-        car1_position_indices = (0,1)
-        car2_position_indices = (5,6)
-        car1_theta_indices = 2
-        car2_theta_indices = 7
-        car_position_indices = [car1_position_indices, car2_position_indices]
-        x1_index, y1_index = car1_position_indices
-        x2_index, y2_index = car2_position_indices
+        car1_position_indices = (0, 1)
+        car2_position_indices = (5, 6)
+        ped1_position_indices = (10, 11)
+        car1_theta_index = 2
+        car2_theta_index = 7
+        ped1_theta_index = 12
         
-        # Center of target for both players
-        target1_position_1 = (7.25, 25.0)
-        target1_position_2 = (20.0, 11.75)
-        target1_position = [target1_position_1, target1_position_2]
-        
-        target2_position_1 = (20.0, 11.75)
-        target2_position_2 = (3.75, 0.0)
-        target2_position = [target2_position_1, target2_position_2]
-        # target_position = [target1_position, target2_position]
-        
-        # Radius of target for both players
-        target1_radius = 1.75
-        target2_radius = 1.75
-        target_radius = [target1_radius, target2_radius]
-        #
         car1_player_id = 0
         car2_player_id = 1
-        
-        # Desired separation for both players
-        car1_desired_sep = 3
-        car2_desired_sep = 3
-        desired_sep = [car1_desired_sep, car2_desired_sep]
+        ped1_player_id = 2
         
         # Pre-allocate hessian and gradient matrices
         Qs = [deque() for ii in range(self._num_players)]
@@ -518,26 +457,15 @@ class ILQSolver(object):
         Rs = [[deque() for jj in range(self._num_players)]
               for ii in range(self._num_players)]
         
-              
-        # Pre-allocate cost
-        #costs = [[] for ii in range(self._num_players)]
         costs = []
         
-        # Keep track if i^*_t = i^*_t+1 is true
         calc_deriv_cost = deque()
         func_array = deque()
         func_return_array = deque()
     
-        #1.
-        # Pre-allocation for target stuff
-        hold = 0
         hold_new = 0
         target_margin_func = np.zeros((self._horizon+1, 1))
         
-        # Pre-allocation for obstacle stuff
-        # prox_margin_func = np.zeros((self._horizon, 1))
-        # payoff = np.zeros((self._horizon, 1))
-        # t_max_prox = np.zeros((self._horizon, 1))
         value_func_plus = np.zeros((self._horizon+1, 1))
 
         car_params = {
@@ -551,98 +479,70 @@ class ILQSolver(object):
             "x_max": 9.4,
             "y_max": 27.4,
             "y_min": 20,
-            # "y_max": 12,
-            # "y_min": 5,
             "width": 3.7
         }
 
-        # car1_road_rules = {
-        #     "x_min": 5.5,
-        #     "x_max": 9,
-        #     "y_max": 13.5,
-        #     "y_min": 10,
-        #     "width": 3.5
-        # }
-
-        # car2_road_rules = {
-        #     "x_min": 2,
-        #     "x_max": 5.5,
-        #     "y_max": 13.5,
-        #     "y_min": 10,
-        #     "width": 3.5
-        # }
-
-        ## g_road_rules(car1, road_rules, left_lane = False, right_lane = True, up_lane = False, down_lane = True, left_turn = False),
-        ## g_road_rules(car2, road_rules, left_lane = True, right_lane = False, up_lane = False, down_lane = True, left_turn = True)
+        ped_road_rules = {
+            "x_min": 2,
+            "x_max": 9.4,
+            "y_max": 31,
+            "y_min": 29
+        }
 
         collision_r = m.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
 
         # order of road_logic: left, right, up, down, left_turn: [0, 1]
-
         g_params = {
             "car1": {
-                "position_indices": [car1_position_indices, car2_position_indices],
-                # "distance_threshold": car1_desired_sep,
+                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
                 "player_id": car1_player_id, 
                 "road_rules": road_rules,
-                # "lane_width": lane_width,
                 "collision_r": collision_r,
                 "car_params": car_params,
-                "theta_indices": [car1_theta_indices, car2_theta_indices],
+                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
                 "road_logic": [0, 1, 0, 1, 0],
                 "goals": [20, 35],
                 "phi_index": 3, 
                 "vel_index": 4
             },
             "car2": {
-                "position_indices": [car1_position_indices, car2_position_indices],
-                # "distance_threshold": car2_desired_sep,
+                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
                 "player_id": car2_player_id, 
                 "road_rules": road_rules,
-                # "lane_width": lane_width,
                 "collision_r": collision_r,
                 "car_params": car_params,
-                "theta_indices": [car1_theta_indices, car2_theta_indices],
+                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
                 "road_logic": [1, 0, 0, 1, 0],
                 "goals": [20, 0],
                 "phi_index": 8,
                 "vel_index": 9
+            },
+            "ped1": {
+                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
+                "player_id": ped1_player_id, 
+                "road_logic": [1, 1, 1, 1, 0],
+                "road_rules": ped_road_rules,
+                "goals": [15, 30],
+                "car_params": car_params,
+                "collision_r": collision_r,
+                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
             }
         }
         
-        #1a. This is for the target (checking the target distance throughout entire trajectory)
-        # Once the entire trajectory is checked
         if ii == 0:
-            # print("START in P1 is here")
             for k in range(self._horizon, -1, -1): # T to 0
-                # Clear out PlayerCost()
                 self._player_costs[ii] = PlayerCost()
                 
-                # Calculate target distance at time-step k+1 for P1 and store it
-                # hold_new = self._TargetDistance(xs[k+1], car_position_indices[ii], target1_position, target_radius[ii])
-                # hold_new = self._DistanceToBlockTarget(xs[k+1], g_params["car1"])
-                # hold_new = ProximityToBlockCost(g_params["car1"])(xs[k+1]).detach().numpy().flatten()[0]
                 hold_new = ProximityToBlockCost(g_params["car1"])(xs[k])
                 target_margin_func[k] = hold_new
-                
-                # Here, I am going through all the functions at time-step k and picking out which one is the max and at what time-step does the max occur
-                # check_funcs[0] tells us which function it is (function 1, 2 or 3), and check_funcs[1] tells us at which time-step this occurs
-                
-                # check_funcs = self._CheckMultipleFunctionsP1(xs, num_func_P1, ii, k, car1_position_indices, car2_position_indices, car1_desired_sep, car1_polyline, lane_width)
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(g_params["car1"], xs, k)
 
-                # Calculate Proximity Distance at time-step k+1
-                # print("ProxDist for P1 came out")
-                # hold_prox = max_g_func(g_params["car1"])(xs[k+1]).detach().numpy().flatten()[0]
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(g_params["car1"], xs, k)
                 hold_prox = max_g_func(xs[k])
                 
-                # If we are at time-step self.horizon-1, then value_func = max{l_{k+1}, g{k+1}}
-                # Else, we do the max-min stuff in order to find if l_{k+1}, g{k+1} or value_func[k+1] comes out
                 value_function_compare = dict()
                 func_key = ""
 
                 if k == self._horizon:
-                    # value_func_plus[k] = np.max((hold_new, hold_prox))
                     value_function_compare = {
                         "g_x": hold_prox,
                         "l_x": hold_new
@@ -661,41 +561,17 @@ class ILQSolver(object):
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key = max(value_function_compare, key = value_function_compare.get)
                     
-                    # value_func_plus[k] = np.max((hold_prox, np.min((hold_new, value_func_plus[k+1]))))
-                # print(max_g_func)
-                # print("TEST")
-                # print(k)
-                # print(value_function_compare)
-                # print(hold_prox)
-                # print(hold_new)
-                # print(func_key)
-                # input()
-
-                # print("VALUE: k:{},\thold_prox: {:.2f},\thold_new: {:.2f},\tvalue: {:.2f}".format(k, hold_prox, hold_new, value_func_plus[k]))
-
-                # Now figure out if l, g or V comes out of max{g_k, min{l_k, V_k^+}}
-                # if value_func_plus[k] == hold_new:
                 if func_key == "l_x":
-                    #print("Target margin func came out!")
-                    # print("goal function came out. calc_deriv_cost should be true")
-                    # c1gc = ProximityCostDuo(ii, car_position_indices[ii], target1_position, target_radius[ii], "car1_goal")
                     c1gc = ProximityToBlockCost(g_params["car1"], "car1_goal")
                     self._player_costs[ii].add_cost(c1gc, "x", 1.0)
                     calc_deriv_cost.appendleft("True")
                     self._calc_deriv_true_P1 = True
-                # elif value_func_plus[k] == hold_prox:
                 elif func_key == "g_x":
-                    #print("Obstacle margin func came out!")
-                    # print("Proximity distance came out. calc_deriv_cost should be true")
                     c1gc = max_g_func
                     self._player_costs[ii].add_cost(c1gc, "x", 1.0)
                     calc_deriv_cost.appendleft("True")
                     self._calc_deriv_true_P1 = True
                 else:
-                    #print("Value func came out!")
-                    # print("value_func[k] = value_func[k+1] came out. calc_deriv_cost should be False")
-                    # c1gc = max_g_func(g_params["car1"])
-                    # c1gc = ProductStateProximityCost(g_params["car1"])
                     c1gc = max_g_func
                     self._player_costs[ii].add_cost(c1gc, "x", 0.0)
                     calc_deriv_cost.appendleft("False")
@@ -703,10 +579,6 @@ class ILQSolver(object):
                 func_array.appendleft(func_key)
                 func_return_array.appendleft(c1gc)
                
-                # Calculating hessians and gradients w.r.t. x at time-step k+1
-                # Calculate hessian and gradient w.r.t. u at time-step k
-                #for ii in range(self._num_players):
-
                 if k == self._horizon:
                     _, r, l, Q, R = self._player_costs[ii].quadraticize(
                         xs[k], np.zeros((self._num_players, self._horizon, self._num_players, 1)), k, self._calc_deriv_true_P1, ii)
@@ -717,82 +589,31 @@ class ILQSolver(object):
                 Qs[ii].appendleft(Q)
                 ls[ii].appendleft(l)
                 rs[ii].appendleft(r)
-                # print("R is: ", R)
-                
-                # if self._calc_deriv_true_P1 == True:
-                    # print("Q for P1 is: ", Q)
-                    # print("This happens at k = ", k)
-                
     
-                for jj in range(self._num_players):   # I DON'T KNOW ABOUT THIS! RE-CHECK!!!!!
+                for jj in range(self._num_players):
                     Rs[ii][jj].appendleft(R[jj])
                         
-                   
-                #print("Rs in ilq_solver is: ", Rs)
-                #print("Rs[0] in ilq_solver is: ", Rs[0])
-                #print("zzz rs in ilq_solver is: ", rs)
-                
-                # Calculae cost at time-step k
-                #for ii in range(self._num_players):
                 costs.append(self._player_costs[ii](
                     torch.as_tensor(xs[k].copy()),
                     [torch.as_tensor(ui) for ui in us],
                     k, self._calc_deriv_true_P1))
-                
-            
-            #print("costs is: ", costs)
-            #print("zzz ls is: ", ls)
-            #print("costs[0] is: ", costs[0])
-            # print(max([c.detach().numpy().flatten()[0] for c in costs]))
-            # total_costs = [sum(costis).item() for costis in costs]
-            # total_costs = sum(total_costs)
+
             total_costs = max([c.detach().numpy().flatten()[0] for c in costs])
-            # print("total_costs is: ", total_costs)
-            # print("calc_deriv_cost for P1 is: ", calc_deriv_cost)         
-            
-            # Adding a extra one to see what happens. DELETE IF IT DOESN'T WORK
-            #calc_deriv_cost.appendleft("False") 
-            
-            # a = np.zeros((len(xs[0]), len(xs[0]))) # Change back to 0.01
-            # b = np.zeros((len(xs[0]), 1))
-            # # a= np.identity(len(xs[0])) * 0.1 # Change back to 0.01
-            # # b = np.zeros((len(xs[0]), 1))
-            
-            # Qs[ii].append(a)
-            # ls[ii].append(b)
 
         # This is for P2:
         elif ii == 1:
-            # print("START in P2 is here")
             for k in range(self._horizon, -1, -1):
-                # Clear out PlayerCost()
                 self._player_costs[ii] = PlayerCost()
-                
-                # Calculate target distance at time-step k+1 for P1 and store it
-                # hold_new = self._TargetDistance(xs[k+1], car_position_indices[ii], target2_position, target_radius[ii])
-                # hold_new = self._DistanceToBlockTarget(xs[k+1], g_params["car2"])
                 hold_new = ProximityToBlockCost(g_params["car2"])(xs[k])
                 target_margin_func[k] = hold_new
             
-                
-                # Here, I am going through all the functions at time-step k and picking out which one is the max and at what time-step does the max occur
-                # check_funcs[0] tells us which function it is (function 1, 2 or 3), and check_funcs[1] tells us at which time-step this occurs
-                
-                # check_funcs = self._CheckMultipleFunctionsP2(xs, num_func_P2, ii, k, car1_position_indices, car2_position_indices, car2_desired_sep, car2_polyline, lane_width)
-                max_g_func = self._CheckMultipleFunctionsP2_refactored(g_params["car2"], xs, k)
-                
-                # Calculate Proximity Distance at time-step k+1
-                # print("Goal function for P2 came out")
+                max_g_func = self._CheckMultipleFunctionsP2_refactored(g_params["car2"], xs, k)                
                 hold_prox = max_g_func(xs[k])
                 
-                # If we are at time-step self.horizon-1, then value_func = max{l_{k+1}, g{k+1}}
-                # Else, we do the max-min stuff in order to find if l_{k+1}, g{k+1} or value_func[k+1] comes out
-
                 value_function_compare = dict()
                 func_key = ""
 
                 if k == self._horizon:
-                    # value_func_plus[k] = np.max((hold_new, hold_prox))
                     value_function_compare = {
                         "g_x": hold_prox,
                         "l_x": hold_new
@@ -811,38 +632,17 @@ class ILQSolver(object):
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key = max(value_function_compare, key = value_function_compare.get)
                     
-                    # value_func_plus[k] = np.max((hold_prox, np.min((hold_new, value_func_plus[k+1]))))
-                
-                # print(max_g_func)
-                # print("TEST")
-                # print(k)
-                # print(value_function_compare)
-                # print(func_key)
-                # input()
-
-                # Now figure out if l, g or V comes out of max{g_k, min{l_k, V_k^+}}
-                # if value_func_plus[k] == hold_new:
                 if func_key == "l_x":
-                    #print("Target margin func came out!")
-                    # print("Goal function came out. calc_deriv_cost should be true")
-                    # c1gc = ProximityCostDuo(ii, car_position_indices[ii], target2_position, target_radius[ii], "car2_goal")
                     c1gc = ProximityToBlockCost(g_params["car2"], "car2_goal")
                     self._player_costs[ii].add_cost(c1gc, "x", 1.0)
                     calc_deriv_cost.appendleft("True")
                     self._calc_deriv_true_P2 = True
-                # elif value_func_plus[k] == hold_prox:
                 elif func_key == "g_x":
-                    #print("Obstacle margin func came out!")
-                    # print("Proximity distance for P2 came out. calc_deriv_cost should be true")
                     c1gc = max_g_func
                     self._player_costs[ii].add_cost(c1gc, "x", 1.0)
                     calc_deriv_cost.appendleft("True")
                     self._calc_deriv_true_P2 = True
                 else:
-                    #print("Value func came out!")
-                    # print("value_func[k] = value_func[k+1] came out. calc_deriv_cost should be False")
-                    # c1gc = max_g_func(g_params["car2"])
-                    # c1gc = ProductStateProximityCost(g_params["car2"])
                     c1gc = max_g_func
                     self._player_costs[ii].add_cost(c1gc, "x", 0.0)
                     calc_deriv_cost.appendleft("False")
@@ -850,9 +650,6 @@ class ILQSolver(object):
                 func_array.appendleft(func_key)
                 func_return_array.appendleft(c1gc)
                     
-                # Calculating hessians and gradients at time-step k
-                # Append left since we are going backwards in time
-                #for ii in range(self._num_players):
                 if k == self._horizon:
                     _, r, l, Q, R = self._player_costs[ii].quadraticize(
                         xs[k], np.zeros((self._num_players, self._horizon, self._num_players, 1)), k, self._calc_deriv_true_P2, ii)
@@ -865,49 +662,21 @@ class ILQSolver(object):
                 rs[ii].appendleft(r)
                 
     
-                for jj in range(self._num_players):   # I DON'T KNOW ABOUT THIS! RE-CHECK!!!!!
+                for jj in range(self._num_players):
                     Rs[ii][jj].appendleft(R[jj])
                         
-                        
-                # Calculae cost at time-step k
-                #for ii in range(self._num_players):
-                # costs[ii].append(self._player_costs[ii](
-                #     torch.as_tensor(xs[k].copy()),
-                #     [torch.as_tensor(ui) for ui in us],
-                #     k, self._calc_deriv_true_P2))
-                
-                # Calculate cost for function l, g or none at time-step k?
                 costs.append(self._player_costs[ii](
                     torch.as_tensor(xs[k].copy()),
                     [torch.as_tensor(ui) for ui in us],
                     k, self._calc_deriv_true_P2))
                 
-            # print("calc_derive_cost is: ", calc_deriv_cost)
-                
-            # Adding a extra one to see what happens. DELETE IF IT DOESN'T WORK
-            #calc_deriv_cost.appendleft("False") 
-            # a = np.zeros((len(xs[0]), len(xs[0]))) # Change back to 0.01
-            # b = np.zeros((len(xs[0]), 1))
-            
-            # # a= np.identity(len(xs[0])) * 0.1 # Change back to 0.01
-            # # b = np.zeros((len(xs[0]), 1))
-            
-            # Qs[ii].append(a)
-            # ls[ii].append(b)
-            
-            #print("costs is: ", costs)
-            #print("costs[0] is: ", costs[0])
-            #total_costs = [sum(costis).item() for costis in costs]
-            # total_costs = [costis.item() for costis in costs]
-            # total_costs = sum(total_costs)
             total_costs = max([c.detach().numpy().flatten()[0] for c in costs])
-            # print("total_costs is: ", total_costs)
         
-    #     #car1_polyline_cost = QuadraticPolylineCost(car1_polyline, car2_position_indices, "car1_polyline")
         elif ii == 2:
             for k in range(self._horizon, -1, -1):
                 self._player_costs[ii] = PlayerCost()
-                hold_new = ProximityCost((10, 11), (10, 30), 1, name="ped_goal")(xs[k])
+                # hold_new = ProximityCost((10, 11), (10, 30), 1, name="ped_goal")(xs[k])
+                hold_new = PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")(xs[k])
                 target_margin_func[k] = hold_new
             
                 max_g_func = self._CheckMultipleFunctionsP3_refactored(g_params, xs, k)
@@ -935,13 +704,13 @@ class ILQSolver(object):
                     func_key = max(value_function_compare, key = value_function_compare.get)
 
                 if func_key == "l_x":
-                    c1gc = ProximityCost((10, 11), (15, 30), 1, name="ped_goal")
+                    c1gc = PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
                     self._player_costs[ii].add_cost(c1gc, "x", 1.0)
                     calc_deriv_cost.appendleft("True")
                     self._calc_deriv_true_P3 = True
                 elif func_key == "g_x":
                     c1gc = max_g_func
-                    self._player_costs[ii].add_cost(c1gc, "x", 0.1)
+                    self._player_costs[ii].add_cost(c1gc, "x", 1.0)
                     calc_deriv_cost.appendleft("True")
                     self._calc_deriv_true_P3 = True
                 else:
@@ -952,9 +721,6 @@ class ILQSolver(object):
                 func_array.appendleft(func_key)
                 func_return_array.appendleft(c1gc)
                     
-                # Calculating hessians and gradients at time-step k
-                # Append left since we are going backwards in time
-                #for ii in range(self._num_players):
                 if k == self._horizon:
                     _, r, l, Q, R = self._player_costs[ii].quadraticize(
                         xs[k], np.zeros((self._num_players, self._horizon, self._num_players, 1)), k, self._calc_deriv_true_P3, ii)
@@ -966,10 +732,9 @@ class ILQSolver(object):
                 ls[ii].appendleft(l)
                 rs[ii].appendleft(r)
     
-                for jj in range(self._num_players):   # I DON'T KNOW ABOUT THIS! RE-CHECK!!!!!
+                for jj in range(self._num_players):
                     Rs[ii][jj].appendleft(R[jj])
                         
-                # Calculate cost for function l, g or none at time-step k?
                 costs.append(self._player_costs[ii](
                     torch.as_tensor(xs[k].copy()),
                     [torch.as_tensor(ui) for ui in us],
@@ -982,9 +747,6 @@ class ILQSolver(object):
     
     def _CheckMultipleFunctionsP1_refactored(self, g_params, xs, k):
         max_func = dict()
-        # max_func[ProductStateProximityCost] = ProductStateProximityCost(g_params)(xs[k+1]).detach().numpy().flatten()[0]
-        # max_func[self._DistanceToBlockTarget] = self._DistanceToBlockTarget(xs[k+1], g_params["position_indices"][0])
-        # max_func[ProductStateProximityCost] = self._ProximityDistance(xs[k+1], g_params["position_indices"][0], g_params["position_indices"][0], g_params["distance_threshold"])
         
         max_val, func_of_max_val = CollisionPenalty(g_params)(xs[k])
         max_func[func_of_max_val] = max_val
@@ -993,18 +755,10 @@ class ILQSolver(object):
         max_func[func_of_max_val] = max_val
 
         # max_val, func_of_max_val = ManeuverPenalty(g_params)(xs[k])
-        # max_func[func_of_max_val] = max_val
-        # max_func[RoadRulesPenalty] = RoadRulesPenalty(g_params)(xs[k+1]).detach().numpy().flatten()[0]
-        # max_func[SemiquadraticPolylineCostAny] = SemiquadraticPolylineCostAny(g_params)(xs[k+1]).detach().numpy().flatten()[0]
         return max(max_func, key=max_func.get)
 
     def _CheckMultipleFunctionsP2_refactored(self, g_params, xs, k):
         max_func = dict()
-        # max_func[ProductStateProximityCost] = ProductStateProximityCost(g_params)(xs[k+1]).detach().numpy().flatten()[0]
-        # max_func[self._DistanceToBlockTarget] = self._DistanceToBlockTarget(xs[k+1], g_params["position_indices"][1])
-        # max_func[ProductStateProximityCost] = self._ProximityDistance(xs[k+1], g_params["position_indices"][0], g_params["position_indices"][0], g_params["distance_threshold"])
-        # max_func[SemiquadraticPolylineCostAny] = SemiquadraticPolylineCostAny(g_params)(xs[k+1]).detach().numpy().flatten()[0]
-        # max_func[RoadRulesPenalty] = RoadRulesPenalty(g_params)(xs[k+1]).detach().numpy().flatten()[0]
         
         max_val, func_of_max_val = CollisionPenalty(g_params)(xs[k])
         max_func[func_of_max_val] = max_val

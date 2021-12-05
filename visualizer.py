@@ -284,7 +284,7 @@ class Visualizer(object):
                         label = "Player {}, iteration {}".format(ii, iteration),
                         alpha = 0.4,
                         linewidth = 2,
-                         marker='o', markersize = 5
+                         marker='o', markersize = 10
                         #  linewidth = self.linewidth_from_data_units(1.988, ax)
                     )
 
