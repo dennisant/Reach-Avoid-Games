@@ -27,11 +27,11 @@ def draw_real_car(player_id, car_states):
         if player_id == 0:
             state = car_states[i][:5].flatten()
             color = "r"
-            path = "delorean.png"
+            path = "visual_components/delorean.png"
         else:
             state = car_states[i][5:].flatten()
             color = "g"
-            path = "car_robot_r.png"
+            path = "visual_components/car_robot_r.png"
 
         transform_data = Affine2D().rotate_deg_around(*(state[0], state[1]), state[2]/np.pi * 180) + plt.gca().transData
         # plt.plot(state[0], state[1], color=color, marker='o', markersize=5, alpha = 0.4)
@@ -46,6 +46,27 @@ def draw_real_car(player_id, car_states):
                 # alpha=(1.0/len(car_states))*i,
                 zorder = 10.0,
                 clip_on=True)
+
+def draw_real_human(states, variation=0):
+    for i in range(len(states)):
+        state = states[i][10:]
+        transform_data = Affine2D().rotate_deg_around(*(state[0], state[1]), (state[2] + np.pi * 0.5)/np.pi * 180) + plt.gca().transData
+        plt.imshow(
+            plt.imread("visual_components/human-walking-topdown-step{}.png".format(variation), format="png"), 
+            transform = transform_data, 
+            interpolation='none',
+            origin='lower',
+            extent=[state[0] - 1.2, state[0] + 1.2, state[1] + 1.2, state[1] - 1.2],
+            zorder = 10.0,
+            clip_on=True
+        )
+
+def draw_crosswalk(x, y, width, length, number_of_dashes = 5):
+    per_length = length * 0.5 / number_of_dashes
+    for i in range(number_of_dashes):
+        crosswalk = plt.Rectangle(
+            [x + (2*i + 0.5)*per_length, y], width = per_length, height = width, color = "white", lw = 0, zorder = 0)
+        plt.gca().add_patch(crosswalk)
 
 # Read log
 dir = "logs"
@@ -191,7 +212,7 @@ if not os.path.exists("animation_tmp"):
 for i in range(len(data)):
     state = data.iloc[i].to_numpy()
     plt.figure(0, figsize=(8, 10))
-    _plot_lims = [-5, 25, -2,  40]
+    _plot_lims = [-5, 25, 0,  40]
 
     ax = plt.gca()
     ax.set_xlabel("$x(t)$")
@@ -212,42 +233,60 @@ for i in range(len(data)):
 
     plt.title("ILQ solver solution")
 
+    # plt.imshow(
+    #     plt.imread("visual_components/grass-background-2.png", format="png"), 
+    #     interpolation='none',
+    #     origin='lower',
+    #     extent=_plot_lims,
+    #     # alpha = 0.8, 
+    #     zorder = -3,
+    #     clip_on=True)
+
+    grass = plt.Rectangle(
+        [-5, 0], width = 30, height = 40, color = "k", lw = 0, zorder = -2, alpha = 0.5)
+    plt.gca().add_patch(grass)
+
     # plot road rules
     x_center = road_rules["x_min"] + 0.5 * (road_rules["x_max"] - road_rules["x_min"])
     y_center = road_rules["y_min"] + 0.5 * (road_rules["y_max"] - road_rules["y_min"])
     road = plt.Rectangle(
-        [road_rules["x_min"], 0], width = road_rules["x_max"] - road_rules["x_min"], height = y_max, color = "k", alpha = 0.5, lw = 0, zorder = 0)
+        [road_rules["x_min"], 0], width = road_rules["x_max"] - road_rules["x_min"], height = y_max, color = "darkgray", lw = 0, zorder = -2)
     plt.gca().add_patch(road)
     road = plt.Rectangle(
-        [road_rules["x_max"], road_rules["y_min"]], width = x_max, height = road_rules["y_max"] - road_rules["y_min"], color = "k", alpha = 0.5, lw = 0, zorder = 0)
+        [road_rules["x_max"], road_rules["y_min"]], width = x_max, height = road_rules["y_max"] - road_rules["y_min"], color = "darkgray", lw = 0, zorder = -2)
     plt.gca().add_patch(road)
 
-    ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c='k')
-    ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c='k')
-    ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c='k')
-    ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c='k')
-    ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c='k')
-    ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c='k')
-    ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c='k')
-    ax.plot([x_center, x_center], [0, y_max], "--", c = 'gold', linewidth = 5, dashes=(5, 5))
-    ax.plot([road_rules["x_max"], x_max], [y_center, y_center], "--", c = 'gold', linewidth = 5, dashes=(5, 5))
+    crosswalk_width = 3
+    crosswalk_length = road_rules["x_max"] - road_rules["x_min"]
+    draw_crosswalk(road_rules["x_min"], 30 - crosswalk_width*0.5, crosswalk_width, crosswalk_length)
+
+    ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c="white", linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c="white", linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c="white", linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c="white", linewidth = 2, zorder = -1)
+    ax.plot([x_center, x_center], [0, y_max], "--", c = 'white', linewidth = 5, dashes=(5, 5), zorder = -1)
+    ax.plot([road_rules["x_max"], x_max], [y_center, y_center], "--", c = 'white', linewidth = 5, dashes=(5, 5), zorder = -1)
 
     # draw two cars using (x0, y0, theta0) and (x1, y1, theta1)
     draw_real_car(0, [state])
     draw_real_car(1, [state])
-    plt.plot(
-        state[10], state[11],
-        _player_linestyles[2],
-        alpha = 0.4,
-        linewidth = 2, marker='o', markersize = 10
-    )
+    draw_real_human([state], i%2)
+    # plt.plot(
+    #     state[10], state[11],
+    #     _player_linestyles[2],
+    #     alpha = 0.4,
+    #     linewidth = 2, marker='o', markersize = 10
+    # )
     plt.pause(0.001)
     plt.savefig('animation_tmp/{}.jpg'.format(i)) # Trying to save these plots
     plt.clf()
 
 # Build GIF
 image_count = len(os.listdir("animation_tmp"))
-with imageio.get_writer('{}.gif'.format(experiment_name), mode='I') as writer:
+with imageio.get_writer('GIF/{}.gif'.format(experiment_name), mode='I') as writer:
     for i in range(image_count):
         filename = "{}.jpg".format(i)
         image = imageio.imread(os.path.join("animation_tmp", filename))

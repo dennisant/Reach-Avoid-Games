@@ -170,11 +170,11 @@ class Visualizer(object):
             if player_id == 0:
                 state = car_states[i][:5].flatten()
                 color = "r"
-                path = "delorean.png"
+                path = "visual_components/delorean.png"
             else:
                 state = car_states[i][5:].flatten()
                 color = "g"
-                path = "car_robot_r.png"
+                path = "visual_components/car_robot_r.png"
 
             transform_data = Affine2D().rotate_deg_around(*(state[0], state[1]), state[2]/np.pi * 180) + plt.gca().transData
             # plt.plot(state[0], state[1], color=color, marker='o', markersize=5, alpha = 0.4)

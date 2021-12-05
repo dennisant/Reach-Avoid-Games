@@ -12,7 +12,7 @@ def draw_real_car(path, x, y, theta):
         alpha = 0.5,
         clip_on=True)
 
-paths = ['delorean.png', 'delorean.png', 'delorean.png', 'delorean.png']
+paths = ['visual_components/.png', 'visual_components/delorean.png', 'visual_components/delorean.png', 'visual_components/delorean.png']
 thetas = [90, 60, 45, 30]
 x = [0, 2, 4, 6]
 y = [0, 2, 4, 6]
