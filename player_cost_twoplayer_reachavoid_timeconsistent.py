@@ -75,9 +75,9 @@ class PlayerCost(object):
             global total_cost
             #Print the cost input (DELETE THIS WHEN DONE):
             #print("time_star in player_cost is: ", time_star)
-            #print("This is for k = ", k)
+            # print("This is for k = ", k)
             #print("self._costs is: ", self._costs)
-            #print("This is for the cost: ", cost._name)
+            # print("This is for the cost: ", cost._name)
             #print("cost input is: ", cost_input)
             #print("weight is: ", weight)
             #print("The cost(cost_input,k) is: ", cost(cost_input,k))
@@ -189,32 +189,39 @@ class PlayerCost(object):
                     cost_torch, ui_torch, create_graph=True, allow_unused=True)[0]
                 for ui_torch in u_torch]
 
+            # print(grad_x_torch[2][0], grad_x_torch[7][0])
+
             # Compute Hessians (and store numpy versions), and be careful to
             # catch Nones (which indicate cost not depending on a particular
             # variable).
             hess_x = np.zeros((len(x), len(x)))
             grad_x = np.zeros((len(x), 1))
-            if grad_x_torch is not None and grad_x_torch.grad_fn is not None:
+            
+            if grad_x_torch is not None:
                 grad_x = grad_x_torch.detach().numpy().copy()
+            
+            if grad_x_torch is not None and grad_x_torch.grad_fn is not None:
+                # print("NO HESSIAN FOR K = {}".format(k))
+                # grad_x = grad_x_torch.detach().numpy().copy()
                 for ii in range(len(x)):
                     hess_row = torch.autograd.grad(
                         grad_x_torch[ii, 0], x_torch, retain_graph=True)[0]  # Added allow_unused=True. Delete that part if not true
                     hess_x[ii, :] = hess_row.detach().numpy().copy().T
 
-            hess_u = []
-            for ii in range(num_players):
-                hess_ui = np.zeros((len(u[ii]), len(u[ii])))
-                grad_ui_torch = grad_u_torch[ii]
-                if grad_ui_torch is not None:
-                    grad_ui = grad_ui_torch.detach().numpy().copy()
-                    for dim in range(len(u[ii])):
-                        hess_row = torch.autograd.grad(
-                            grad_ui_torch[dim, 0], u_torch[ii], retain_graph=True)[0]
-                        print("hess_row is: ", hess_row)
-                        hess_ui[dim, :] = hess_row.detach().numpy().copy().T
-                        print("hess_ui[dim, :] is: ", hess_ui[dim, :])
+            # hess_u = []
+            # for ii in range(num_players):
+            #     hess_ui = np.zeros((len(u[ii]), len(u[ii])))
+            #     grad_ui_torch = grad_u_torch[ii]
+            #     if grad_ui_torch is not None:
+            #         grad_ui = grad_ui_torch.detach().numpy().copy()
+            #         for dim in range(len(u[ii])):
+            #             hess_row = torch.autograd.grad(
+            #                 grad_ui_torch[dim, 0], u_torch[ii], retain_graph=True)[0]
+            #             # print("hess_row is: ", hess_row)
+            #             hess_ui[dim, :] = hess_row.detach().numpy().copy().T
+            #             # print("hess_ui[dim, :] is: ", hess_ui[dim, :])
 
-                hess_u.append(hess_ui)
+            #     hess_u.append(hess_ui)
                 
                 
             gradient_u = np.zeros((num_players, len(u[0])))
@@ -225,16 +232,16 @@ class PlayerCost(object):
                     gradient_u[ii, :] = grad_ui_torch.detach().numpy().copy().T
                 
             eps_control = 1.4
-            eps_state = 0.1
+            eps_state = 0.15
             
             hess_x = hess_x + np.identity(len(x)) * eps_state # Added 0.01 to this. Delete if doesn't work
-            hess_u = [np.identity(2) * eps_control, np.identity(2) * eps_control]
+            hess_u = [np.identity(2) * eps_control, np.identity(2) * eps_control, np.identity(2) * eps_control]
             
-            gradient_u = np.vstack((eps_control * u[0].T, eps_control * u[1].T))
+            gradient_u = np.vstack((eps_control * u[0].T, eps_control * u[1].T, eps_control * u[2].T))
                 
         else:
             eps_control = 1.4
-            eps_state = 0.1
+            eps_state = 0.15
             x_torch = torch.from_numpy(x).requires_grad_(True)
             u_torch = [torch.from_numpy(ui).requires_grad_(True) for ui in u]
 
@@ -244,9 +251,8 @@ class PlayerCost(object):
             
             hess_x = np.identity(len(x)) * eps_state # Change back to 0.01
             grad_x = np.zeros((len(x), 1))
-            hess_u = [np.identity(2) * eps_control, np.identity(2) * eps_control]
+            hess_u = [np.identity(2) * eps_control, np.identity(2) * eps_control, np.identity(2) * eps_control]
             
-            gradient_u = np.vstack((eps_control * u[0].T, eps_control * u[1].T))
+            gradient_u = np.vstack((eps_control * u[0].T, eps_control * u[1].T, eps_control * u[2].T))
             
-
         return cost, gradient_u, grad_x, hess_x, hess_u

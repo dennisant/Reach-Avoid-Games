@@ -76,3 +76,6 @@ class Point(object):
             return torch.sqrt(self.norm_squared())
 
         return np.sqrt(self.norm_squared())
+
+    def render(self, ax):
+        ax.scatter(self.x, self.y)

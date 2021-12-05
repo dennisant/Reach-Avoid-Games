@@ -39,6 +39,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 #
 ################################################################################
 
+from math import e
 import numpy as np
 from collections import deque
 
@@ -77,7 +78,7 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
     # Unpack horizon and number of players.
     horizon = len(As) - 1
     num_players = len(Bs)
-    print("TTTT num_players is: ", num_players)
+    # print("TTTT num_players is: ", num_players)
 
     # Cache dimensions of state and controls for each player.
     x_dim = As[0].shape[0]
@@ -107,8 +108,13 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
 
         Z = [Zis[0] for Zis in Zs]
         zeta = [zetais[0] for zetais in zetas]
-        
 
+        # print("Zs ", Zs[0])
+        # print("zetas ", zetas[0])
+        # print("Z ", Z[0])
+        # print("Q ", Q[0])
+        # input()
+        
         # Compute Ps given previously computed Zs.
         # Refer to equation 6.17a in Basar and Olsder.
         # This will involve solving a system of matrix linear equations of the
@@ -130,7 +136,6 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
         #         Z[ii] = Q[ii]
         #         zeta[ii] = l[ii]
         
-        
         S_rows = []
         for ii in range(num_players):
             Sis = []
@@ -141,7 +146,7 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
                     Sis.append(B[ii].T @ Z[ii] @ B[jj])
 
             S_rows.append(np.concatenate(Sis, axis=1))
-        #print("S_rows[0].shape is: ", S_rows[0].shape)
+        # print("S_rows[0].shape is: ", S_rows[0].shape)
 
         S = np.concatenate(S_rows, axis=0)
         Y = np.concatenate(
@@ -176,22 +181,17 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
             #         [P_split[jj].T @ R[ii][jj] @ P_split[jj]
             #           for jj in range(num_players)]))
             
-            
             if calc_deriv_cost[ii][k] == 'True':
-                Z[ii] = Q[ii]
-                Zs[ii].appendleft(F.T @ Z[ii] @ F + Q[ii] + sum(
-                    [P_split[jj].T @ R[ii][jj] @ P_split[jj]
-                      for jj in range(num_players)]))
-                print("Q[ii] in solve_lq_game is: ", Q[ii])
+                Zs[ii].appendleft(Q[ii])
+                # Zs[ii].appendleft(F.T @ Z[ii] @ F + Q[ii] + sum(
+                #     [P_split[jj].T @ R[ii][jj] @ P_split[jj]
+                #       for jj in range(num_players)]))
+                # print("Q[ii] in solve_lq_game is: ", Q[ii])
             else:
                 Zs[ii].appendleft(F.T @ Z[ii] @ F + Q[ii] + sum(
                     [P_split[jj].T @ R[ii][jj] @ P_split[jj]
                       for jj in range(num_players)]))
             
-            
-            
-            
-
         # Compute alphas using previously computed zetas.
         # Refer to equation 6.17d in Basar and Olsder.
         # This will involve solving a system of linear matrix equations of the
@@ -220,7 +220,6 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
         beta = -sum([B[ii] @ alpha_split[ii] for ii in range(num_players)])
         betas.appendleft(beta)
 
-        
         # Update zetas to be the next step earlier in time (now they
         # correspond to time k+1). This is Remark 6.3 in Basar and Olsder.
         #print("shape of P_split[0] is: ", P_split[0].shape)
@@ -233,19 +232,16 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
             #         [P_split[jj].T @ R[ii][jj] @ alpha_split[jj] - P_split[jj].T @ r[ii][jj:jj+1].T
             #           for jj in range(num_players)]))
             
-            
             if calc_deriv_cost[ii][k] == 'True':
-                zeta[ii] = l[ii]
-                zetas[ii].appendleft(F.T @ (zeta[ii] + Z[ii] @ beta) + l[ii] + sum(
-                    [P_split[jj].T @ R[ii][jj] @ alpha_split[jj] - P_split[jj].T @ r[ii][jj:jj+1].T
-                      for jj in range(num_players)]))
-                print("l[ii] in solve_lq_game is: ", l[ii])
+                zetas[ii].appendleft(l[ii])
+                # zetas[ii].appendleft(F.T @ (zeta[ii] + Z[ii] @ beta) + l[ii] + sum(
+                #     [P_split[jj].T @ R[ii][jj] @ alpha_split[jj] - P_split[jj].T @ r[ii][jj:jj+1].T
+                #       for jj in range(num_players)]))
+                # print("l[ii] in solve_lq_game is: ", l[ii])
             else:
                 zetas[ii].appendleft(F.T @ (zeta[ii] + Z[ii] @ beta) + l[ii] + sum(
                     [P_split[jj].T @ R[ii][jj] @ alpha_split[jj] - P_split[jj].T @ r[ii][jj:jj+1].T
                       for jj in range(num_players)]))
-
-
 
     # - P_split[jj].T @ r[ii][0][jj].T
     #print("P is: ", Ps)

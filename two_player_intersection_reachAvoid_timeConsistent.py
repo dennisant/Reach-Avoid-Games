@@ -74,13 +74,14 @@ from quadratic_polyline_cost import QuadraticPolylineCost
 from player_cost_threeplayer_reachavoid_timeconsistent import PlayerCost
 from box_constraint import BoxConstraint
 from nominal_velocity_deviation_cost import NominalVelocityDeviationCost
+from unicycle_4d import Unicycle4D
 
 from visualizer import Visualizer
 from logger import Logger
 import math
 
 # General parameters.
-TIME_HORIZON = 4.0    # s #Change back to 2.0
+TIME_HORIZON = 3.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 LOG_DIRECTORY = "./logs/three_player/"
@@ -90,13 +91,14 @@ LOG_DIRECTORY = "./logs/three_player/"
 # car2 = Car5D(4.0)
 car1 = Car5D(2.413)
 car2 = Car5D(2.413)
-#ped = PointMass2D()
-dynamics = ProductMultiPlayerDynamicalSystem(
-    [car1, car2], T=TIME_RESOLUTION)
+ped = Unicycle4D()
 
-car3 = Car10D(4.0)
-dynamics_10D = ProductMultiPlayerDynamicalSystem(
-    [car3], T=TIME_RESOLUTION)
+dynamics = ProductMultiPlayerDynamicalSystem(
+    [car1, car2, ped], T=TIME_RESOLUTION)
+
+# car3 = Car10D(4.0)
+# dynamics_10D = ProductMultiPlayerDynamicalSystem(
+#     [car3], T=TIME_RESOLUTION)
 
 # Choose initial states and set initial control laws to zero, such that
 # we start with a situation that looks like this:
@@ -121,10 +123,11 @@ dynamics_10D = ProductMultiPlayerDynamicalSystem(
 # continue straight in their initial direction of motion.
 # We shall assume that lanes are 4 m wide and set the origin to be in the
 # bottom left along the road boundary.
-car1_theta0 = np.pi / 2.0 # 90 degree heading
+car1_theta0 = np.pi / 2.01 # 90 degree heading
 car1_v0 = 5.0             # 5 m/s initial speed
 car1_x0 = np.array([
-    [7.0],
+    [7.25],
+    # [3.75],
     [0.0],
     [car1_theta0],
     [0.0],
@@ -140,11 +143,12 @@ car1_x0 = np.array([
 #     [car1_v0]
 # ])
 
-car2_theta0 = -np.pi / 2.0 # -90 degree heading
-car2_v0 = 5.0              # 2 m/s initial speed
+car2_theta0 = -np.pi / 2.01 # -90 degree heading
+car2_v0 = 10.0              # 2 m/s initial speed
 car2_x0 = np.array([
-    [4.0],
-    [25.0],
+    [3.75],
+    # [7.0],
+    [35.0],
     [car2_theta0],
     [0.0],
     [car2_v0]
@@ -160,56 +164,79 @@ car2_x0 = np.array([
 #     [car2_v0]
 # ])
 
-#ped_vx0 = 0.25 # moving right at 0.25 m/s
-#ped_vy0 = 0.0   # moving normal to traffic flow
-#ped_x0 = np.array([
-#    [-4.0],
-#    [19.0],
-#    [ped_vx0],
-#    [ped_vy0]
-#])
+ped_theta0 = 0.0 # moving right at 0.25 m/s
+ped_v0 = 2.0   # moving normal to traffic flow
+ped_x0 = np.array([
+   [-4.0],
+   [30.0],
+   [ped_theta0],
+   [ped_v0]
+])
 
 ###################
 road_rules = {
     "x_min": 2,
-    "x_max": 9,
-    "y_max": 17,
-    "y_min": 10,
-    "width": 3.5
+    "x_max": 9.4,
+    "y_max": 27.4,
+    "y_min": 20,
+    # "y_max": 12,
+    # "y_min": 5,
+    "width": 3.7
 }
+
+car_params = {
+    "wheelbase": 2.413, 
+    "length": 4.267,
+    "width": 1.988
+}
+
+collision_r = math.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
+
+car2_polyline = Polyline([Point(4.5, 15.0),
+                          Point(4.5, -5.0)])
+car1_polyline = Polyline([Point(8.5, -100.0), Point(8.5, 100.0)])
 
 g_params = {
     "car1": {
-        "position_indices": [(0, 1), (5, 6)],
+        "position_indices": [(0,1), (5, 6)],
+        "distance_threshold": 3.0,
         "player_id": 0, 
-        "goals": [20, 25],
+        "polyline": car1_polyline,
         "road_logic": [0, 1, 0, 1, 0],
-        "road_rules": road_rules
+        "road_rules": road_rules,
+        "collision_r": collision_r,
+        "goals": [20, 35],
+        "car_params": car_params,
+        "theta_indices": [2, 7]
     },
     "car2": {
-        "position_indices": [(0, 1), (5, 6)],
+        "position_indices": [(0,1), (5, 6)],
+        "distance_threshold": 3.0,
         "player_id": 1, 
+        "polyline": car2_polyline,
+        "road_logic": [1, 0, 0, 1, 0],
+        "road_rules": road_rules,
+        "collision_r": collision_r,
         "goals": [20, 0],
-        "road_logic": [1, 0, 0, 1, 1],
-        "road_rules": road_rules
+        "car_params": car_params,
+        "theta_indices": [2, 7]
     }
 }
 ###################
 
-stacked_x0 = np.concatenate([car1_x0, car2_x0], axis=0)
+stacked_x0 = np.concatenate([car1_x0, car2_x0, ped_x0], axis=0)
 
 car1_Ps = [np.zeros((car1._u_dim, dynamics._x_dim))] * HORIZON_STEPS
 car2_Ps = [np.zeros((car2._u_dim, dynamics._x_dim))] * HORIZON_STEPS
-#ped_Ps = [np.zeros((ped._u_dim, dynamics._x_dim))] * HORIZON_STEPS
+ped_Ps = [np.zeros((ped._u_dim, dynamics._x_dim))] * HORIZON_STEPS
 
 car1_alphas = [np.zeros((car1._u_dim, 1))] * HORIZON_STEPS
 car2_alphas = [np.zeros((car2._u_dim, 1))] * HORIZON_STEPS
-#ped_alphas = [np.zeros((ped._u_dim, 1))] * HORIZON_STEPS
+ped_alphas = [np.zeros((ped._u_dim, 1))] * HORIZON_STEPS
 
 
 # Create environment:
 car1_position_indices_in_product_state = (0, 1)
-car1_polyline = Polyline([Point(8.5, -100.0), Point(8.5, 100.0)])
 #car1_polyline_boundary_cost = SemiquadraticPolylineCost(
 #    car1_polyline, 1.0, car1_position_indices_in_product_state,
 #    "car1_polyline_boundary")
@@ -230,8 +257,6 @@ car1_dist_sep = 2
 
 # Environment for Car 2
 car2_position_indices_in_product_state = (5, 6)
-car2_polyline = Polyline([Point(4.5, 15.0),
-                          Point(4.5, -5.0)])
 #car2_polyline_boundary_cost = SemiquadraticPolylineCost(
 #    car2_polyline, 1.0, car2_position_indices_in_product_state,
 #    "car2_polyline_boundary")
@@ -250,11 +275,10 @@ car2_goal_cost_2 = ProximityToBlockCost(g_params["car2"])
 car2_dist_sep = 2
 
 # Environment for Pedestrian
-#ped_position_indices_in_product_state = (10, 11)
-#ped_goal = Point(10.0, 19.0)
-#ped_goal_cost = ProximityCost(
-#    ped_position_indices_in_product_state, ped_goal, np.inf, "ped_goal")
-
+ped_position_indices_in_product_state = (10, 11)
+ped_goal = Point(15.0, 30.0)
+ped_goal_cost = ProximityCost(
+   ped_position_indices_in_product_state, ped_goal, np.inf, "ped_goal")
 
 
 car1_polyline = Polyline([Point(6.0, -100.0), Point(6.0, 100.0)])
@@ -318,43 +342,6 @@ car2_a_cost = QuadraticCost(1, 0.0, "car2_a")
 car1_player_id = 0
 car2_player_id = 1
 
-road_rules = {
-    "x_min": 2,
-    "x_max": 9,
-    "y_max": 17,
-    "y_min": 10,
-    "width": 3.5
-}
-
-car_params = {
-    "wheelbase": 2.413, 
-    "length": 4.267,
-    "width": 1.988
-}
-
-collision_r = math.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
-
-g_params = {
-    "car1": {
-        "position_indices": [(0,1), (5, 6)],
-        "distance_threshold": 3.0,
-        "player_id": car1_player_id, 
-        "polyline": car1_polyline,
-        "road_logic": [0, 1, 0, 1, 0],
-        "road_rules": road_rules,
-        "collision_r": collision_r
-    },
-    "car2": {
-        "position_indices": [(0,1), (5, 6)],
-        "distance_threshold": 3.0,
-        "player_id": car2_player_id, 
-        "polyline": car2_polyline,
-        "road_logic": [1, 0, 0, 1, 1],
-        "road_rules": road_rules,
-        "collision_r": collision_r
-    }
-}
-
 # Proximity cost.
 CAR_PROXIMITY_THRESHOLD = 3.0
 car1_proximity_cost = ProductStateProximityCost(
@@ -369,61 +356,23 @@ car2_proximity_cost = ProductStateProximityCostAdversarial(
 # Build up total costs for both players. This is basically a zero-sum game.
 car1_cost = PlayerCost()
 car1_cost.add_cost(car1_goal_cost_1, "x", 1.0) #30.0 # -1.0
-#car1_cost.add_cost(car1_polyline_cost, "x", 50.0) # 50.0
-#car1_cost.add_cost(car1_polyline_boundary_cost, "x", 200.0) # 200.0
-#car1_cost.add_cost(car1_maxv_cost, "x", 100.0) # 100.0
-#car1_cost.add_cost(car1_minv_cost, "x", 100.0) # 100.0
-#car1_cost.add_cost(car1_proximity_cost, "x", 300.0) # 100.0
-#car1_cost.add_cost(car1_nom_vel_dev, "x", 50.0)
-
 car1_player_id = 0
-#car1_cost.add_cost(car1_steering_cost, car1_player_id, 50.0) # 50.0
-#car1_cost.add_cost(car1_a_cost, car1_player_id, 1.0) # 1.0
 
 car2_cost = PlayerCost()
 car2_cost.add_cost(car2_goal_cost_1, "x", 1.0) #30.0 # -1.0
-#car2_cost.add_cost(car2_polyline_cost, "x", 250.0) #50.0
-#car2_cost.add_cost(car2_polyline_boundary_cost, "x", 100.0) # 200.0
-#car2_cost.add_cost(car2_maxv_cost, "x", 80.0) # 100.0
-#car2_cost.add_cost(car2_minv_cost, "x", 80.0) # 100.0
-#car2_cost.add_cost(car2_proximity_cost, "x", 10.0) # 100.0
-#car2_cost.add_cost(car2_nom_vel_dev, "x", 50.0)
-
 car2_player_id = 1
-#car2_cost.add_cost(car2_steering_cost, car2_player_id, 50.0) # 50.0
-#car2_cost.add_cost(car2_a_cost, car2_player_id, 1.0) # 1.0
 
-
-#ped_cost = PlayerCost()
-#ped_cost.add_cost(ped_goal_cost, "x", 1.0)
-
-#ped_cost.add_cost(ped_maxvx_cost, "x", 100.0)
-#ped_cost.add_cost(ped_maxvy_cost, "x", 100.0)
-#ped_cost.add_cost(proximity_cost, "x", 2.0)
-
-#ped_player_id = 2
-#ped_cost.add_cost(ped_ax_cost, ped_player_id, 0.001)
-#ped_cost.add_cost(ped_ay_cost, ped_player_id, 0.001)
-
-
-# Visualizer.
-#visualizer = Visualizer(
-#    [car1_position_indices_in_product_state,
-#     car2_position_indices_in_product_state],
-#    [car1_polyline_boundary_cost,
-#     car1_goal_cost,
-#     car2_polyline_boundary_cost,
-#     car2_goal_cost],
-#    [".-r", ".-g", ".-b"],
-#    1,
-#    False,
-#    plot_lims=[-5, 25, -5, 35])
+ped_cost = PlayerCost()
+ped_cost.add_cost(ped_goal_cost, "x", 1.0) #30.0 # -1.0
+ped_id = 2
 
 visualizer = Visualizer(
     [car1_position_indices_in_product_state,
-     car2_position_indices_in_product_state],
+     car2_position_indices_in_product_state,
+     ped_position_indices_in_product_state],
     [car1_goal_cost_2,
-    car2_goal_cost_2
+    car2_goal_cost_2,
+    ped_goal
     # RoadRulesPenalty(g_params["car1"])
     ],
     # [car1_goal_cost_1,
@@ -434,7 +383,7 @@ visualizer = Visualizer(
     1,
     False,
     # plot_lims=[0, 21, -1,  26]
-    plot_lims=[0, 25, -10,  30]
+    plot_lims=[0, 25, -2,  40]
     )
 
 # Logger.
@@ -445,15 +394,14 @@ logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_car_example.pkl'))
 
 # Set up ILQSolver.
 solver = ILQSolver(dynamics,
-                   [car1_cost, car2_cost],
+                   [car1_cost, car2_cost, ped_cost],
                    stacked_x0,
-                   [car1_Ps, car2_Ps],
-                   [car1_alphas, car2_alphas],
+                   [car1_Ps, car2_Ps, ped_Ps],
+                   [car1_alphas, car2_alphas, ped_alphas],
                    0.1,
                    None,
                    logger,
                    visualizer,
-                   [ [car1_position_indices_in_product_state, car2_position_indices_in_product_state], 
-                    [car1_goal, car2_goal], [car1_goal_radius, car2_goal_radius], [car1_dist_sep, car2_dist_sep] ])
+                   None)
 
 solver.run()
