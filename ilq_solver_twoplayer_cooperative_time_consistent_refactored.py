@@ -47,14 +47,11 @@ from scipy.linalg import block_diag
 from collections import deque
 from maneuver_penalty import ManeuverPenalty
 
-from player_cost_twoplayer_reachavoid_timeconsistent import PlayerCost
-from proximity_cost_reach_avoid_twoplayer import PedestrianProximityToBlockCost, ProximityCost, ProximityCostDuo, ProximityToBlockCost
-from distance_twoplayer_cost import CollisionPenalty, PedestrianToCarCollisionPenalty, ProductStateProximityCost
-from point import Point
-from polyline import Polyline
-# from semiquadratic_polyline_cost_any import SemiquadraticPolylineCostAny
-from semiquadratic_polyline_cost_any import RoadRulesPenalty, SemiquadraticPolylineCostAny
-from solve_lq_game_reachavoid_threeplayer_timeconsistent import solve_lq_game
+from player_cost_reachavoid_timeconsistent import PlayerCost
+from proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
+from distance_twoplayer_cost import CollisionPenalty
+from semiquadratic_polyline_cost_any import RoadRulesPenalty
+from solve_lq_game_reachavoid_timeconsistent import solve_lq_game
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")
 
@@ -140,17 +137,13 @@ class ILQSolver(object):
             xs, us = self._compute_operating_point()
             self._last_operating_point = self._current_operating_point
             self._current_operating_point = (xs, us)
-
-            # print(max([x[4] for x in xs]))
-            # print(max([x[9] for x in xs]))
-            # time.sleep(0.2)
             
-            if iteration%store_freq == 0:
-                xs_store = [xs_i.flatten() for xs_i in xs]
-                #print(xs_store[0])
-                #print(len(xs_store))
-                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
-                np.savetxt('logs/three_player/threeplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
+            # if iteration%store_freq == 0:
+            #     xs_store = [xs_i.flatten() for xs_i in xs]
+            #     #print(xs_store[0])
+            #     #print(len(xs_store))
+            #     #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
+            #     np.savetxt('logs/two_player_time_consistent/twoplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
             # Visualization.
@@ -168,9 +161,9 @@ class ILQSolver(object):
                 # plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
-                if not os.path.exists("image_outputs_{}".format(timestr)):
-                    os.makedirs("image_outputs_{}".format(timestr))
-                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
+                # if not os.path.exists("image_outputs_{}".format(timestr)):
+                #     os.makedirs("image_outputs_{}".format(timestr))
+                # plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
                 plt.clf()
             
             # print("plot is shown above")
@@ -263,7 +256,7 @@ class ILQSolver(object):
             # (7) Accumulate total costs for all players.
             # This is the total cost for the trajectory we are on now
             #total_costs = [sum(costis).item() for costis in costs]
-            print("\rTotal cost for all players:\t{:.3f}\t\t{:.3f}\t\t{:.3f}".format(total_costs[0], total_costs[1], total_costs[2]), end="")
+            print("\rTotal cost for all players:\t{:.3f}\t\t{:.3f}".format(total_costs[0], total_costs[1]), end="")
             self._total_costs = total_costs
             
             # if max(total_costs[:2]) < 0.5 or iteration > 300:
@@ -297,7 +290,6 @@ class ILQSolver(object):
             self._Ps = Ps
             self._alphas = alphas
 
-            # (5) Linesearch.
             if iteration < 5:
                 self._alpha_scaling = 1.0
             elif iteration < 25:
@@ -344,8 +336,6 @@ class ILQSolver(object):
             u = [feedback(xs[k], current_u[ii], current_x,
                           self._Ps[ii][k], self._alphas[ii][k])
                   for ii in range(self._num_players)]
-            
-            
 
             # Append computed control (u) for the trajectory we're calculating to "us"
             for ii in range(self._num_players):
@@ -440,14 +430,12 @@ class ILQSolver(object):
         """
         car1_position_indices = (0, 1)
         car2_position_indices = (5, 6)
-        ped1_position_indices = (10, 11)
+
         car1_theta_index = 2
         car2_theta_index = 7
-        ped1_theta_index = 12
         
         car1_player_id = 0
         car2_player_id = 1
-        ped1_player_id = 2
         
         # Pre-allocate hessian and gradient matrices
         Qs = [deque() for ii in range(self._num_players)]
@@ -481,50 +469,33 @@ class ILQSolver(object):
             "width": 3.7
         }
 
-        ped_road_rules = {
-            "x_min": 2,
-            "x_max": 9.4,
-            "y_max": 31,
-            "y_min": 29
-        }
-
         collision_r = m.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
 
         # order of road_logic: left, right, up, down, left_turn: [0, 1]
         g_params = {
             "car1": {
-                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
+                "position_indices": [car1_position_indices, car2_position_indices],
                 "player_id": car1_player_id, 
                 "road_rules": road_rules,
                 "collision_r": collision_r,
                 "car_params": car_params,
-                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
+                "theta_indices": [car1_theta_index, car2_theta_index],
                 "road_logic": [0, 1, 0, 1, 0],
                 "goals": [20, 35],
                 "phi_index": 3, 
                 "vel_index": 4
             },
             "car2": {
-                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
+                "position_indices": [car1_position_indices, car2_position_indices],
                 "player_id": car2_player_id, 
                 "road_rules": road_rules,
                 "collision_r": collision_r,
                 "car_params": car_params,
-                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
+                "theta_indices": [car1_theta_index, car2_theta_index],
                 "road_logic": [1, 0, 0, 1, 0],
                 "goals": [20, 0],
                 "phi_index": 8,
                 "vel_index": 9
-            },
-            "ped1": {
-                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
-                "player_id": ped1_player_id, 
-                "road_logic": [1, 1, 1, 1, 0],
-                "road_rules": ped_road_rules,
-                "goals": [15, 30],
-                "car_params": car_params,
-                "collision_r": collision_r,
-                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
             }
         }
         
@@ -659,7 +630,6 @@ class ILQSolver(object):
                 Qs[ii].appendleft(Q)
                 ls[ii].appendleft(l)
                 rs[ii].appendleft(r)
-                
     
                 for jj in range(self._num_players):
                     Rs[ii][jj].appendleft(R[jj])
@@ -668,81 +638,10 @@ class ILQSolver(object):
                     torch.as_tensor(xs[k].copy()),
                     [torch.as_tensor(ui) for ui in us],
                     k, self._calc_deriv_true_P2))
-                
-            total_costs = max([c.detach().numpy().flatten()[0] for c in costs])
-        
-        elif ii == 2:
-            for k in range(self._horizon, -1, -1):
-                self._player_costs[ii] = PlayerCost()
-                # hold_new = ProximityCost((10, 11), (10, 30), 1, name="ped_goal")(xs[k])
-                hold_new = PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")(xs[k])
-                target_margin_func[k] = hold_new
-            
-                max_g_func = self._CheckMultipleFunctionsP3_refactored(g_params, xs, k)
-                hold_prox = max_g_func(xs[k])
-                value_function_compare = dict()
-                func_key = ""
 
-                if k == self._horizon:
-                    value_function_compare = {
-                        "g_x": hold_prox,
-                        "l_x": hold_new
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key = max(value_function_compare, key = value_function_compare.get)
-                else:
-                    tmp = {
-                        "value": value_func_plus[k+1],
-                        "l_x": hold_new,
-                    }
-                    value_function_compare = {
-                        "g_x": hold_prox,
-                        min(tmp, key=tmp.get): min(tmp.values())
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key = max(value_function_compare, key = value_function_compare.get)
-
-                if func_key == "l_x":
-                    c1gc = PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
-                    self._player_costs[ii].add_cost(c1gc, "x", 1.0)
-                    calc_deriv_cost.appendleft("True")
-                    self._calc_deriv_true_P3 = True
-                elif func_key == "g_x":
-                    c1gc = max_g_func
-                    self._player_costs[ii].add_cost(c1gc, "x", 1.0)
-                    calc_deriv_cost.appendleft("True")
-                    self._calc_deriv_true_P3 = True
-                else:
-                    c1gc = max_g_func
-                    self._player_costs[ii].add_cost(c1gc, "x", 0.0)
-                    calc_deriv_cost.appendleft("False")
-                    self._calc_deriv_true_P3 = False
-                func_array.appendleft(func_key)
-                func_return_array.appendleft(c1gc)
-                    
-                if k == self._horizon:
-                    _, r, l, Q, R = self._player_costs[ii].quadraticize(
-                        xs[k], np.zeros((self._num_players, self._horizon, self._num_players, 1)), k, self._calc_deriv_true_P3, ii)
-                else:
-                    _, r, l, Q, R = self._player_costs[ii].quadraticize(
-                        xs[k], [uis[k] for uis in us], k, self._calc_deriv_true_P3, ii)
-    
-                Qs[ii].appendleft(Q)
-                ls[ii].appendleft(l)
-                rs[ii].appendleft(r)
-    
-                for jj in range(self._num_players):
-                    Rs[ii][jj].appendleft(R[jj])
-                        
-                costs.append(self._player_costs[ii](
-                    torch.as_tensor(xs[k].copy()),
-                    [torch.as_tensor(ui) for ui in us],
-                    k, self._calc_deriv_true_P3))
-                
             total_costs = max([c.detach().numpy().flatten()[0] for c in costs])
         
         return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_array, func_return_array
-    
     
     def _CheckMultipleFunctionsP1_refactored(self, g_params, xs, k):
         max_func = dict()
@@ -754,6 +653,8 @@ class ILQSolver(object):
         max_func[func_of_max_val] = max_val
 
         # max_val, func_of_max_val = ManeuverPenalty(g_params)(xs[k])
+        # max_func[func_of_max_val] = max_val
+
         return max(max_func, key=max_func.get)
 
     def _CheckMultipleFunctionsP2_refactored(self, g_params, xs, k):
@@ -768,15 +669,4 @@ class ILQSolver(object):
         # max_val, func_of_max_val = ManeuverPenalty(g_params)(xs[k])
         # max_func[func_of_max_val] = max_val
 
-        return max(max_func, key=max_func.get)
-
-    def _CheckMultipleFunctionsP3_refactored(self, g_params, xs, k):
-        max_func = dict()
-        
-        max_val, func_of_max_val = PedestrianToCarCollisionPenalty(g_params["car1"])(xs[k])
-        max_func[func_of_max_val] = max_val
-
-        max_val, func_of_max_val = PedestrianToCarCollisionPenalty(g_params["car2"])(xs[k])
-        max_func[func_of_max_val] = max_val
-        
         return max(max_func, key=max_func.get)

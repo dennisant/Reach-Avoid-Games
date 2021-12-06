@@ -54,7 +54,8 @@ class Visualizer(object):
                  show_last_k=1,
                  fade_old=False,
                  plot_lims=None,
-                 figure_number=1):
+                 figure_number=1,
+                 **kwargs):
         """
         Construct from list of position indices and renderable cost functions.
 
@@ -86,6 +87,17 @@ class Visualizer(object):
         # Each trajectory is a dictionary of lists of states and controls.
         self._iterations = []
         self._history = []
+
+        self._draw_roads = False
+        self._draw_cars = False
+        self._draw_crosswalk = False
+
+        if "draw_roads" in kwargs.keys():
+            self._draw_roads = kwargs["draw_roads"]
+        if "draw_cars" in kwargs.keys():
+            self._draw_cars = kwargs["draw_cars"]
+        if "draw_crosswalk" in kwargs.keys():
+            self._draw_crosswalk = kwargs["draw_crosswalk"]
 
     def add_trajectory(self, iteration, traj):
         """
@@ -158,7 +170,7 @@ class Visualizer(object):
                                         transform=Affine2D().rotate_deg_around(*(state[0], state[1]), rotate_deg) + plt.gca().transData)
                 plt.gca().add_patch(rec)
 
-    def draw_real_car(self, player_id, car_states):
+    def draw_real_car(self, player_id, car_states, path=None):
         # TODO: change all the constants in the function to car_params
         car_params = {
             "wheelbase": 2.413, 
@@ -170,11 +182,11 @@ class Visualizer(object):
             if player_id == 0:
                 state = car_states[i][:5].flatten()
                 color = "r"
-                path = "visual_components/delorean.png"
+                path = "visual_components/delorean.png" if path is None else path
             else:
                 state = car_states[i][5:].flatten()
                 color = "g"
-                path = "visual_components/car_robot_r.png"
+                path = "visual_components/car_robot_r.png" if path is None else path
 
             transform_data = Affine2D().rotate_deg_around(*(state[0], state[1]), state[2]/np.pi * 180) + plt.gca().transData
             # plt.plot(state[0], state[1], color=color, marker='o', markersize=5, alpha = 0.4)
@@ -189,6 +201,39 @@ class Visualizer(object):
                     # alpha=(1.0/len(car_states))*i,
                     zorder = 10.0,
                     clip_on=True)
+    
+    def draw_road_rules(self, ax, **kwargs):
+        if "road_rules" in kwargs.keys():
+            road_rules = kwargs["road_rules"]
+        else:
+            road_rules = {
+                "x_min": 2,
+                "x_max": 9.4,
+                "y_max": 27.4,
+                "y_min": 20,
+                "width": 3.7
+            }
+
+        x_max = 25
+        y_max = 40
+        
+        # plot road rules
+        x_center = road_rules["x_min"] + 0.5 * (road_rules["x_max"] - road_rules["x_min"])
+        y_center = road_rules["y_min"] + 0.5 * (road_rules["y_max"] - road_rules["y_min"])
+        road = plt.Rectangle([road_rules["x_min"], 0], width = road_rules["x_max"] - road_rules["x_min"], height = y_max, color = "k", alpha = 0.5, lw = 0)
+        plt.gca().add_patch(road)
+        road = plt.Rectangle([road_rules["x_max"], road_rules["y_min"]], width = x_max, height = road_rules["y_max"] - road_rules["y_min"], color = "k", alpha = 0.5, lw = 0)
+        plt.gca().add_patch(road)
+
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c='k')
+        ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c='k')
+        ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c='k')
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c='k')
+        ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c='k')
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c='k')
+        ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c='k')
+        ax.plot([x_center, x_center], [0, y_max], "--", c = 'gold', linewidth = 5, dashes=(5, 5))
+        ax.plot([road_rules["x_max"], x_max], [y_center, y_center], "--", c = 'gold', linewidth = 5, dashes=(5, 5))
 
     def plot(self):
         """ Plot everything. """
@@ -217,36 +262,9 @@ class Visualizer(object):
         for cost in self._renderable_costs:
             cost.render(ax)
 
-        road_rules = {
-            "x_min": 2,
-            "x_max": 9.4,
-            "y_max": 27.4,
-            "y_min": 20,
-            # "y_max": 12,
-            # "y_min": 5,
-            "width": 3.7
-        }
-
-        x_max = 25
-        y_max = 40
-        
-        # plot road rules
-        x_center = road_rules["x_min"] + 0.5 * (road_rules["x_max"] - road_rules["x_min"])
-        y_center = road_rules["y_min"] + 0.5 * (road_rules["y_max"] - road_rules["y_min"])
-        road = plt.Rectangle([road_rules["x_min"], 0], width = road_rules["x_max"] - road_rules["x_min"], height = y_max, color = "k", alpha = 0.5, lw = 0)
-        plt.gca().add_patch(road)
-        road = plt.Rectangle([road_rules["x_max"], road_rules["y_min"]], width = x_max, height = road_rules["y_max"] - road_rules["y_min"], color = "k", alpha = 0.5, lw = 0)
-        plt.gca().add_patch(road)
-
-        ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c='k')
-        ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c='k')
-        ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c='k')
-        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c='k')
-        ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c='k')
-        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c='k')
-        ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c='k')
-        ax.plot([x_center, x_center], [0, y_max], "--", c = 'gold', linewidth = 5, dashes=(5, 5))
-        ax.plot([road_rules["x_max"], x_max], [y_center, y_center], "--", c = 'gold', linewidth = 5, dashes=(5, 5))
+        # draw roads
+        if self._draw_roads:
+            self.draw_road_rules(ax)
 
         # Plot the history of trajectories for each player.
         if self._show_last_k < 0 or self._show_last_k >= len(self._history):
@@ -260,24 +278,42 @@ class Visualizer(object):
             iteration = self._iterations[kk]
             plotted_iterations.append(iteration)
 
-            alpha = 1.0
-            if self._fade_old:
-                alpha = 1.0 - float(len(self._history) - kk) / show_last_k
-
             for ii in range(self._num_players):
                 x_idx, y_idx = self._position_indices[ii]
                 xs = [x[x_idx, 0] for x in traj["xs"]]
                 ys = [x[y_idx, 0] for x in traj["xs"]]
-                if ii == 0 or ii == 1:
+                if ii == 0:
                     # self.draw_car(ii, traj["xs"])
-                    self.draw_real_car(ii, traj["xs"])
-                    # plt.plot(xs, ys,
-                    #     self._player_linestyles[ii],
-                    #     label = "Player {}, iteration {}".format(ii, iteration),
-                    #     alpha = 0.4,
-                    #     linewidth = 2
-                    #     #  linewidth = self.linewidth_from_data_units(1.988, ax)
-                    # )
+                    if self._draw_cars:
+                        self.draw_real_car(ii, traj["xs"])
+                    else:
+                        plt.plot(xs, ys,
+                            self._player_linestyles[ii],
+                            label = "Player {}, iteration {}".format(ii, iteration),
+                            alpha = 0.4,
+                            linewidth = 2
+                            #  linewidth = self.linewidth_from_data_units(1.988, ax)
+                        )
+                elif ii == 1:
+                    # self.draw_car(ii, traj["xs"])
+                    if self._draw_cars:
+                        self.draw_real_car(ii, traj["xs"][:15])
+                        self.draw_real_car(ii, traj["xs"][15:], path = "visual_components/car_robot_y.png")
+                    else:
+                        plt.plot(xs[:15], ys[:15],
+                            ".-y",
+                            label = "Player {}, iteration {}".format(ii, iteration),
+                            alpha = 0.4,
+                            linewidth = 2
+                            #  linewidth = self.linewidth_from_data_units(1.988, ax)
+                        )
+                        plt.plot(xs[15:], ys[15:],
+                            self._player_linestyles[ii],
+                            label = "Player {}, iteration {}".format(ii, iteration),
+                            alpha = 0.4,
+                            linewidth = 2
+                            #  linewidth = self.linewidth_from_data_units(1.988, ax)
+                        )
                 else:
                     plt.plot(xs, ys,
                         self._player_linestyles[ii],
@@ -292,6 +328,59 @@ class Visualizer(object):
             plotted_iterations[0], plotted_iterations[-1]))
         
         plt.savefig(results_dir + sample_file_name) # trying to save figure
+
+    def plot_simplified(self):
+        """ Plot everything, simplified """
+        
+        script_dir = os.path.dirname(__file__)
+        results_dir = os.path.join(script_dir, 'Results/')
+        sample_file_name = "sample"
+        
+        if not os.path.isdir(results_dir):
+            os.makedirs(results_dir)
+        
+        plt.figure(self._figure_number, figsize=(8, 10))
+        ax = plt.gca()
+
+        if self._plot_lims is not None:
+            ax.set_xlim(self._plot_lims[0], self._plot_lims[1])
+            ax.set_ylim(self._plot_lims[2], self._plot_lims[3])
+
+        ax.set_aspect("equal")
+
+        if self._draw_roads:
+            self.draw_road_rules(ax)
+
+        # Plot the history of trajectories for each player.
+        if self._show_last_k < 0 or self._show_last_k >= len(self._history):
+            show_last_k = len(self._history)
+        else:
+            show_last_k = self._show_last_k
+
+        plotted_iterations = []
+        for kk in range(len(self._history) - show_last_k, len(self._history)):
+            traj = self._history[kk]
+            iteration = self._iterations[kk]
+            plotted_iterations.append(iteration)
+
+            for ii in range(self._num_players):
+                x_idx, y_idx = self._position_indices[ii]
+                xs = [x[x_idx, 0] for x in traj["xs"]]
+                ys = [x[y_idx, 0] for x in traj["xs"]]
+                if ii == 0 or ii == 1:
+                    plt.plot(
+                        xs, ys,
+                        linewidth = 2
+                    )
+                else:
+                    plt.plot(xs, ys,
+                        self._player_linestyles[ii],
+                        linewidth = 2,
+                        marker='o', markersize = 10
+                    )
+
+        plt.title("ILQ solver solution (iterations {}-{})".format(
+            plotted_iterations[0], plotted_iterations[-1]))
 
     def plot_controls(self, player_number):
         """ Plot control for both players. """

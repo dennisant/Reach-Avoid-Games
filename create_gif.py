@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import imageio
 
-folder_name = "image_outputs_2021-12-05-00_41"
-experiment_name = "experiment_result_2021-12-05-00_41"
+folder_name = "image_outputs_2021-12-06-00_48"
+experiment_name = "experiment_result_2021-12-06-00_48"
 # Build GIF
 image_count = len(os.listdir(folder_name))
 with imageio.get_writer('{}.gif'.format(experiment_name), mode='I') as writer:

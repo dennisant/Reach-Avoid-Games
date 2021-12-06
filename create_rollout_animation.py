@@ -6,9 +6,8 @@ from matplotlib import animation, markers
 import os
 from matplotlib.transforms import Affine2D
 from car_5d import Car5D
-from ilq_solver_twoplayer_cooperative_time_consistent_refactored import ILQSolver
 from proximity_cost_reach_avoid_twoplayer import PedestrianProximityToBlockCost, ProximityToBlockCost
-from player_cost_threeplayer_reachavoid_timeconsistent import PlayerCost
+from player_cost_reachavoid_timeconsistent import PlayerCost
 from unicycle_4d import Unicycle4D
 
 import math

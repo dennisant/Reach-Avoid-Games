@@ -50,7 +50,7 @@ import math
 class ProximityCost(Cost):
     def __init__(self, position_indices, point,
                 max_distance, outside_weight=0.1, apply_after_time=1,
-                name=""): # Maybe change back to apply_after_time=20
+                name=""):
       """
       Initialize with dimension to add cost to and threshold BELOW which
       to impose quadratic cost. Above the threshold, we use a very light
@@ -69,7 +69,6 @@ class ProximityCost(Cost):
       """
       self._x_index, self._y_index = position_indices
       self._point = point
-      #self._max_squared_distance = max_distance**2
       self._max_squared_distance = max_distance ** 2
       self._max_distance = max_distance
       self._outside_weight = outside_weight
@@ -88,17 +87,6 @@ class ProximityCost(Cost):
       :return: scalar value of cost
       :rtype: torch.Tensor
       """
-      # if k < self._apply_after_time:
-      #     return torch.zeros(
-      #         1, 1, requires_grad=True).double()
-      #print("k is: ", k)
-      
-      #else:
-      # Compute relative distance.
-      #print("Goal x-position is: ", self._point.x)
-      #print("Goal y-position is: ", self._point.y)
-      #print("x-position is: ", x[self._x_index, 0])
-      #print("y-position is: ", x[self._y_index, 0])
       dx = x[self._x_index, 0] - self._point[0]
       dy = x[self._y_index, 0] - self._point[1]
       if type(x) is torch.Tensor:
@@ -106,29 +94,6 @@ class ProximityCost(Cost):
       else:
         relative_squared_distance = math.sqrt(dx*dx + dy*dy) # Comment out the original one below
       return relative_squared_distance - self._max_distance
-      #relative_squared_distance = dx*dx + dy*dy
-      
-      
-      #return relative_squared_distance * torch.ones(1, 1, requires_grad=True).double()
-
-      # # Compute relative distance.
-      # dx = x[self._x_index, 0] - self._point.x
-      # dy = x[self._y_index, 0] - self._point.y
-      # relative_squared_distance = dx*dx + dy*dy
-
-      # if relative_squared_distance < self._max_squared_distance:
-      #     return -relative_squared_distance * torch.ones(
-      #         1, 1, requires_grad=True).double()
-
-      # # Outside penalty is:
-      # #   ``` outside_weight * (relative_distance - max_distance)**2 ```
-      # # which can be computed from what we have already with only one sqrt.
-      # outside_penalty = self._outside_weight * (
-      #     relative_squared_distance + self._max_squared_distance -
-      #     2.0 * torch.sqrt(
-      #         relative_squared_distance * self._max_squared_distance))
-      # return -outside_penalty - self._max_squared_distance * torch.ones(
-      #     1, 1, requires_grad=True).double()
 
     def render(self, ax=None):
       """ Render this obstacle on the given axes. """
@@ -137,10 +102,10 @@ class ProximityCost(Cost):
       else:
           radius = np.sqrt(self._max_squared_distance)
       circle = plt.Circle(
-          (self._point.x, self._point.y), radius,
+          (self._point[0], self._point[1]), radius,
           color="g", fill=True, alpha=0.5)
       ax.add_artist(circle)
-      ax.text(self._point.x, self._point.y, "goal", fontsize=10)
+      # ax.text(self._point[0], self._point[1], "goal", fontsize=10)
 
 class ProximityCostDuo(Cost):
     def __init__(self, player_id, position_indices, point,
@@ -241,16 +206,6 @@ class ProximityToBlockCost(Cost):
         "down_lane": road_logic[3] == 1, 
         "left_turn": road_logic[4] == 1
       }
-
-    # def get_car_state(self, x, index):
-    #   car_x_index, car_y_index = self._x_index, self._y_index
-    #   if type(x) is torch.Tensor:
-    #     car_rear = x[car_x_index:car_x_index+2, 0]
-    #     car_front = car_rear.add(torch.tensor([self._car_params["wheelbase"]*torch.cos(x[self._theta_indices[index], 0]), self._car_params["wheelbase"]*torch.sin(x[self._theta_indices[index], 0])], requires_grad=True))
-    #   else:
-    #     car_rear = np.array([x[car_x_index, 0], x[car_y_index, 0]])
-    #     car_front = car_rear + np.array([self._car_params["wheelbase"]*math.cos(x[self._theta_indices[index], 0]), self._car_params["wheelbase"]*math.sin(x[self._theta_indices[index], 0])])
-    #   return car_rear, car_front
 
     def get_car_state(self, x, index):
       car_x_index, car_y_index = self._x_index, self._y_index
