@@ -55,10 +55,10 @@ import math
 from point import Point
 
 # General parameters.
-TIME_HORIZON = 3.0    # s #Change back to 2.0
+TIME_HORIZON = 25.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
-LOG_DIRECTORY = "./logs/one_player/"
+LOG_DIRECTORY = "./logs/one_player_time_consistent/"
 
 car = Car5D(2.413)
 
@@ -93,8 +93,14 @@ g_params = {
         "theta_indices": [2],
         "phi_index": 3, 
         "vel_index": 4,
-        "obstacles": [(6.5, 30.0)],
-        "obstacle_radii": [6.5]
+        "obstacles": [
+            (6.5, 25.0),
+            (15.0, 35.0),
+            (6.0, 46.0)
+        ],
+        "obstacle_radii": [
+            5.5, 3.0, 3.0
+        ]
     }
 }
 ###################
@@ -108,7 +114,7 @@ car_alphas = [np.zeros((car._u_dim, 1))] * HORIZON_STEPS
 car_position_indices_in_product_state = (0, 1)
 car_goal_cost = ProximityCost(
     car_position_indices_in_product_state,
-    (6.0, 45.0),
+    (6.0, 40.0),
     2.0,
     name="car_goal"    
 )
@@ -121,9 +127,9 @@ car_cost = PlayerCost()
 car_cost.add_cost(car_goal_cost, "x", 1.0)
 
 # obstacle_centers = [Point(6.5, 15.0), Point(0.0, 20.0), Point(12.0, 24.0)]
-obstacle_centers = [Point(6.5, 30.0)]
+obstacle_centers = [Point(6.5, 30.0), Point(10.0, 40.0), Point(6.0, 50.0)]
 # obstacle_radii = [4.5, 1.5, 4.0]
-obstacle_radii = [6.5]
+obstacle_radii = [6.5, 3.0, 3.0]
 
 obstacle_costs = [ObstacleDistCost(g_params["car"])]
 
@@ -133,7 +139,8 @@ visualizer = Visualizer(
     [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 25, -2,  50]
+    plot_lims=[-5, 25, -2,  50],
+    # draw_cars = True
 )
 
 # Logger.

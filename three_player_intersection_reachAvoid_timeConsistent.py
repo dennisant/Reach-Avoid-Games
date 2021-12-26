@@ -226,10 +226,13 @@ visualizer = Visualizer(
     [car1_goal_cost, car2_goal_cost, ped_goal_cost
     # RoadRulesPenalty(g_params["car1"])
     ],
-    [".-white", ".-r", ".-b"],
+    [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 25, -2,  40]
+    plot_lims=[-5, 25, 0,  40],
+    draw_roads = True, 
+    draw_cars = True,
+    draw_human = True
 )
 
 # Logger.

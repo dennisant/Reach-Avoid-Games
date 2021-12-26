@@ -61,7 +61,7 @@ import math
 TIME_HORIZON = 3.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
-LOG_DIRECTORY = "./logs/two_player/"
+LOG_DIRECTORY = "./logs/two_player_time_consistent/"
 
 car1 = Car5D(2.413)
 car2 = Car5D(2.413)
@@ -160,17 +160,19 @@ car2_cost.add_cost(car2_goal_cost, "x", 1.0)
 visualizer = Visualizer(
     [car1_position_indices_in_product_state, car2_position_indices_in_product_state],
     [car1_goal_cost, car2_goal_cost],
-    [".-white", ".-r", ".-b"],
+    [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 25, -2,  40]
+    plot_lims=[-5, 25, -2,  40],
+    draw_cars = True, 
+    draw_roads = True
 )
 
 # Logger.
 if not os.path.exists(LOG_DIRECTORY):
     os.makedirs(LOG_DIRECTORY)
 
-# logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_car_example.pkl'))
+logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_car_example.pkl'))
 
 # Set up ILQSolver.
 solver = ILQSolver(dynamics,

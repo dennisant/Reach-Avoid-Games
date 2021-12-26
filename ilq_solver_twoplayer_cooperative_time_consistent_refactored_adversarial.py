@@ -44,6 +44,7 @@ import torch
 import matplotlib.pyplot as plt
 from scipy.linalg import block_diag
 from collections import deque
+import os
 
 from player_cost_reachavoid_timeconsistent import PlayerCost
 from proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
@@ -65,7 +66,8 @@ class ILQSolver(object):
                  reference_deviation_weight=None,
                  logger=None,
                  visualizer=None,
-                 u_constraints=None):
+                 u_constraints=None,
+                 t_react=None):
         """
         Initialize from dynamics, player costs, current state, and initial
         guesses for control strategies for both players.
@@ -119,7 +121,7 @@ class ILQSolver(object):
         self._logger = logger
 
         # adversarial
-        self._t_react = 15
+        self._t_react = t_react if t_react is not None else 10
 
         # Log some of the paramters.
         if self._logger is not None:
@@ -146,12 +148,12 @@ class ILQSolver(object):
                 self._last_operating_point = self._current_operating_point
                 self._current_operating_point = (xs, us)
             
-            # if iteration%store_freq == 0:
-            #     xs_store = [xs_i.flatten() for xs_i in xs]
-            #     #print(xs_store[0])
-            #     #print(len(xs_store))
-            #     #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
-            #     np.savetxt('logs/two_player_time_consistent/twoplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
+            if iteration%store_freq == 0:
+                xs_store = [xs_i.flatten() for xs_i in xs]
+                #print(xs_store[0])
+                #print(len(xs_store))
+                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
+                np.savetxt('logs/two_player_time_consistent_adversarial/twoplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
             # Visualization.
@@ -169,9 +171,9 @@ class ILQSolver(object):
                 # plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
-                # if not os.path.exists("image_outputs_{}".format(timestr)):
-                #     os.makedirs("image_outputs_{}".format(timestr))
-                # plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
+                if not os.path.exists("image_outputs_{}".format(timestr)):
+                    os.makedirs("image_outputs_{}".format(timestr))
+                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
                 plt.clf()
             
             # print("plot is shown above")
@@ -295,7 +297,7 @@ class ILQSolver(object):
             # for the next trajectory
             # print(np.array(Qs).shape)
             # input()
-            Ps, alphas = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost)
+            Ps, alphas = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, self._t_react)
 
             # (7) Accumulate total costs for all players.
             # This is the total cost for the trajectory we are on now

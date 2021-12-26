@@ -22,22 +22,38 @@ class ObstacleDistCost(Cost):
         """
         self._x_index, self._y_index = g_params["position_indices"][g_params["player_id"]]
         self._player_id = g_params["player_id"]
+        self._obs = []
+
+        for obs in g_params["obstacles"]:
+            self._obs.append(Point(obs[0], obs[1]))
         
-        for goal in g_params["obstacles"]:
-            self._goal = Point(goal[0], goal[1])
-        
-        self._max_distance = g_params["obstacle_radii"][0]
+        self._obs_radii = g_params["obstacle_radii"]
         self._collision_r = g_params["collision_r"]
         super(ObstacleDistCost, self).__init__(name)
 
-    def g_obstacle_collision(self, x, k=0):
-        dx = x[self._x_index, 0] - self._goal.x
-        dy = x[self._y_index, 0] - self._goal.y
+    def g_single_obstacle_collision(self, x, k=0, obs_index=0):
+        dx = x[self._x_index, 0] - self._obs[obs_index].x
+        dy = x[self._y_index, 0] - self._obs[obs_index].y
         if type(x) is torch.Tensor:            
             relative_distance = torch.sqrt(dx*dx + dy*dy)
         else:
             relative_distance = math.sqrt(dx*dx + dy*dy)
-        return self._max_distance - relative_distance + self._collision_r
+        return self._obs_radii[obs_index] - relative_distance + self._collision_r
+
+    def g_obstacle_collision(self, x, k=0):
+        value = self.g_single_obstacle_collision(x, obs_index=0)
+        for i in range(len(self._obs)-1, 0, -1):
+            if type(x) is torch.Tensor:
+                value = torch.max(
+                    self.g_single_obstacle_collision(x, obs_index=i),
+                    value
+                )
+            else:
+                value = max(
+                    self.g_single_obstacle_collision(x, obs_index=i),
+                    value
+                )
+        return value
 
     def __call__(self, x, k=0):
         _max_func = MaxFuncMux()
@@ -47,7 +63,8 @@ class ObstacleDistCost(Cost):
 
     def render(self, ax=None):
         """ Render this obstacle on the given axes. """
-        circle = plt.Circle(
-            (self._goal.x, self._goal.y), self._max_distance,
-            color="r", fill=True, alpha=0.75)
-        ax.add_artist(circle)
+        for i in range(len(self._obs)):
+            circle = plt.Circle(
+                (self._obs[i].x, self._obs[i].y), self._obs_radii[i],
+                color="r", fill=True, alpha=0.75)
+            ax.add_artist(circle)

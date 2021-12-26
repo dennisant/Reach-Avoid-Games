@@ -45,6 +45,8 @@ import matplotlib.pyplot as plt
 import os
 from scipy.linalg import block_diag
 from collections import deque
+
+from torch.autograd import grad
 from maneuver_penalty import ManeuverPenalty
 
 from player_cost_reachavoid_timeconsistent import PlayerCost
@@ -96,6 +98,7 @@ class ILQSolver(object):
         #self._player_costs = player_costs
         self._x0 = x0
         self._Ps = Ps
+        self._ns = None
         self._alphas = alphas
         self._u_constraints = u_constraints
         self._horizon = len(Ps[0])
@@ -130,7 +133,7 @@ class ILQSolver(object):
         # Trying to store stuff in order to plot cost
         store_total_cost = []
         iteration_store = []
-        store_freq = 10
+        store_freq = 5
         
         while not self._is_converged():
             # # (1) Compute current operating point and update last one.
@@ -142,13 +145,13 @@ class ILQSolver(object):
             # print(max([x[9] for x in xs]))
             # time.sleep(0.2)
             
-            # if iteration%store_freq == 0:
-            #     xs_store = [xs_i.flatten() for xs_i in xs]
-            #     #print(xs_store[0])
-            #     #print(len(xs_store))
-            #     #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
+            if iteration%store_freq == 0:
+                xs_store = [xs_i.flatten() for xs_i in xs]
+                #print(xs_store[0])
+                #print(len(xs_store))
+                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
 
-            #     np.savetxt('logs/three_player/threeplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
+                np.savetxt('logs/three_player/threeplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
             # Visualization.
@@ -166,9 +169,9 @@ class ILQSolver(object):
                 # plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
-                # if not os.path.exists("image_outputs_{}".format(timestr)):
-                #     os.makedirs("image_outputs_{}".format(timestr))
-                # plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
+                if not os.path.exists("image_outputs_{}".format(timestr)):
+                    os.makedirs("image_outputs_{}".format(timestr))
+                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
                 plt.clf()
             
             # print("plot is shown above")
@@ -256,7 +259,7 @@ class ILQSolver(object):
             # for the next trajectory
             # print(np.array(Qs).shape)
             # input()
-            Ps, alphas = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost)
+            Ps, alphas, ns = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost)
 
             # (7) Accumulate total costs for all players.
             # This is the total cost for the trajectory we are on now
@@ -293,19 +296,22 @@ class ILQSolver(object):
             # Update the member variables.
             self._Ps = Ps
             self._alphas = alphas
+            self._ns = ns
 
             # (5) Linesearch.
-            if iteration < 5:
-                self._alpha_scaling = 1.0
-            elif iteration < 25:
-                self._alpha_scaling = 0.5
-            else:
-                self._alpha_scaling = 0.1
+            # if iteration < 5:
+            #     self._alpha_scaling = 1.0
+            # elif iteration < 25:
+            #     self._alpha_scaling = 0.5
+            # else:
+            #     self._alpha_scaling = 0.1
             
-            if max(total_costs[:2]) < 1.0:
-                self._alpha_scaling = 0.05
-            elif max(total_costs[:2]) < 0.7:
-                self._alpha_scaling = 0.02
+            # if max(total_costs[:2]) < 1.0:
+            #     self._alpha_scaling = 0.05
+            # elif max(total_costs[:2]) < 0.7:
+            #     self._alpha_scaling = 0.02
+
+            self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
             
             iteration += 1
 
@@ -524,7 +530,8 @@ class ILQSolver(object):
                 "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
             }
         }
-        
+
+        func_key_list = [""] * (self._horizon + 1)        
         if ii == 0:
             for k in range(self._horizon, -1, -1): # T to 0
                 self._player_costs[ii] = PlayerCost()
@@ -545,6 +552,7 @@ class ILQSolver(object):
                     }
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
                 else:
                     tmp = {
                         "value": value_func_plus[k+1],
@@ -556,6 +564,7 @@ class ILQSolver(object):
                     }
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
                     
                 if func_key == "l_x":
                     c1gc = ProximityToBlockCost(g_params["car1"], "car1_goal")
@@ -616,6 +625,7 @@ class ILQSolver(object):
                     }
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
                 else:
                     tmp = {
                         "value": value_func_plus[k+1],
@@ -627,6 +637,7 @@ class ILQSolver(object):
                     }
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
                     
                 if func_key == "l_x":
                     c1gc = ProximityToBlockCost(g_params["car2"], "car2_goal")
@@ -687,6 +698,7 @@ class ILQSolver(object):
                     }
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
                 else:
                     tmp = {
                         "value": value_func_plus[k+1],
@@ -698,6 +710,7 @@ class ILQSolver(object):
                     }
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
 
                 if func_key == "l_x":
                     c1gc = PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
@@ -738,6 +751,19 @@ class ILQSolver(object):
                 
             total_costs = max([c.detach().numpy().flatten()[0] for c in costs])
         
+        if "l_x" in func_key_list:
+            first_lx_index = func_key_list.index("l_x")
+        else:
+            first_lx_index = np.inf
+
+        if "g_x" in func_key_list:
+            first_gx_index = func_key_list.index("g_x")
+        else:
+            first_gx_index = np.inf
+
+        first_t_star = min(first_lx_index, first_gx_index)
+        # overwrite total_costs to return the cost of the first instance of t_star
+        total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
         return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_array, func_return_array
     
     
@@ -777,3 +803,396 @@ class ILQSolver(object):
         max_func[func_of_max_val] = max_val
         
         return max(max_func, key=max_func.get)
+
+    def _TimeStarRollout(self, xs, us, ii):
+        """
+        
+
+        Parameters
+        ----------
+        xs : TYPE
+            DESCRIPTION.
+        us : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        time_star : TYPE
+            DESCRIPTION.
+            
+        I am mainly using this for the _linesearch_new def. This gives me the
+        time_star and player cost for the hallucinated trajectories by doing the
+        min-max on this trajectory
+
+        """
+        car1_position_indices = (0, 1)
+        car2_position_indices = (5, 6)
+        ped1_position_indices = (10, 11)
+        car1_theta_index = 2
+        car2_theta_index = 7
+        ped1_theta_index = 12
+        
+        car1_player_id = 0
+        car2_player_id = 1
+        ped1_player_id = 2
+        
+        # Pre-allocate hessian and gradient matrices
+        Qs = [deque() for ii in range(self._num_players)]
+        ls = [deque() for ii in range(self._num_players)]
+        rs = [deque() for ii in range(self._num_players)]
+        Rs = [[deque() for jj in range(self._num_players)]
+              for ii in range(self._num_players)]
+        
+        costs = []
+        
+        calc_deriv_cost = deque()
+        func_array = deque()
+        func_return_array = deque()
+    
+        hold_new = 0
+        target_margin_func = np.zeros((self._horizon+1, 1))
+        
+        value_func_plus = np.zeros((self._horizon+1, 1))
+
+        car_params = {
+            "wheelbase": 2.413, 
+            "length": 4.267,
+            "width": 1.988
+        }
+
+        road_rules = {
+            "x_min": 2,
+            "x_max": 9.4,
+            "y_max": 27.4,
+            "y_min": 20,
+            "width": 3.7
+        }
+
+        ped_road_rules = {
+            "x_min": 2,
+            "x_max": 9.4,
+            "y_max": 31,
+            "y_min": 29
+        }
+
+        collision_r = m.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
+
+        # order of road_logic: left, right, up, down, left_turn: [0, 1]
+        g_params = {
+            "car1": {
+                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
+                "player_id": car1_player_id, 
+                "road_rules": road_rules,
+                "collision_r": collision_r,
+                "car_params": car_params,
+                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
+                "road_logic": [0, 1, 0, 1, 0],
+                "goals": [20, 35],
+                "phi_index": 3, 
+                "vel_index": 4
+            },
+            "car2": {
+                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
+                "player_id": car2_player_id, 
+                "road_rules": road_rules,
+                "collision_r": collision_r,
+                "car_params": car_params,
+                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
+                "road_logic": [1, 0, 0, 1, 0],
+                "goals": [20, 0],
+                "phi_index": 8,
+                "vel_index": 9
+            },
+            "ped1": {
+                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
+                "player_id": ped1_player_id, 
+                "road_logic": [1, 1, 1, 1, 0],
+                "road_rules": ped_road_rules,
+                "goals": [15, 30],
+                "car_params": car_params,
+                "collision_r": collision_r,
+                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
+            }
+        }
+        
+        func_key_list = [""] * (self._horizon + 1)
+        if ii == 0:
+            for k in range(self._horizon, -1, -1): # T to 0
+                self._player_costs[ii] = PlayerCost()
+                
+                hold_new = ProximityToBlockCost(g_params["car1"])(xs[k])
+                target_margin_func[k] = hold_new
+
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(g_params["car1"], xs, k)
+                hold_prox = max_g_func(xs[k])
+                
+                value_function_compare = dict()
+                func_key = ""
+
+                if k == self._horizon:
+                    value_function_compare = {
+                        "g_x": hold_prox,
+                        "l_x": hold_new
+                    }
+                    value_func_plus[k] = max(value_function_compare.values())
+                    func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
+                else:
+                    tmp = {
+                        "value": value_func_plus[k+1],
+                        "l_x": hold_new,
+                    }
+                    value_function_compare = {
+                        "g_x": hold_prox,
+                        min(tmp, key=tmp.get): min(tmp.values())
+                    }
+                    value_func_plus[k] = max(value_function_compare.values())
+                    func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
+                    
+                if func_key == "l_x":
+                    c1gc = ProximityToBlockCost(g_params["car1"], "car1_goal")
+                    self._player_costs[ii].add_cost(c1gc, "x", 1.0)
+                    calc_deriv_cost.appendleft("True")
+                    self._calc_deriv_true_P1 = True
+                elif func_key == "g_x":
+                    c1gc = max_g_func
+                    self._player_costs[ii].add_cost(c1gc, "x", 1.0)
+                    calc_deriv_cost.appendleft("True")
+                    self._calc_deriv_true_P1 = True
+                else:
+                    c1gc = max_g_func
+                    self._player_costs[ii].add_cost(c1gc, "x", 0.0)
+                    calc_deriv_cost.appendleft("False")
+                    self._calc_deriv_true_P1 = False
+                func_array.appendleft(func_key)
+                func_return_array.appendleft(c1gc)
+                                       
+                costs.append(self._player_costs[ii](
+                    torch.as_tensor(xs[k].copy()),
+                    [torch.as_tensor(ui) for ui in us],
+                    k, self._calc_deriv_true_P1))
+
+            total_costs = max([c.detach().numpy().flatten()[0] for c in costs])
+
+        # This is for P2:
+        elif ii == 1:
+            for k in range(self._horizon, -1, -1):
+                self._player_costs[ii] = PlayerCost()
+                hold_new = ProximityToBlockCost(g_params["car2"])(xs[k])
+                target_margin_func[k] = hold_new
+            
+                max_g_func = self._CheckMultipleFunctionsP2_refactored(g_params["car2"], xs, k)                
+                hold_prox = max_g_func(xs[k])
+                
+                value_function_compare = dict()
+                func_key = ""
+
+                if k == self._horizon:
+                    value_function_compare = {
+                        "g_x": hold_prox,
+                        "l_x": hold_new
+                    }
+                    value_func_plus[k] = max(value_function_compare.values())
+                    func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
+                else:
+                    tmp = {
+                        "value": value_func_plus[k+1],
+                        "l_x": hold_new,
+                    }
+                    value_function_compare = {
+                        "g_x": hold_prox,
+                        min(tmp, key=tmp.get): min(tmp.values())
+                    }
+                    value_func_plus[k] = max(value_function_compare.values())
+                    func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
+                    
+                if func_key == "l_x":
+                    c1gc = ProximityToBlockCost(g_params["car2"], "car2_goal")
+                    self._player_costs[ii].add_cost(c1gc, "x", 1.0)
+                    calc_deriv_cost.appendleft("True")
+                    self._calc_deriv_true_P2 = True
+                elif func_key == "g_x":
+                    c1gc = max_g_func
+                    self._player_costs[ii].add_cost(c1gc, "x", 1.0)
+                    calc_deriv_cost.appendleft("True")
+                    self._calc_deriv_true_P2 = True
+                else:
+                    c1gc = max_g_func
+                    self._player_costs[ii].add_cost(c1gc, "x", 0.0)
+                    calc_deriv_cost.appendleft("False")
+                    self._calc_deriv_true_P2 = False
+                func_array.appendleft(func_key)
+                func_return_array.appendleft(c1gc)
+                        
+                costs.append(self._player_costs[ii](
+                    torch.as_tensor(xs[k].copy()),
+                    [torch.as_tensor(ui) for ui in us],
+                    k, self._calc_deriv_true_P2))
+                
+            total_costs = max([c.detach().numpy().flatten()[0] for c in costs])
+        
+        elif ii == 2:
+            for k in range(self._horizon, -1, -1):
+                self._player_costs[ii] = PlayerCost()
+                # hold_new = ProximityCost((10, 11), (10, 30), 1, name="ped_goal")(xs[k])
+                hold_new = PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")(xs[k])
+                target_margin_func[k] = hold_new
+            
+                max_g_func = self._CheckMultipleFunctionsP3_refactored(g_params, xs, k)
+                hold_prox = max_g_func(xs[k])
+                value_function_compare = dict()
+                func_key = ""
+
+                if k == self._horizon:
+                    value_function_compare = {
+                        "g_x": hold_prox,
+                        "l_x": hold_new
+                    }
+                    value_func_plus[k] = max(value_function_compare.values())
+                    func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
+                else:
+                    tmp = {
+                        "value": value_func_plus[k+1],
+                        "l_x": hold_new,
+                    }
+                    value_function_compare = {
+                        "g_x": hold_prox,
+                        min(tmp, key=tmp.get): min(tmp.values())
+                    }
+                    value_func_plus[k] = max(value_function_compare.values())
+                    func_key = max(value_function_compare, key = value_function_compare.get)
+                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
+
+                if func_key == "l_x":
+                    c1gc = PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
+                    self._player_costs[ii].add_cost(c1gc, "x", 1.0)
+                    calc_deriv_cost.appendleft("True")
+                    self._calc_deriv_true_P3 = True
+                elif func_key == "g_x":
+                    c1gc = max_g_func
+                    self._player_costs[ii].add_cost(c1gc, "x", 1.0)
+                    calc_deriv_cost.appendleft("True")
+                    self._calc_deriv_true_P3 = True
+                else:
+                    c1gc = max_g_func
+                    self._player_costs[ii].add_cost(c1gc, "x", 0.0)
+                    calc_deriv_cost.appendleft("False")
+                    self._calc_deriv_true_P3 = False
+                func_array.appendleft(func_key)
+                func_return_array.appendleft(c1gc)
+                        
+                costs.append(self._player_costs[ii](
+                    torch.as_tensor(xs[k].copy()),
+                    [torch.as_tensor(ui) for ui in us],
+                    k, self._calc_deriv_true_P3))
+            
+            total_costs = max([c.detach().numpy().flatten()[0] for c in costs])
+                
+        if "l_x" in func_key_list:
+            first_lx_index = func_key_list.index("l_x")
+        else:
+            first_lx_index = np.inf
+
+        if "g_x" in func_key_list:
+            first_gx_index = func_key_list.index("g_x")
+        else:
+            first_gx_index = np.inf
+        
+        first_t_star = min(first_lx_index, first_gx_index)
+        total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
+        return first_t_star, total_costs
+
+    def _linesearch(self, beta = 0.9, iteration = None):
+        """ Linesearch for both players separately. """
+        """
+        x -> us
+        p -> rs
+        may need xs to compute trajectory
+        Line search needs c and tau (c = tau = 0.5 default)
+        m -> local slope (calculate in function)
+        need compute_operating_point routine
+        """        
+        
+        alpha_converged = False
+        alpha = 1.0
+        expected_improvement = np.zeros(self._num_players)
+        total_costs_new = np.zeros(self._num_players)
+        
+        while not alpha_converged:
+            # Use this alpha in compute_operating_point
+            self._alpha_scaling = alpha
+            
+            # With this alpha, compute trajectory and controls from self._compute_operating_point
+            # For this trajectory, calculate t* and if L or g comes out of min-max
+            xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
+            for ii in range(self._num_players):
+                t_star, total_cost_new = self._TimeStarRollout(xs, us, ii)
+
+                expected_rate = self._ns[ii][0]
+                expected_improvement[ii] = expected_rate * alpha
+
+                total_costs_new[ii] = total_cost_new
+            
+            expected_improvement = np.zeros(self._num_players)
+            if max(total_costs_new - self._total_costs - expected_improvement) < 0:
+                alpha_converged = True
+                return alpha
+            else:
+                alpha = beta * alpha
+                if iteration is not None:
+                    if alpha < 1.0/(iteration+1) ** 0.5:
+                        return alpha
+                if alpha < 1e-10:
+                    raise ValueError("alpha too small") 
+            
+        self._alpha_scaling = alpha
+        return alpha
+
+    def _linesearch_backtracking(self, beta=0.9, iteration = None):
+        """ Linesearch for both players separately. """
+        """
+        x -> us
+        p -> rs
+        may need xs to compute trajectory
+        Line search needs c and tau (c = tau = 0.5 default)
+        m -> local slope (calculate in function)
+        need compute_operating_point routine
+        """        
+        
+        alpha_converged = False
+        alpha = 1.0
+        total_costs_new = np.zeros(self._num_players)
+        ts = np.zeros(self._num_players)
+        
+        while not alpha_converged:
+            # Use this alpha in compute_operating_point
+            self._alpha_scaling = alpha
+            
+            xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
+            for ii in range(self._num_players):
+                t_star, total_cost_new = self._TimeStarRollout(xs, us, ii)
+                total_costs_new[ii] = total_cost_new
+
+                if t_star < self._horizon:
+                    # Calculate p (delta_u in our case)
+                    delta_u = -self._Ps[ii][t_star] @ (xs[t_star] - self._current_operating_point[0][t_star]) - self._alphas[ii][t_star]
+                    grad_cost_u = self._rs[ii][t_star]
+                    ts[ii] = -0.5 * grad_cost_u[ii] @ delta_u
+            
+            if max(total_costs_new  + ts * alpha - self._total_costs) <= 0:
+                alpha_converged = True
+                return alpha
+            else:
+                alpha = beta * alpha
+                if iteration is not None:
+                    if alpha < 1.0/(iteration+1) ** 0.5:
+                        return alpha
+                if alpha < 1e-10:
+                    raise ValueError("alpha too small")
+        
+        self._alpha_scaling = alpha
+        return alpha

@@ -42,7 +42,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 import numpy as np
 from collections import deque
 
-def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
+def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, t_react=10):
     """
     Solve a time-varying, finite horizon LQ game (finds closed-loop Nash
     feedback strategies for both players).
@@ -109,7 +109,7 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost):
         zeta = [zetais[0] for zetais in zetas]
         
         # Trying to do this one-player to two-player thing
-        if k > 14:  # Change back to 9
+        if k >= t_react:  # Change back to 9
             num_players = 1
             u_dims = [4]
         else:

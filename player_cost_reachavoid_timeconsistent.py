@@ -73,14 +73,6 @@ class PlayerCost(object):
                 
                 
             global total_cost
-            #Print the cost input (DELETE THIS WHEN DONE):
-            #print("time_star in player_cost is: ", time_star)
-            # print("This is for k = ", k)
-            #print("self._costs is: ", self._costs)
-            # print("This is for the cost: ", cost._name)
-            #print("cost input is: ", cost_input)
-            #print("weight is: ", weight)
-            #print("The cost(cost_input,k) is: ", cost(cost_input,k))
             
             if calc_deriv_cost == True:
                 current_term = weight * cost(cost_input, k)
@@ -211,11 +203,8 @@ class PlayerCost(object):
                 if grad_ui_torch is not None:
                     gradient_u[ii, :] = grad_ui_torch.detach().numpy().copy().T
                 
-            # eps_control = 1.8
-            # eps_state = 0.2
-            
-            eps_control = 0.8
-            eps_state = 0.1
+            eps_control = 1.8
+            eps_state = 0.2
             
             hess_x = hess_x + np.identity(len(x)) * eps_state
             hess_u = num_players * [np.identity(2) * eps_control]
@@ -225,11 +214,8 @@ class PlayerCost(object):
                 gradient_u = np.vstack((gradient_u, eps_control * u[i+1].T))
                 
         else:
-            # eps_control = 1.8
-            # eps_state = 0.2
-
-            eps_control = 0.8
-            eps_state = 0.1
+            eps_control = 1.8
+            eps_state = 0.2
 
             x_torch = torch.from_numpy(x).requires_grad_(True)
             u_torch = [torch.from_numpy(ui).requires_grad_(True) for ui in u]
@@ -245,5 +231,5 @@ class PlayerCost(object):
             gradient_u = eps_control * u[0].T
             for i in range(num_players-1):
                 gradient_u = np.vstack((gradient_u, eps_control * u[i+1].T))
-            
+        
         return cost, gradient_u, grad_x, hess_x, hess_u

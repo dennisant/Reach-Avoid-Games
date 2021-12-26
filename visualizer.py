@@ -90,14 +90,19 @@ class Visualizer(object):
 
         self._draw_roads = False
         self._draw_cars = False
-        self._draw_crosswalk = False
+        self._adversarial = False
+        self._draw_human = False
 
         if "draw_roads" in kwargs.keys():
             self._draw_roads = kwargs["draw_roads"]
         if "draw_cars" in kwargs.keys():
             self._draw_cars = kwargs["draw_cars"]
-        if "draw_crosswalk" in kwargs.keys():
-            self._draw_crosswalk = kwargs["draw_crosswalk"]
+        if "adversarial" in kwargs.keys():
+            self._adversarial = kwargs["adversarial"]
+        if "t_react" in kwargs.keys():
+            self._t_react = kwargs["t_react"]
+        if "draw_human" in kwargs.keys():
+            self._draw_human = kwargs["draw_human"]
 
     def add_trajectory(self, iteration, traj):
         """
@@ -142,6 +147,13 @@ class Visualizer(object):
         length *= 72
         # Scale linewidth to value range
         return linewidth * (length / value_range)
+
+    def draw_crosswalk(self, x, y, width, length, number_of_dashes = 5):
+        per_length = length * 0.5 / number_of_dashes
+        for i in range(number_of_dashes):
+            crosswalk = plt.Rectangle(
+                [x + (2*i + 0.5)*per_length, y], width = per_length, height = width, color = "white", lw = 0, zorder = 0)
+            plt.gca().add_patch(crosswalk)
 
     def draw_car(self, player_id, car_states):
         car_params = {
@@ -201,6 +213,21 @@ class Visualizer(object):
                     # alpha=(1.0/len(car_states))*i,
                     zorder = 10.0,
                     clip_on=True)
+
+    def draw_real_human(self, states, variation=0):
+        for i in range(len(states)):
+            state = states[i][10:].flatten()
+            transform_data = Affine2D().rotate_deg_around(*(state[0], state[1]), (state[2] + np.pi * 0.5)/np.pi * 180) + plt.gca().transData
+            if i % 5 == 0:
+                plt.imshow(
+                    plt.imread("visual_components/human-walking-topdown-step{}.png".format(variation), format="png"), 
+                    transform = transform_data, 
+                    interpolation='none',
+                    origin='lower',
+                    extent=[state[0] - 1.2, state[0] + 1.2, state[1] + 1.2, state[1] - 1.2],
+                    zorder = 10.0,
+                    clip_on=True
+                )
     
     def draw_road_rules(self, ax, **kwargs):
         if "road_rules" in kwargs.keys():
@@ -216,24 +243,34 @@ class Visualizer(object):
 
         x_max = 25
         y_max = 40
+
+        grass = plt.Rectangle(
+        [-5, 0], width = 30, height = 40, color = "k", lw = 0, zorder = -2, alpha = 0.5)
+        plt.gca().add_patch(grass)  
         
         # plot road rules
         x_center = road_rules["x_min"] + 0.5 * (road_rules["x_max"] - road_rules["x_min"])
         y_center = road_rules["y_min"] + 0.5 * (road_rules["y_max"] - road_rules["y_min"])
-        road = plt.Rectangle([road_rules["x_min"], 0], width = road_rules["x_max"] - road_rules["x_min"], height = y_max, color = "k", alpha = 0.5, lw = 0)
+        road = plt.Rectangle(
+        [road_rules["x_min"], 0], width = road_rules["x_max"] - road_rules["x_min"], height = y_max, color = "darkgray", lw = 0, zorder = -2)
         plt.gca().add_patch(road)
-        road = plt.Rectangle([road_rules["x_max"], road_rules["y_min"]], width = x_max, height = road_rules["y_max"] - road_rules["y_min"], color = "k", alpha = 0.5, lw = 0)
+        road = plt.Rectangle(
+            [road_rules["x_max"], road_rules["y_min"]], width = x_max, height = road_rules["y_max"] - road_rules["y_min"], color = "darkgray", lw = 0, zorder = -2)
         plt.gca().add_patch(road)
 
-        ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c='k')
-        ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c='k')
-        ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c='k')
-        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c='k')
-        ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c='k')
-        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c='k')
-        ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c='k')
-        ax.plot([x_center, x_center], [0, y_max], "--", c = 'gold', linewidth = 5, dashes=(5, 5))
-        ax.plot([road_rules["x_max"], x_max], [y_center, y_center], "--", c = 'gold', linewidth = 5, dashes=(5, 5))
+        crosswalk_width = 3
+        crosswalk_length = road_rules["x_max"] - road_rules["x_min"]
+        self.draw_crosswalk(road_rules["x_min"], 30 - crosswalk_width*0.5, crosswalk_width, crosswalk_length)
+
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c="white", linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c="white", linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c="white", linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c="white", linewidth = 2, zorder = -1)
+        ax.plot([x_center, x_center], [0, y_max], "--", c = 'white', linewidth = 5, dashes=(5, 5), zorder = -1)
+        ax.plot([road_rules["x_max"], x_max], [y_center, y_center], "--", c = 'white', linewidth = 5, dashes=(5, 5), zorder = -1)
 
     def plot(self):
         """ Plot everything. """
@@ -245,12 +282,13 @@ class Visualizer(object):
         if not os.path.isdir(results_dir):
             os.makedirs(results_dir)
         
-        plt.figure(self._figure_number, figsize=(8, 10))
-        plt.rc("text", usetex=True)
+        plt.figure(self._figure_number, figsize=(12, 20))
+        # plt.rc("text", usetex=True)
 
         ax = plt.gca()
-        ax.set_xlabel("$x(t)$")
-        ax.set_ylabel("$y(t)$")
+        plt.axis("off")
+        # ax.set_xlabel("$x(t)$")
+        # ax.set_ylabel("$y(t)$")
 
         if self._plot_lims is not None:
             ax.set_xlim(self._plot_lims[0], self._plot_lims[1])
@@ -297,35 +335,50 @@ class Visualizer(object):
                 elif ii == 1:
                     # self.draw_car(ii, traj["xs"])
                     if self._draw_cars:
-                        self.draw_real_car(ii, traj["xs"][:15])
-                        self.draw_real_car(ii, traj["xs"][15:], path = "visual_components/car_robot_y.png")
+                        if self._adversarial:
+                            self.draw_real_car(ii, traj["xs"][:self._t_react])
+                            self.draw_real_car(ii, traj["xs"][self._t_react:], path = "visual_components/car_robot_y.png")
+                        else:
+                            self.draw_real_car(ii, traj["xs"])
                     else:
-                        plt.plot(xs[:15], ys[:15],
-                            ".-y",
-                            label = "Player {}, iteration {}".format(ii, iteration),
-                            alpha = 0.4,
-                            linewidth = 2
-                            #  linewidth = self.linewidth_from_data_units(1.988, ax)
-                        )
-                        plt.plot(xs[15:], ys[15:],
+                        if self._adversarial:
+                            plt.plot(xs[:self._t_react], ys[:self._t_react],
+                                ".-y",
+                                label = "Player {}, iteration {}".format(ii, iteration),
+                                alpha = 0.4,
+                                linewidth = 2
+                                #  linewidth = self.linewidth_from_data_units(1.988, ax)
+                            )
+                            plt.plot(xs[self._t_react:], ys[self._t_react:],
+                                self._player_linestyles[ii],
+                                label = "Player {}, iteration {}".format(ii, iteration),
+                                alpha = 0.4,
+                                linewidth = 2
+                                #  linewidth = self.linewidth_from_data_units(1.988, ax)
+                            )
+                        else:
+                            plt.plot(xs, ys,
+                                self._player_linestyles[ii],
+                                label = "Player {}, iteration {}".format(ii, iteration),
+                                alpha = 0.4,
+                                linewidth = 2
+                                #  linewidth = self.linewidth_from_data_units(1.988, ax)
+                            )
+                else:
+                    if self._draw_human:
+                        self.draw_real_human(traj["xs"])
+                    else:
+                        plt.plot(xs, ys,
                             self._player_linestyles[ii],
                             label = "Player {}, iteration {}".format(ii, iteration),
                             alpha = 0.4,
-                            linewidth = 2
+                            linewidth = 2,
+                            marker='o', markersize = 10
                             #  linewidth = self.linewidth_from_data_units(1.988, ax)
                         )
-                else:
-                    plt.plot(xs, ys,
-                        self._player_linestyles[ii],
-                        label = "Player {}, iteration {}".format(ii, iteration),
-                        alpha = 0.4,
-                        linewidth = 2,
-                         marker='o', markersize = 10
-                        #  linewidth = self.linewidth_from_data_units(1.988, ax)
-                    )
 
-        plt.title("ILQ solver solution (iterations {}-{})".format(
-            plotted_iterations[0], plotted_iterations[-1]))
+        # plt.title("ILQ solver solution (iterations {}-{})".format(
+        #     plotted_iterations[0], plotted_iterations[-1]))
         
         plt.savefig(results_dir + sample_file_name) # trying to save figure
 

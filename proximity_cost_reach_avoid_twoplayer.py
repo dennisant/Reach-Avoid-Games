@@ -383,6 +383,23 @@ class ProximityToBlockCost(Cost):
                   )
                 )
               )
+
+              # value = torch.max(
+              #   torch.max(
+              #     car_rear[1] - self._goal_y,
+              #     torch.max(
+              #       car_rear[0] - self._road_rules["x_max"],
+              #       self._road_rules["x_min"] - car_rear[0]
+              #     )
+              #   ),
+              #   torch.max(
+              #     car_front[1] - self._goal_y,
+              #     torch.max(
+              #       car_front[0] - self._road_rules["x_max"],
+              #       self._road_rules["x_min"] - car_front[0]
+              #     )
+              #   )
+              # )
               
               # value = torch.max(
               #   torch.max(
@@ -437,6 +454,23 @@ class ProximityToBlockCost(Cost):
 
               # value = max(
               #   max(
+              #     car_rear[1] - self._goal_y,
+              #     max(
+              #       car_rear[0] - self._road_rules["x_max"],
+              #       self._road_rules["x_min"] - car_rear[0]
+              #     )
+              #   ),
+              #   max(
+              #     car_front[1] - self._goal_y,
+              #     max(
+              #       car_front[0] - self._road_rules["x_max"],
+              #       self._road_rules["x_min"] - car_front[0]
+              #     )
+              #   )
+              # )
+
+              # value = max(
+              #   max(
               #     abs(car_rear[1] - self._goal_y) * (car_rear[1] - self._goal_y),
               #     max(
               #       abs(car_rear[0] - self._road_rules["x_max"]) * (car_rear[0] - self._road_rules["x_max"]),
@@ -481,11 +515,26 @@ class ProximityToBlockCost(Cost):
     def render(self, ax=None, contour = False, player=0):
         """ Render this obstacle on the given axes. """
         if self._player_id == 0:
-          ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'white', linewidth = 10, alpha = 0.4)
+          # ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'white', linewidth = 10, alpha = 0.4)
+
+          goal = plt.Rectangle(
+            [self._road_rules["x_min"], self._goal_y], width = self._road_rules["x_max"] - self._road_rules["x_min"], height = 10, color = "white", lw = 0, alpha = 0.4)
+          ax.add_patch(goal)
+
           # ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'r', linewidth = 10, alpha = 0.2)
         else:
-          ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'r', linewidth = 10, alpha = 0.4)
+          # ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'r', linewidth = 10, alpha = 0.4)
+
+          goal = plt.Rectangle(
+            [self._goal_x, self._road_rules["y_min"]], width = 10, height = self._road_rules["y_max"] - self._road_rules["y_min"], color = "r", lw = 0, alpha = 0.4)
+          ax.add_patch(goal)
+
+          # goal = plt.Rectangle(
+          #   [self._road_rules["x_min"], 0], width = self._road_rules["x_max"] - self._road_rules["x_min"], height = self._goal_y + 2, color = "r", lw = 0, alpha = 0.4)
+          # ax.add_patch(goal)
+
           # ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'g', linewidth = 10, alpha = 0.2)
+        # plt.legend()
 
         if contour and self._player_id == player:
           self.target_contour(ax)
@@ -582,7 +631,12 @@ class PedestrianProximityToBlockCost(Cost):
     def render(self, ax=None, contour = False):
         """ Render this obstacle on the given axes. """
         # ax.plot([self._road_rules["x_min"], self._road_rules["x_max"]], [self._goal_y, self._goal_y], c = 'r', linewidth = 10, alpha = 0.2)
-        ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'b', linewidth = 10, alpha = 0.4)
+        # ax.plot([self._goal_x, self._goal_x], [self._road_rules["y_min"], self._road_rules["y_max"]], c = 'b', linewidth = 10, alpha = 0.4)
+
+        goal = plt.Rectangle(
+            [self._goal_x, self._road_rules["y_min"]], width = 10, height = self._road_rules["y_max"] - self._road_rules["y_min"], color = "b", lw = 0, alpha = 0.4)
+        ax.add_patch(goal)
+        # ax.text(self._goal_x - 1, self._road_rules["y_min"] - 0.5, "ped_goal", fontsize=10)
 
         if contour:
           self.target_contour(ax)

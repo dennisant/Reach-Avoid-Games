@@ -95,6 +95,8 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs):
     Ps = [deque() for ii in range(num_players)]
     betas = deque()
     alphas = [deque() for ii in range(num_players)]
+    ns = [deque([np.array([[0.0]])]) for ii in range(num_players)]
+
     for k in range(horizon, -1, -1):
         # Unpack all relevant variables.
         A = As[k]
@@ -106,6 +108,7 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs):
 
         Z = [Zis[0] for Zis in Zs]
         zeta = [zetais[0] for zetais in zetas]
+        n = [nis[0] for nis in ns]
 
         # Compute Ps given previously computed Zs.
         # Refer to equation 6.17a in Basar and Olsder.
@@ -170,6 +173,15 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs):
             zetas[ii].appendleft(F.T @ (zeta[ii] + Z[ii] @ beta) + l[ii] + sum(
                 [P_split[jj].T @ R[ii][jj] @ alpha_split[jj] - P_split[jj].T @ r[ii][jj:jj+1].T
                  for jj in range(num_players)]))
+
+        # calculating constant n
+        for ii in range(num_players):
+            ns[ii].appendleft(
+                0.5 * (
+                    sum([(alpha_split[jj].T @ R[ii][jj] - 2*r[ii][jj:jj+1]) @ alpha_split[jj] for jj in range(num_players)]) - 
+                    (2 * zeta[ii] - Z[ii] @ -beta).T @ -beta
+                ) + n[ii]
+            )
     
     # Return P1s, P2s, alpha1s, alpha2s
-    return [list(Pis) for Pis in Ps], [list(alphais) for alphais in alphas]
+    return [list(Pis) for Pis in Ps], [list(alphais) for alphais in alphas], [list(nis) for nis in ns]

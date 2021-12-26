@@ -66,7 +66,8 @@ class ILQSolver(object):
                  reference_deviation_weight=None,
                  logger=None,
                  visualizer=None,
-                 u_constraints=None):
+                 u_constraints=None,
+                 t_react=None):
         """
         Initialize from dynamics, player costs, current state, and initial
         guesses for control strategies for both players.
@@ -120,7 +121,7 @@ class ILQSolver(object):
         self._logger = logger
 
         # adversarial
-        self._t_react = 15
+        self._t_react = t_react if t_react is not None else 10
 
         # Log some of the paramters.
         if self._logger is not None:
@@ -298,7 +299,7 @@ class ILQSolver(object):
             # for the next trajectory
             # print(np.array(Qs).shape)
             # input()
-            Ps, alphas = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost)
+            Ps, alphas = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, self._t_react)
 
             # (7) Accumulate total costs for all players.
             # This is the total cost for the trajectory we are on now

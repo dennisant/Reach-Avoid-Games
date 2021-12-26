@@ -69,9 +69,9 @@ def draw_crosswalk(x, y, width, length, number_of_dashes = 5):
 
 # Read log
 dir = "logs"
-experiment_name = "three_player"
-file_name_leading = "threeplayer_intersection_"
-iteration = 390
+experiment_name = "three_player_time_inconsistent"
+file_name_leading = "twoplayer_intersection_"
+iteration = 80
 
 file_list = os.listdir(os.path.join(dir, experiment_name))
 file_index_list = sorted([int(file.replace(file_name_leading, "").replace(".txt","")) for file in file_list])
@@ -210,12 +210,13 @@ if not os.path.exists("animation_tmp"):
 
 for i in range(len(data)):
     state = data.iloc[i].to_numpy()
-    plt.figure(0, figsize=(8, 10))
+    plt.figure(0, figsize=(12, 20))
     _plot_lims = [-5, 25, 0,  40]
 
     ax = plt.gca()
-    ax.set_xlabel("$x(t)$")
-    ax.set_ylabel("$y(t)$")
+    plt.axis("off")
+    # ax.set_xlabel("$x(t)$")
+    # ax.set_ylabel("$y(t)$")
 
     if _plot_lims is not None:
         ax.set_xlim(_plot_lims[0], _plot_lims[1])
@@ -230,7 +231,7 @@ for i in range(len(data)):
     x_max = 25
     y_max = 40
 
-    plt.title("ILQ solver solution")
+    # plt.title("ILQ solver solution")
 
     # plt.imshow(
     #     plt.imread("visual_components/grass-background-2.png", format="png"), 

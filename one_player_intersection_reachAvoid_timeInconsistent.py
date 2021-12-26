@@ -93,8 +93,14 @@ g_params = {
         "theta_indices": [2],
         "phi_index": 3, 
         "vel_index": 4,
-        "obstacles": [(6.5, 30.0)],
-        "obstacle_radii": [6.5]
+        "obstacles": [
+            (6.5, 30.0),
+            (10.0, 40.0),
+            (6.0, 50.0)
+        ],
+        "obstacle_radii": [
+            6.5, 3.0, 3.0
+        ]
     }
 }
 ###################

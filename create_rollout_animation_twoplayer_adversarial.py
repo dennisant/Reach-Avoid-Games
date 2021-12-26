@@ -71,7 +71,7 @@ def draw_crosswalk(x, y, width, length, number_of_dashes = 5):
 dir = "logs"
 experiment_name = "two_player_time_inconsistent_adversarial"
 file_name_leading = "twoplayer_intersection_"
-iteration = 260
+iteration = 350
 
 file_list = os.listdir(os.path.join(dir, experiment_name))
 file_index_list = sorted([int(file.replace(file_name_leading, "").replace(".txt","")) for file in file_list])

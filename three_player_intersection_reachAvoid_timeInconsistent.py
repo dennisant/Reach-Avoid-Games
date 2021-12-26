@@ -58,7 +58,7 @@ import math
 TIME_HORIZON = 3.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
-LOG_DIRECTORY = "./logs/two_player/"
+LOG_DIRECTORY = "./logs/three_player_time_inconsistent/"
 
 car1 = Car5D(2.413)
 car2 = Car5D(2.413)
@@ -67,18 +67,18 @@ ped = Unicycle4D()
 dynamics = ProductMultiPlayerDynamicalSystem(
     [car1, car2, ped], T=TIME_RESOLUTION)
 
-car1_theta0 = np.pi / 2.01
-car1_v0 = 10.0
+car1_theta0 = np.pi / 2.01 # 90 degree heading
+car1_v0 = 5.0             # 5 m/s initial speed
 car1_x0 = np.array([
-    [7.75],
+    [7.25],
     [0.0],
     [car1_theta0],
     [0.0],
     [car1_v0]
 ])
 
-car2_theta0 = -np.pi / 2.01
-car2_v0 = 10.0             
+car2_theta0 = -np.pi / 2.01 # -90 degree heading
+car2_v0 = 10.0              # 2 m/s initial speed
 car2_x0 = np.array([
     [3.75],
     [40.0],
@@ -195,13 +195,14 @@ visualizer = Visualizer(
     [car1_goal_cost, car2_goal_cost, ped_goal_cost
     # RoadRulesPenalty(g_params["car1"])
     ],
-    [".-white", ".-r", ".-b"],
+    [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 25, -2,  40]
+    plot_lims=[-5, 25, 0,  40],
+    draw_roads = True, 
+    draw_cars = True,
+    draw_human = True
 )
-
-visualizer = None
 
 # Logger.
 if not os.path.exists(LOG_DIRECTORY):
