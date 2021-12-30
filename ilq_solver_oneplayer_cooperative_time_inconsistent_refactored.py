@@ -138,12 +138,12 @@ class ILQSolver(object):
             self._last_operating_point = self._current_operating_point
             self._current_operating_point = (xs, us)
             
-            # if iteration%store_freq == 0:
-            #     xs_store = [xs_i.flatten() for xs_i in xs]
+            if iteration%store_freq == 0:
+                xs_store = [xs_i.flatten() for xs_i in xs]
             #     #print(xs_store[0])
             #     #print(len(xs_store))
             #     #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
-            #     np.savetxt('logs/two_player_time_consistent/twoplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
+                np.savetxt('logs/one_player_time_inconsistent/oneplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
             # Visualization.
@@ -161,9 +161,9 @@ class ILQSolver(object):
                 # plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
-                # if not os.path.exists("image_outputs_{}".format(timestr)):
-                #     os.makedirs("image_outputs_{}".format(timestr))
-                # plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
+                if not os.path.exists("image_outputs_{}".format(timestr)):
+                    os.makedirs("image_outputs_{}".format(timestr))
+                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
                 plt.clf()
             
             # print("plot is shown above")
@@ -262,8 +262,8 @@ class ILQSolver(object):
             self._alphas = alphas
             self._ns = ns
             
-            # self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.5
-            self._alpha_scaling = self._linesearch(iteration = iteration)
+            self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.25
+            # self._alpha_scaling = self._linesearch(iteration = iteration)
             iteration += 1
 
     def _compute_operating_point(self):
@@ -419,12 +419,12 @@ class ILQSolver(object):
                 "phi_index": 3, 
                 "vel_index": 4,
                 "obstacles": [
-                    (6.5, 30.0),
-                    (10.0, 40.0),
-                    (6.0, 50.0)
+                    (6.5, 25.0),
+                    (15.0, 35.0),
+                    (6.0, 46.0)
                 ],
                 "obstacle_radii": [
-                    6.5, 3.0, 3.0
+                    5.5, 3.0, 3.0
                 ]
             },
         }
@@ -436,7 +436,7 @@ class ILQSolver(object):
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 45.0),
+                    (6.0, 40.0),
                     2.0,
                     name="car_goal"    
                 )(xs[k])
@@ -483,7 +483,7 @@ class ILQSolver(object):
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 45.0),
+                    (6.0, 40.0),
                     2.0,
                     name="car_goal"    
                 )(xs[k])
@@ -517,7 +517,7 @@ class ILQSolver(object):
                     if func_key == "l_x":
                         c1gc = ProximityCost(
                             car_position_indices,
-                            (6.0, 45.0),
+                            (6.0, 40.0),
                             2.0,
                             name="car_goal"    
                         )
@@ -538,7 +538,7 @@ class ILQSolver(object):
                     if func_key == "l_x":
                         c1gc = ProximityCost(
                             car_position_indices,
-                            (6.0, 45.0),
+                            (6.0, 40.0),
                             2.0,
                             name="car_goal"    
                         )
@@ -641,12 +641,12 @@ class ILQSolver(object):
                 "phi_index": 3, 
                 "vel_index": 4,
                 "obstacles": [
-                    (6.5, 30.0),
-                    (10.0, 40.0),
-                    (6.0, 50.0)
+                    (6.5, 25.0),
+                    (15.0, 35.0),
+                    (6.0, 46.0)
                 ],
                 "obstacle_radii": [
-                    6.5, 3.0, 3.0
+                    5.5, 3.0, 3.0
                 ]
             },
         }
@@ -658,7 +658,7 @@ class ILQSolver(object):
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 45.0),
+                    (6.0, 40.0),
                     2.0,
                     name="car_goal"    
                 )(xs[k])
@@ -705,7 +705,7 @@ class ILQSolver(object):
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 45.0),
+                    (6.0, 40.0),
                     2.0,
                     name="car_goal"    
                 )(xs[k])
@@ -739,7 +739,7 @@ class ILQSolver(object):
                     if func_key == "l_x":
                         c1gc = ProximityCost(
                             car_position_indices,
-                            (6.0, 45.0),
+                            (6.0, 40.0),
                             2.0,
                             name="car_goal"    
                         )
@@ -754,7 +754,7 @@ class ILQSolver(object):
                     if func_key == "l_x":
                         c1gc = ProximityCost(
                             car_position_indices,
-                            (6.0, 45.0),
+                            (6.0, 40.0),
                             2.0,
                             name="car_goal"    
                         )

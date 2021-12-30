@@ -55,7 +55,7 @@ import math
 from point import Point
 
 # General parameters.
-TIME_HORIZON = 3.0    # s #Change back to 2.0
+TIME_HORIZON = 4.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 LOG_DIRECTORY = "./logs/one_player/"
@@ -94,12 +94,12 @@ g_params = {
         "phi_index": 3, 
         "vel_index": 4,
         "obstacles": [
-            (6.5, 30.0),
-            (10.0, 40.0),
-            (6.0, 50.0)
+            (6.5, 25.0),
+            (15.0, 35.0),
+            (6.0, 46.0)
         ],
         "obstacle_radii": [
-            6.5, 3.0, 3.0
+            5.5, 3.0, 3.0
         ]
     }
 }
@@ -114,7 +114,7 @@ car_alphas = [np.zeros((car._u_dim, 1))] * HORIZON_STEPS
 car_position_indices_in_product_state = (0, 1)
 car_goal_cost = ProximityCost(
     car_position_indices_in_product_state,
-    (6.0, 45.0),
+    (6.0, 40.0),
     2.0,
     name="car_goal"    
 )
@@ -139,7 +139,7 @@ visualizer = Visualizer(
     [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 25, -2,  50]
+    plot_lims=[-5, 35, -2,  50]
 )
 
 # Logger.

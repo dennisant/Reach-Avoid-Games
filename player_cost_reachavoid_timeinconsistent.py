@@ -204,8 +204,10 @@ class PlayerCost(object):
                     gradient_u[ii, :] = grad_ui_torch.detach().numpy().copy().T
                 
             # eps_control = 0.8
-            eps_control = 0.5
-            eps_state = 0.1
+            eps_control = 1.8
+            eps_state = 0.2
+            # eps_control = 0.5
+            # eps_state = 0.1
             
             hess_x = hess_x + np.identity(len(x)) * eps_state
             hess_u = num_players * [np.identity(2) * eps_control]
@@ -216,8 +218,10 @@ class PlayerCost(object):
                 
         else:
             # eps_control = 0.8
-            eps_control = 0.5
-            eps_state = 0.1
+            eps_control = 1.8
+            eps_state = 0.2
+            # eps_control = 0.5
+            # eps_state = 0.1
 
             x_torch = torch.from_numpy(x).requires_grad_(True)
             u_torch = [torch.from_numpy(ui).requires_grad_(True) for ui in u]

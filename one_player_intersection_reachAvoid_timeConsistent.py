@@ -55,7 +55,7 @@ import math
 from point import Point
 
 # General parameters.
-TIME_HORIZON = 25.0    # s #Change back to 2.0
+TIME_HORIZON = 4.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 LOG_DIRECTORY = "./logs/one_player_time_consistent/"
@@ -116,7 +116,7 @@ car_goal_cost = ProximityCost(
     car_position_indices_in_product_state,
     (6.0, 40.0),
     2.0,
-    name="car_goal"    
+    name="car_goal"
 )
 
 # Player ids
@@ -139,7 +139,7 @@ visualizer = Visualizer(
     [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 25, -2,  50],
+    plot_lims=[-5, 35, -2,  75],
     # draw_cars = True
 )
 

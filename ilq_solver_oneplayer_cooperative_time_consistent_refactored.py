@@ -143,6 +143,7 @@ class ILQSolver(object):
                 #print(xs_store[0])
                 #print(len(xs_store))
                 #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
+                
                 np.savetxt('logs/one_player_time_consistent/oneplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
@@ -263,9 +264,10 @@ class ILQSolver(object):
             self._alphas = alphas
             self._ns = ns
             
-            # self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.5
+            self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.25
+            # self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
             # self._alpha_scaling = self._linesearch(iteration = iteration)
-            self._alpha_scaling = 0.05
+            # self._alpha_scaling = 0.05
             iteration += 1
 
     def _compute_operating_point(self):
