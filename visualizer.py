@@ -276,7 +276,7 @@ class Visualizer(object):
         """ Plot everything. """
         
         script_dir = os.path.dirname(__file__)
-        results_dir = os.path.join(script_dir, 'Results/')
+        results_dir = os.path.join(script_dir, 'results/')
         sample_file_name = "sample"
         
         if not os.path.isdir(results_dir):
@@ -386,7 +386,7 @@ class Visualizer(object):
         """ Plot everything, simplified """
         
         script_dir = os.path.dirname(__file__)
-        results_dir = os.path.join(script_dir, 'Results/')
+        results_dir = os.path.join(script_dir, 'results/')
         sample_file_name = "sample"
         
         if not os.path.isdir(results_dir):
