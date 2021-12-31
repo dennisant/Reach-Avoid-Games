@@ -60,7 +60,7 @@ timestr = time.strftime("%Y-%m-%d-%H_%M")
 args = get_argument()
 
 # General parameters.
-TIME_HORIZON = 10.0    # s #Change back to 2.0
+TIME_HORIZON = 11.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 
@@ -73,7 +73,7 @@ dynamics = ProductMultiPlayerDynamicalSystem(
     [car], T=TIME_RESOLUTION)
 
 car_theta0 = np.pi / 2.01
-car_v0 = 10.0
+car_v0 = 12.0
 car_x0 = np.array([
     [6.0],
     [0.0],
@@ -111,8 +111,20 @@ g_params = {
     }
 }
 
+l_params = {
+    "car": {
+        "goals": [
+            (6.0, 40.0)
+        ],
+        "goal_radii": [
+            2.0
+        ]
+    }
+}
+
 config = {
     "g_params": g_params,
+    "l_params": l_params,
     "experiment": {
         "name": EXP_NAME,
         "log_dir": LOG_DIRECTORY
@@ -128,12 +140,13 @@ car_alphas = [np.zeros((car._u_dim, 1))] * HORIZON_STEPS
 
 # Create environment:
 car_position_indices_in_product_state = (0, 1)
-car_goal_cost = ProximityCost(
-    car_position_indices_in_product_state,
-    (6.0, 40.0),
-    2.0,
-    name="car_goal"
-)
+for i in range(len(l_params["car"]["goals"])):
+    car_goal_cost = ProximityCost(
+        car_position_indices_in_product_state,
+        l_params["car"]["goals"][i],
+        l_params["car"]["goal_radii"][i],
+        name="car_goal"
+    )
 
 # Player ids
 car_player_id = 0
@@ -141,11 +154,6 @@ car_player_id = 0
 # Build up total costs for both players. This is basically a zero-sum game.
 car_cost = PlayerCost()
 car_cost.add_cost(car_goal_cost, "x", 1.0)
-
-# obstacle_centers = [Point(6.5, 15.0), Point(0.0, 20.0), Point(12.0, 24.0)]
-obstacle_centers = [Point(6.5, 30.0), Point(10.0, 40.0), Point(6.0, 50.0)]
-# obstacle_radii = [4.5, 1.5, 4.0]
-obstacle_radii = [6.5, 3.0, 3.0]
 
 obstacle_costs = [ObstacleDistCost(g_params["car"])]
 
@@ -155,8 +163,8 @@ visualizer = Visualizer(
     [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 35, -2,  100],
-    # draw_cars = True
+    plot_lims=[-20, 75, -20,  100],
+    draw_cars = True
 )
 
 # Logger.

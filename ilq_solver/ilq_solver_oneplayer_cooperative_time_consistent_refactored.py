@@ -102,8 +102,10 @@ class ILQSolver(object):
         self._num_players = len(player_costs)
         self.exp_info = config["experiment"]
         self.g_params = config["g_params"]
+        self.l_params = config["l_params"]
         self.plot = config["args"].plot
         self.log = config["args"].log
+        self.vel_plot = config["args"].vel
     
         self._player_costs = player_costs
 
@@ -190,7 +192,6 @@ class ILQSolver(object):
                 for ii in range(self._num_players):
                     Bs[ii].append(B[ii])
                     
-
             # (5) Quadraticize costs.
             # Get the hessians and gradients. Hess_x (Q) and grad_x (l) are zero besides at t*
             # Hess_u (R) and grad_u (r) are eps * I and eps * u_t, respectfully, for all [0, T]
@@ -223,6 +224,36 @@ class ILQSolver(object):
             self._xs = xs
             self._us= us
 
+            # draw velocity and timestar overlay graph for 2 cars
+            if self.vel_plot:
+                for i in range(self._num_players):
+                    g_critical_index = np.where(np.array(func_array[i]) == "g_x")[0]
+                    l_critical_index = np.where(np.array(func_array[i]) == "l_x")[0]
+                    value_critical_index = np.where(np.array(func_array[i]) == "value")[0]
+                    gradient_critical_index = np.where(np.array(func_array[i]) != "value")[0]
+                    plt.figure(4+i)
+                    vel_array = np.array([x[5*i + 4] for x in xs]).flatten()
+                    
+                    plt.plot(vel_array)
+                    plt.scatter(g_critical_index, vel_array[g_critical_index], color = "r")
+                    plt.scatter(l_critical_index, vel_array[l_critical_index], color = "g")
+                    plt.scatter(value_critical_index, vel_array[value_critical_index], color = "y")
+
+                    name_list = []
+                    try:
+                        for func in np.array(func_return_array[i])[gradient_critical_index]:
+                            try:
+                                name_list.append(func.__name__.replace("_",""))
+                            except:
+                                name_list.append(type(func).__name__.replace("_",""))
+                        for j in range(len(gradient_critical_index)):
+                            plt.text(gradient_critical_index[j], vel_array[gradient_critical_index][j], name_list[j])
+                    except Exception as err:
+                        print(err)
+                        pass
+                    plt.pause(0.01)
+                    plt.clf()
+
             # (6) Compute feedback Nash equilibrium of the resulting LQ game.
             # This is getting put into compute_operating_point to solver
             # for the next trajectory
@@ -248,14 +279,14 @@ class ILQSolver(object):
             
             
             #Plot total cost for all iterations
-            if self._total_costs[0] < 0:
-                plt.plot(iteration_store, store_total_cost, color='green', linestyle='dashed', linewidth = 2,
-                         marker='o', markerfacecolor='blue', markersize=6)
-                #plt.plot(iteration_store, store_total_cost)
-                plt.xlabel('Iteration')
-                plt.ylabel('Total cost')
-                plt.title('Total Cost of Trajectory at Each Iteration')
-                plt.show()
+            # if self._total_costs[0] < 0:
+            #     plt.plot(iteration_store, store_total_cost, color='green', linestyle='dashed', linewidth = 2,
+            #              marker='o', markerfacecolor='blue', markersize=6)
+            #     #plt.plot(iteration_store, store_total_cost)
+            #     plt.xlabel('Iteration')
+            #     plt.ylabel('Total cost')
+            #     plt.title('Total Cost of Trajectory at Each Iteration')
+            #     plt.show()
 
             # Log everything.
             if self._logger is not None:
@@ -269,11 +300,12 @@ class ILQSolver(object):
             self._alphas = alphas
             self._ns = ns
             
-            # self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.1
-            # self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
-            self._alpha_scaling = self._linesearch(iteration = iteration)
+            # self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.5
+            self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
+            # self._alpha_scaling = self._linesearch(iteration = iteration)
             # self._alpha_scaling = 0.05
             iteration += 1
+            print("\rIteration: {}".format(iteration), end="")
 
     def _compute_operating_point(self):
         """
@@ -326,7 +358,8 @@ class ILQSolver(object):
         if self._total_costs[0] > 0.0:
            return False
 
-        return True
+        # return True
+        return False
     
     def get_road_logic_dict(self, road_logic):
         return {
@@ -383,9 +416,7 @@ class ILQSolver(object):
 
         """
         car_position_indices = (0, 1)
-
         car_theta_index = 2
-        
         car_player_id = 0
         
         # Pre-allocate hessian and gradient matrices
@@ -413,8 +444,8 @@ class ILQSolver(object):
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 45.0),
-                    2.0,
+                    self.l_params["car"]["goals"][0],
+                    self.l_params["car"]["goal_radii"][0],
                     name="car_goal"    
                 )(xs[k])
                 target_margin_func[k] = hold_new
@@ -449,8 +480,8 @@ class ILQSolver(object):
                 if func_key == "l_x":
                     c1gc = ProximityCost(
                         car_position_indices,
-                        (6.0, 45.0),
-                        2.0,
+                        self.l_params["car"]["goals"][0],
+                        self.l_params["car"]["goal_radii"][0],
                         name="car_goal"    
                     )
                     self._player_costs[ii].add_cost(c1gc, "x", 1.0)
@@ -550,8 +581,8 @@ class ILQSolver(object):
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 45.0),
-                    2.0,
+                    self.l_params["car"]["goals"][0],
+                    self.l_params["car"]["goal_radii"][0],
                     name="car_goal"    
                 )(xs[k])
                 target_margin_func[k] = hold_new
@@ -585,8 +616,8 @@ class ILQSolver(object):
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 45.0),
-                    2.0,
+                    self.l_params["car"]["goals"][0],
+                    self.l_params["car"]["goal_radii"][0],
                     name="car_goal"    
                 )(xs[k])
                 target_margin_func[k] = hold_new
@@ -619,8 +650,8 @@ class ILQSolver(object):
                 if func_key == "l_x":
                     c1gc = ProximityCost(
                         car_position_indices,
-                        (6.0, 45.0),
-                        2.0,
+                        self.l_params["car"]["goals"][0],
+                        self.l_params["car"]["goal_radii"][0],
                         name="car_goal"    
                     )
                     self._player_costs[ii].add_cost(c1gc, "x", 1.0)
@@ -702,14 +733,18 @@ class ILQSolver(object):
             # expected_improvement = 0.0
             # print(expected_improvement, total_costs_new, self._total_costs[0], total_costs_new - self._total_costs[0])
             # input()
+
+            # TODO: rewrite this part to get correct expected_improvement
+            # expected_improvement = 0
+
             if total_costs_new <= self._total_costs[0] + expected_improvement:
                 alpha_converged = True
                 return alpha
             else:
                 alpha = beta * alpha
-                if iteration is not None:
-                    if alpha < 1.0/(iteration+1) ** 0.5:
-                        return alpha
+                # if iteration is not None:
+                #     if alpha < 1.0/(iteration+1) ** 0.5:
+                #         return alpha
                 if alpha < 1e-10:
                     raise ValueError("alpha too small")
         

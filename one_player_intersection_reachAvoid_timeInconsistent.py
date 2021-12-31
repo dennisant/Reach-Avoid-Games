@@ -144,11 +144,6 @@ car_player_id = 0
 car_cost = PlayerCost()
 car_cost.add_cost(car_goal_cost, "x", 1.0)
 
-# obstacle_centers = [Point(6.5, 15.0), Point(0.0, 20.0), Point(12.0, 24.0)]
-obstacle_centers = [Point(6.5, 30.0)]
-# obstacle_radii = [4.5, 1.5, 4.0]
-obstacle_radii = [6.5]
-
 obstacle_costs = [ObstacleDistCost(g_params["car"])]
 
 visualizer = Visualizer(
@@ -157,7 +152,8 @@ visualizer = Visualizer(
     [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 35, -2,  100]
+    plot_lims=[-20, 75, -20,  100],
+    draw_cars = True
 )
 
 # Logger.

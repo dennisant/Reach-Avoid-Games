@@ -282,7 +282,8 @@ class Visualizer(object):
         # if not os.path.isdir(results_dir):
         #     os.makedirs(results_dir)
         
-        plt.figure(self._figure_number, figsize=(12, 20))
+        ratio = (self._plot_lims[1] - self._plot_lims[0])/(self._plot_lims[3] - self._plot_lims[2])
+        plt.figure(self._figure_number, figsize=(ratio*10, 10))
         # plt.rc("text", usetex=True)
 
         ax = plt.gca()
