@@ -316,11 +316,11 @@ class ILQSolver(object):
             self._alphas = alphas
             self._ns = ns
             
-            self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.3
-            if self._alpha_scaling < .2:
-                self._alpha_scaling = .2
+            # self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.3
+            # if self._alpha_scaling < .2:
+            #     self._alpha_scaling = .2
             
-            # self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
+            self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
             # self._alpha_scaling = self._linesearch(iteration = iteration)
             # self._alpha_scaling = 0.05
             iteration += 1
