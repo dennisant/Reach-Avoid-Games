@@ -53,12 +53,16 @@ from utils.visualizer import Visualizer
 from utils.logger import Logger
 import math
 from resource.point import Point
+import time
+timestr = time.strftime("%Y-%m-%d-%H_%M")
 
 # General parameters.
 TIME_HORIZON = 4.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
-LOG_DIRECTORY = "./logs/one_player_time_consistent/"
+
+EXP_NAME = "one_player_time_consistent"
+LOG_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
 
 car = Car5D(2.413)
 
@@ -101,6 +105,14 @@ g_params = {
         "obstacle_radii": [
             4.5, 3.0, 3.0
         ]
+    }
+}
+
+config = {
+    "g_params": g_params,
+    "experiment": {
+        "name": EXP_NAME,
+        "log_dir": LOG_DIRECTORY
     }
 }
 ###################
@@ -147,7 +159,7 @@ visualizer = Visualizer(
 if not os.path.exists(LOG_DIRECTORY):
     os.makedirs(LOG_DIRECTORY)
 
-logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_car_example.pkl'))
+logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
 
 # Set up ILQSolver.
 solver = ILQSolver(dynamics,
@@ -160,6 +172,6 @@ solver = ILQSolver(dynamics,
                    logger,
                    visualizer,
                    None, 
-                   g_params)
+                   config)
 
 solver.run()

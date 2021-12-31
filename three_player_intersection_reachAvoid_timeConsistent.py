@@ -54,15 +54,18 @@ from utils.visualizer import Visualizer
 from utils.logger import Logger
 import math
 
+import time
+timestr = time.strftime("%Y-%m-%d-%H_%M")
+
 # General parameters.
 TIME_HORIZON = 3.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
-LOG_DIRECTORY = "./logs/three_player/"
+
+EXP_NAME = "three_players_time_consistent"
+LOG_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
 
 # Create dynamics.
-# car1 = Car5D(4.0)
-# car2 = Car5D(4.0)
 car1 = Car5D(2.413)
 car2 = Car5D(2.413)
 ped = Unicycle4D()
@@ -70,33 +73,6 @@ ped = Unicycle4D()
 dynamics = ProductMultiPlayerDynamicalSystem(
     [car1, car2, ped], T=TIME_RESOLUTION)
 
-# car3 = Car10D(4.0)
-# dynamics_10D = ProductMultiPlayerDynamicalSystem(
-#     [car3], T=TIME_RESOLUTION)
-
-# Choose initial states and set initial control laws to zero, such that
-# we start with a situation that looks like this:
-#
-#              (car 2)
-#             |   X   .       |
-#             |   :   .       |
-#             |  \./  .       |
-# (unicycle) X-->     .       |
-#             |       .        ------------------
-#             |       .
-#             |       .        ..................
-#             |       .
-#             |       .        ------------------
-#             |       .   ^   |
-#             |       .   :   |         (+y)
-#             |       .   :   |          |
-#             |       .   X   |          |
-#                      (car 1)           |______ (+x)
-#
-# We shall set up the costs so that car 2 wants to turn and car 1 / unicycle 1
-# continue straight in their initial direction of motion.
-# We shall assume that lanes are 4 m wide and set the origin to be in the
-# bottom left along the road boundary.
 car1_theta0 = np.pi / 2.01 # 90 degree heading
 car1_v0 = 5.0             # 5 m/s initial speed
 car1_x0 = np.array([
@@ -181,6 +157,14 @@ g_params = {
         "theta_indices": [2, 7, 12]
     }
 }
+
+config = {
+    "g_params": g_params,
+    "experiment": {
+        "name": EXP_NAME,
+        "log_dir": LOG_DIRECTORY
+    }
+}
 ###################
 
 stacked_x0 = np.concatenate([car1_x0, car2_x0, ped_x0], axis=0)
@@ -239,7 +223,7 @@ visualizer = Visualizer(
 if not os.path.exists(LOG_DIRECTORY):
     os.makedirs(LOG_DIRECTORY)
 
-logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_car_example.pkl'))
+logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
 
 # Set up ILQSolver.
 solver = ILQSolver(dynamics,
@@ -251,6 +235,7 @@ solver = ILQSolver(dynamics,
                    None,
                    logger,
                    visualizer,
-                   None)
+                   None,
+                   config)
 
 solver.run()

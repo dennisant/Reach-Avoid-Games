@@ -54,11 +54,16 @@ from utils.logger import Logger
 import math
 from resource.point import Point
 
+import time
+timestr = time.strftime("%Y-%m-%d-%H_%M")
+
 # General parameters.
 TIME_HORIZON = 12.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
-LOG_DIRECTORY = "./logs/one_player/"
+
+EXP_NAME = "one_player_time_inconsistent"
+LOG_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
 
 car = Car5D(2.413)
 

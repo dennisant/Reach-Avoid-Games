@@ -68,7 +68,8 @@ class ILQSolver(object):
                  reference_deviation_weight=None,
                  logger=None,
                  visualizer=None,
-                 u_constraints=None):
+                 u_constraints=None,
+                 config = None):
         """
         Initialize from dynamics, player costs, current state, and initial
         guesses for control strategies for both players.
@@ -103,6 +104,8 @@ class ILQSolver(object):
         self._u_constraints = u_constraints
         self._horizon = len(Ps[0])
         self._num_players = len(player_costs)
+        self.exp_info = config["experiment"]
+        self.g_params = config["g_params"]
     
         self._player_costs = player_costs
 
@@ -151,8 +154,7 @@ class ILQSolver(object):
                 #print(len(xs_store))
                 #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
 
-                np.savetxt('logs/three_player/threeplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
-            
+                np.savetxt(self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')
 
             # Visualization.
             if self._visualizer is not None:
@@ -169,9 +171,9 @@ class ILQSolver(object):
                 # plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
-                if not os.path.exists("image_outputs_{}".format(timestr)):
-                    os.makedirs("image_outputs_{}".format(timestr))
-                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
+                if not os.path.exists(self.exp_info["log_dir"] + "/figures"):
+                    os.makedirs(self.exp_info["log_dir"] + "/figures")
+                plt.savefig(self.exp_info["log_dir"] +'/figures/plot-{}.jpg'.format(iteration)) # Trying to save these plots
                 plt.clf()
             
             # print("plot is shown above")

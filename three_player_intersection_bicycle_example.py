@@ -62,11 +62,16 @@ from player_cost import PlayerCost
 from utils.visualizer import Visualizer
 from utils.logger import Logger
 
+import time
+timestr = time.strftime("%Y-%m-%d-%H_%M")
+
 # General parameters.
 TIME_HORIZON = 5.0   # s
 TIME_RESOLUTION = 0.25 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
-LOG_DIRECTORY = "./logs/three_player/"
+
+EXP_NAME = "three_players_bicycle_example"
+LOG_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
 
 # Create dynamics.
 car1 = Unicycle4D()
@@ -286,7 +291,7 @@ visualizer = Visualizer(
 if not os.path.exists(LOG_DIRECTORY):
     os.makedirs(LOG_DIRECTORY)
 
-logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_bicycle_example.pkl'))
+logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
 
 # Set up ILQSolver.
 solver = ILQSolver(dynamics,
