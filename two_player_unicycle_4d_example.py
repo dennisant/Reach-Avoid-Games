@@ -43,14 +43,14 @@ import matplotlib.pyplot as plt
 
 from two_player_unicycle_4d import TwoPlayerUnicycle4D
 from ilq_solver import ILQSolver
-from point import Point
-from proximity_cost import ProximityCost
-from obstacle_cost import ObstacleCost
-from semiquadratic_cost import SemiquadraticCost
-from quadratic_cost import QuadraticCost
-from player_cost import PlayerCost
-from visualizer import Visualizer
-from logger import Logger
+from resource.point import Point
+from resource.proximity_cost import ProximityCost
+from cost.obstacle_cost import ObstacleCost
+from cost.semiquadratic_cost import SemiquadraticCost
+from cost.quadratic_cost import QuadraticCost
+from player_cost.player_cost import PlayerCost
+from utils.visualizer import Visualizer
+from utils.logger import Logger
 import sys
 import signal
 

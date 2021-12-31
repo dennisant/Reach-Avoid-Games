@@ -3,7 +3,7 @@ import numpy as np
 import math
 
 from cost.cost import Cost
-from utils import MaxFuncMux
+from utils.utils import MaxFuncMux
 
 class ManeuverPenalty(Cost):
     def __init__(self, g_params, name="maneuver_penalty"):

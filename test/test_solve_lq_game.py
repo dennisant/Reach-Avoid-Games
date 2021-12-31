@@ -42,7 +42,7 @@ import numpy as np
 import unittest
 
 from solve_lq_game import solve_lq_game
-from lyap_iters_eric import coupled_DARE_solve
+from misc.lyap_iters_eric import coupled_DARE_solve
 from evaluate_2_player_lq_game_cost import evaluate_2_player_lq_game_cost
 
 DT = 0.1

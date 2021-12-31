@@ -44,7 +44,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 import torch
 import numpy as np
 
-from dynamical_system import DynamicalSystem
+from resource.dynamical_system import DynamicalSystem
 
 class Unicycle4D(DynamicalSystem):
     """ 4D unicycle model. """

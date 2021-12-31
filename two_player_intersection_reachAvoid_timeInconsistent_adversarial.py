@@ -40,36 +40,40 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 
-from car_5d import Car5D
-from product_multiplayer_dynamical_system import \
+from resource.car_5d import Car5D
+from resource.car_10d import Car10D
+from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
-from ilq_solver_twoplayer_cooperative_time_inconsistent_refactored import ILQSolver
-from proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
-from player_cost_reachavoid_timeinconsistent import PlayerCost
+from ilq_solver.ilq_solver_twoplayer_cooperative_time_inconsistent_refactored_adversarial import ILQSolver
+from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
+from player_cost.player_cost_reachavoid_timeconsistent import PlayerCost
 
-from visualizer import Visualizer
-from logger import Logger
+from utils.visualizer import Visualizer
+from utils.logger import Logger
 import math
 
 # General parameters.
 TIME_HORIZON = 3.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
-LOG_DIRECTORY = "./logs/two_player/"
+LOG_DIRECTORY = "./logs/two_player_time_inconsistent_adversarial/"
 
 car1 = Car5D(2.413)
 car2 = Car5D(2.413)
 
 dynamics = ProductMultiPlayerDynamicalSystem(
     [car1, car2], T=TIME_RESOLUTION)
+    
+car3 = Car10D(2.413)
+dynamics_10D = ProductMultiPlayerDynamicalSystem(
+    [car3], T=TIME_RESOLUTION)
 
 car1_theta0 = np.pi / 2.01
-car1_v0 = 10.0
+car1_v0 = 5.0
 car1_x0 = np.array([
     [7.75],
-    [0.0],
+    [5.0],
     [car1_theta0],
     [0.0],
     [car1_v0]
@@ -79,7 +83,7 @@ car2_theta0 = -np.pi / 2.01
 car2_v0 = 10.0             
 car2_x0 = np.array([
     [3.75],
-    [40.0],
+    [35.0],
     [car2_theta0],
     [0.0],
     [car2_v0]
@@ -106,7 +110,7 @@ g_params = {
     "car1": {
         "position_indices": [(0,1), (5, 6)],
         "player_id": 0, 
-        "road_logic": [0, 1, 0, 1, 0],
+        "road_logic": [0, 1, 0, 0, 0],
         "road_rules": road_rules,
         "collision_r": collision_r,
         "goals": [20, 35],
@@ -116,7 +120,7 @@ g_params = {
     "car2": {
         "position_indices": [(0,1), (5, 6)],
         "player_id": 1, 
-        "road_logic": [1, 0, 0, 1, 0],
+        "road_logic": [1, 0, 0, 0, 0],
         "road_rules": road_rules,
         "collision_r": collision_r,
         "goals": [20, 0],
@@ -153,13 +157,20 @@ car1_cost.add_cost(car1_goal_cost, "x", 1.0)
 car2_cost = PlayerCost()
 car2_cost.add_cost(car2_goal_cost, "x", 1.0)
 
+# adversarial params
+t_react = 10
+
 visualizer = Visualizer(
     [car1_position_indices_in_product_state, car2_position_indices_in_product_state],
     [car1_goal_cost, car2_goal_cost],
-    [".-white", ".-r", ".-b"],
+    [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 25, -2,  40]
+    plot_lims=[-5, 25, -2,  40],
+    draw_roads = True,
+    draw_cars = True,
+    adversarial=True,
+    t_react=t_react
 )
 
 # Logger.
@@ -170,15 +181,19 @@ logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_car_example.pkl'))
 logger = None
 
 # Set up ILQSolver.
-solver = ILQSolver(dynamics,
-                   [car1_cost, car2_cost],
-                   stacked_x0,
-                   [car1_Ps, car2_Ps],
-                   [car1_alphas, car2_alphas],
-                   0.1,
-                   None,
-                   logger,
-                   visualizer,
-                   None)
+solver = ILQSolver(
+    dynamics,
+    dynamics_10D,
+    [car1_cost, car2_cost],
+    stacked_x0,
+    [car1_Ps, car2_Ps],
+    [car1_alphas, car2_alphas],
+    0.1,
+    None,
+    logger,
+    visualizer,
+    None,
+    t_react=t_react
+)
 
 solver.run()

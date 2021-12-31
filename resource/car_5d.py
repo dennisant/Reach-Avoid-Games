@@ -47,7 +47,7 @@ import torch
 import numpy as np
 import math
 
-from dynamical_system import DynamicalSystem
+from resource.dynamical_system import DynamicalSystem
 
 class Car5D(DynamicalSystem):
     """ 5D car model. """

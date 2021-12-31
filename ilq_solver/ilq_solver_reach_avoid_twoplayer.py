@@ -43,20 +43,13 @@ import torch
 import matplotlib.pyplot as plt
 import os
 
-#from player_cost import PlayerCost
-from player_cost_reach_avoid_twoplayer import PlayerCost
-#from proximity_cost import ProximityCost
-from proximity_cost_reach_avoid_twoplayer import ProximityCost
-from product_state_proximity_cost import ProductStateProximityCost
-from point import Point
-from polyline import Polyline
+from player_cost.player_cost_reach_avoid_twoplayer import PlayerCost
+from cost.proximity_cost_reach_avoid_twoplayer import ProximityCost
+from cost.product_state_proximity_cost import ProductStateProximityCost
+from resource.point import Point
+from resource.polyline import Polyline
 from quadratic_polyline_cost import QuadraticPolylineCost
-from obstacle_dist_cost import ObstacleDistCost
-from obstacle_cost import ObstacleCost
-from reference_deviation_cost import ReferenceDeviationCost
 from solve_lq_game import solve_lq_game
-from visualizer import Visualizer
-from logger import Logger
 
 class ILQSolver(object):
     def __init__(self,

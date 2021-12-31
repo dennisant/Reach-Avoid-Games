@@ -37,8 +37,8 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 #
 ################################################################################
 
-from point import Point
-from line_segment import LineSegment
+from resource.point import Point
+from resource.line_segment import LineSegment
 
 class Polyline(object):
     """ Class to represent piecewise linear path in 2D. """

@@ -42,38 +42,38 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from player.unicycle_4d import Unicycle4D
-from point_mass_2d import PointMass2D
-from product_multiplayer_dynamical_system import \
+from resource.unicycle_4d import Unicycle4D
+from resource.car_5d import Car5D
+from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
 
-from point import Point
-from polyline import Polyline
+from resource.point import Point
+from resource.polyline import Polyline
 
-from ilq_solver import ILQSolver
-from proximity_cost import ProximityCost
-from product_state_proximity_cost import ProductStateProximityCost
-from semiquadratic_cost import SemiquadraticCost
-from quadratic_cost import QuadraticCost
-from semiquadratic_polyline_cost import SemiquadraticPolylineCost
-from quadratic_polyline_cost import QuadraticPolylineCost
+from ilq_solver.ilq_solver import ILQSolver
+from cost.proximity_cost import ProximityCost
+from cost.product_state_proximity_cost import ProductStateProximityCost
+from cost.semiquadratic_cost import SemiquadraticCost
+from cost.quadratic_cost import QuadraticCost
+from cost.semiquadratic_polyline_cost import SemiquadraticPolylineCost
+from cost.quadratic_polyline_cost import QuadraticPolylineCost
 from player_cost import PlayerCost
 
-from visualizer import Visualizer
-from logger import Logger
+from utils.visualizer import Visualizer
+from utils.logger import Logger
 
 # General parameters.
-TIME_HORIZON = 10.0   # s
+TIME_HORIZON = 5.0    # s
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 LOG_DIRECTORY = "./logs/three_player/"
 
 # Create dynamics.
-car1 = Unicycle4D()
-car2 = Unicycle4D()
-ped = PointMass2D()
+car1 = Car5D(4.0)
+car2 = Car5D(4.0)
+unicycle = Unicycle4D()
 dynamics = ProductMultiPlayerDynamicalSystem(
-    [car1, car2, ped], T=TIME_RESOLUTION)
+    [car1, car2, unicycle], T=TIME_RESOLUTION)
 
 # Choose initial states and set initial control laws to zero, such that
 # we start with a situation that looks like this:
@@ -82,7 +82,7 @@ dynamics = ProductMultiPlayerDynamicalSystem(
 #             |   X   .       |
 #             |   :   .       |
 #             |  \./  .       |
-#             |       .      <--X (ped)
+# (unicycle) X-->     .       |
 #             |       .        ------------------
 #             |       .
 #             |       .        ..................
@@ -94,7 +94,7 @@ dynamics = ProductMultiPlayerDynamicalSystem(
 #             |       .   X   |          |
 #                      (car 1)           |______ (+x)
 #
-# We shall set up the costs so that car 2 wants to turn and car 1 / ped 1
+# We shall set up the costs so that car 2 wants to turn and car 1 / unicycle 1
 # continue straight in their initial direction of motion.
 # We shall assume that lanes are 4 m wide and set the origin to be in the
 # bottom left along the road boundary.
@@ -102,38 +102,40 @@ car1_theta0 = np.pi / 2.0 # 90 degree heading
 car1_v0 = 0.1             # 5 m/s initial speed
 car1_x0 = np.array([
     [6.5],
-    [-5.0],
+    [0.0],
     [car1_theta0],
+    [0.0],
     [car1_v0]
 ])
 
 car2_theta0 = -np.pi / 2.0 # -90 degree heading
-car2_v0 = 5.0              # 2 m/s initial speed
+car2_v0 = 10.0              # 2 m/s initial speed
 car2_x0 = np.array([
     [1.5],
-    [65.0],
+    [30.0],
     [car2_theta0],
+    [0.0],
     [car2_v0]
 ])
 
-ped_vx0 = 0.25 # moving right at 0.25 m/s
-ped_vy0 = 0.0   # moving normal to traffic flow
-ped_x0 = np.array([
-    [-4.0],
-    [19.0],
-    [ped_vx0],
-    [ped_vy0]
+unicycle_theta0 = 1.0 # moving right
+unicycle_v0 = 2.0   # 0.1 m/s initial speed
+unicycle_x0 = np.array([
+    [0.0],
+    [17.0],
+    [unicycle_theta0],
+    [unicycle_v0]
 ])
 
-stacked_x0 = np.concatenate([car1_x0, car2_x0, ped_x0], axis=0)
+stacked_x0 = np.concatenate([car1_x0, car2_x0, unicycle_x0], axis=0)
 
 car1_Ps = [np.zeros((car1._u_dim, dynamics._x_dim))] * HORIZON_STEPS
 car2_Ps = [np.zeros((car2._u_dim, dynamics._x_dim))] * HORIZON_STEPS
-ped_Ps = [np.zeros((ped._u_dim, dynamics._x_dim))] * HORIZON_STEPS
+unicycle_Ps = [np.zeros((unicycle._u_dim, dynamics._x_dim))] * HORIZON_STEPS
 
 car1_alphas = [np.zeros((car1._u_dim, 1))] * HORIZON_STEPS
 car2_alphas = [np.zeros((car2._u_dim, 1))] * HORIZON_STEPS
-ped_alphas = [np.zeros((ped._u_dim, 1))] * HORIZON_STEPS
+unicycle_alphas = [np.zeros((unicycle._u_dim, 1))] * HORIZON_STEPS
 
 # Create environment.
 car1_position_indices_in_product_state = (0, 1)
@@ -148,7 +150,7 @@ car1_goal = Point(6.0, 30.0)
 car1_goal_cost = ProximityCost(
     car1_position_indices_in_product_state, car1_goal, np.inf, "car1_goal")
 
-car2_position_indices_in_product_state = (4, 5)
+car2_position_indices_in_product_state = (5, 6)
 car2_polyline = Polyline([Point(2.0, 100.0),
                           Point(2.0, 18.0),
                           Point(2.5, 15.0),
@@ -162,116 +164,133 @@ car2_polyline_boundary_cost = SemiquadraticPolylineCost(
 car2_polyline_cost = QuadraticPolylineCost(
     car2_polyline, car2_position_indices_in_product_state, "car2_polyline")
 
-car2_goal = Point(16.0, 12.0)
+car2_goal = Point(20.0, 12.0)
 car2_goal_cost = ProximityCost(
     car2_position_indices_in_product_state, car2_goal, np.inf, "car2_goal")
 
-ped_position_indices_in_product_state = (8, 9)
-ped_goal = Point(10.0, 19.0)
-ped_goal_cost = ProximityCost(
-    ped_position_indices_in_product_state, ped_goal, np.inf, "ped_goal")
+unicycle_position_indices_in_product_state = (10, 11)
+unicycle_goal = Point(15.0, 18.0)
+unicycle_goal_cost = ProximityCost(
+    unicycle_position_indices_in_product_state, unicycle_goal, np.inf, "unicycle_goal")
 
 # Penalize speed above a threshold for all players.
-car1_v_index_in_product_state = 3
-car1_maxv = 10.0 # m/s
+car1_v_index_in_product_state = 4
+car1_maxv = 15.0 # m/s
+car1_minv_cost = SemiquadraticCost(
+    car1_v_index_in_product_state, 0.0, False, "car1_minv")
 car1_maxv_cost = SemiquadraticCost(
     car1_v_index_in_product_state, car1_maxv, True, "car1_maxv")
 
-car2_v_index_in_product_state = 7
-car2_maxv = 10.0 # m/s
+car2_v_index_in_product_state = 9
+car2_maxv = 15.0 # m/s
+car2_minv_cost = SemiquadraticCost(
+    car2_v_index_in_product_state, 0.0, False, "car2_minv")
 car2_maxv_cost = SemiquadraticCost(
     car2_v_index_in_product_state, car2_maxv, True, "car2_maxv")
 
-ped_vx_index_in_product_state = 10
-ped_vy_index_in_product_state = 11
-ped_maxvx = 0.5 # m/s
-ped_maxvy = 0.5 # m/s
-ped_maxvx_cost = SemiquadraticCost(
-    ped_vx_index_in_product_state, ped_maxvx, True, "ped_maxvx")
-ped_maxvy_cost = SemiquadraticCost(
-    ped_vy_index_in_product_state, ped_maxvy, True, "ped_maxvy")
+unicycle_v_index_in_product_state = 13
+unicycle_maxv = 4.0 # m/s
+unicycle_minv_cost = SemiquadraticCost(
+    unicycle_v_index_in_product_state, 0.0, False, "unicycle_minv")
+unicycle_maxv_cost = SemiquadraticCost(
+    unicycle_v_index_in_product_state, unicycle_maxv, True, "unicycle_maxv")
 
 # Control costs for all players.
-car1_w_cost = QuadraticCost(0, 0.0, "car1_w_cost")
-car1_a_cost = QuadraticCost(1, 0.0, "car1_a_cost")
+car1_steering_cost = QuadraticCost(0, 0.0, "car1_steering")
+car1_a_cost = QuadraticCost(1, 0.0, "car1_a")
 
-car2_w_cost = QuadraticCost(0, 0.0, "car2_w_cost")
-car2_a_cost = QuadraticCost(1, 0.0, "car2_a_cost")
+car2_steering_cost = QuadraticCost(0, 0.0, "car2_steering")
+car2_a_cost = QuadraticCost(1, 0.0, "car2_a")
 
-ped_ax_cost = QuadraticCost(0, 0.0, "ped_ax_cost")
-ped_ay_cost = QuadraticCost(1, 0.0, "ped_ay_cost")
+unicycle_steering_cost = QuadraticCost(0, 0.0, "unicycle_steering")
+unicycle_a_cost = QuadraticCost(1, 0.0, "unicycle_a")
 
 # Proximity cost.
-PROXIMITY_THRESHOLD = 1.0
-proximity_cost = ProductStateProximityCost(
+CAR_PROXIMITY_THRESHOLD = 3.0
+UNICYCLE_PROXIMITY_THRESHOLD = 1.0
+car1_proximity_cost = ProductStateProximityCost(
     [car1_position_indices_in_product_state,
      car2_position_indices_in_product_state,
-     ped_position_indices_in_product_state],
-    PROXIMITY_THRESHOLD,
-    "proximity")
+     unicycle_position_indices_in_product_state],
+    CAR_PROXIMITY_THRESHOLD,
+    "car1_proximity")
+car2_proximity_cost = ProductStateProximityCost(
+    [car1_position_indices_in_product_state,
+     car2_position_indices_in_product_state,
+     unicycle_position_indices_in_product_state],
+    CAR_PROXIMITY_THRESHOLD,
+    "car2_proximity")
+unicycle_proximity_cost = ProductStateProximityCost(
+    [car1_position_indices_in_product_state,
+     car2_position_indices_in_product_state,
+     unicycle_position_indices_in_product_state],
+    UNICYCLE_PROXIMITY_THRESHOLD,
+    "unicycle_proximity")
 
 # Build up total costs for both players. This is basically a zero-sum game.
 car1_cost = PlayerCost()
 car1_cost.add_cost(car1_goal_cost, "x", -1.0)
-car1_cost.add_cost(car1_polyline_cost, "x", 10.0)
-car1_cost.add_cost(car1_polyline_boundary_cost, "x", 100.0)
+car1_cost.add_cost(car1_polyline_cost, "x", 50.0)
+car1_cost.add_cost(car1_polyline_boundary_cost, "x", 200.0)
 car1_cost.add_cost(car1_maxv_cost, "x", 100.0)
-car1_cost.add_cost(proximity_cost, "x", 10.0)
+car1_cost.add_cost(car1_minv_cost, "x", 100.0)
+car1_cost.add_cost(car1_proximity_cost, "x", 100.0)
 
 car1_player_id = 0
-car1_cost.add_cost(car1_w_cost, car1_player_id, 10.0)
+car1_cost.add_cost(car1_steering_cost, car1_player_id, 50.0)
 car1_cost.add_cost(car1_a_cost, car1_player_id, 1.0)
 
 car2_cost = PlayerCost()
 car2_cost.add_cost(car2_goal_cost, "x", -1.0)
-car2_cost.add_cost(car2_polyline_cost, "x", 10.0)
-car2_cost.add_cost(car2_polyline_boundary_cost, "x", 100.0)
+car2_cost.add_cost(car2_polyline_cost, "x", 50.0)
+car2_cost.add_cost(car2_polyline_boundary_cost, "x", 200.0)
 car2_cost.add_cost(car2_maxv_cost, "x", 100.0)
-car2_cost.add_cost(proximity_cost, "x", 10.0)
+car2_cost.add_cost(car2_minv_cost, "x", 100.0)
+car2_cost.add_cost(car2_proximity_cost, "x", 100.0)
 
 car2_player_id = 1
-car2_cost.add_cost(car2_w_cost, car2_player_id, 10.0)
+car2_cost.add_cost(car2_steering_cost, car2_player_id, 50.0)
 car2_cost.add_cost(car2_a_cost, car2_player_id, 1.0)
 
-ped_cost = PlayerCost()
-ped_cost.add_cost(ped_goal_cost, "x", -1.0)
-ped_cost.add_cost(ped_maxvx_cost, "x", 100.0)
-ped_cost.add_cost(ped_maxvy_cost, "x", 100.0)
-ped_cost.add_cost(proximity_cost, "x", 2.0)
+unicycle_cost = PlayerCost()
+unicycle_cost.add_cost(unicycle_goal_cost, "x", -1.0)
+unicycle_cost.add_cost(unicycle_maxv_cost, "x", 100.0)
+unicycle_cost.add_cost(unicycle_minv_cost, "x", 100.0)
+unicycle_cost.add_cost(unicycle_proximity_cost, "x", 5.0)
 
-ped_player_id = 2
-ped_cost.add_cost(ped_ax_cost, ped_player_id, 0.001)
-ped_cost.add_cost(ped_ay_cost, ped_player_id, 0.001)
+unicycle_player_id = 2
+unicycle_cost.add_cost(unicycle_steering_cost, unicycle_player_id, 50.0)
+unicycle_cost.add_cost(unicycle_a_cost, unicycle_player_id, 1.0)
 
 # Visualizer.
 visualizer = Visualizer(
     [car1_position_indices_in_product_state,
      car2_position_indices_in_product_state,
-     ped_position_indices_in_product_state],
+     unicycle_position_indices_in_product_state],
     [car1_polyline_boundary_cost,
      car1_goal_cost,
      car2_polyline_boundary_cost,
      car2_goal_cost,
-     ped_goal_cost],
+     unicycle_goal_cost],
     [".-r", ".-g", ".-b"],
     1,
     False,
-    plot_lims=[-10, 30, -10, 70])
+    plot_lims=[-5, 25, -5, 35])
 
 # Logger.
 if not os.path.exists(LOG_DIRECTORY):
     os.makedirs(LOG_DIRECTORY)
 
-logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_example.pkl'))
+logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_car_example.pkl'))
 
 # Set up ILQSolver.
 solver = ILQSolver(dynamics,
-                   [car1_cost, car2_cost, ped_cost],
+                   [car1_cost, car2_cost, unicycle_cost],
                    stacked_x0,
-                   [car1_Ps, car2_Ps, ped_Ps],
-                   [car1_alphas, car2_alphas, ped_alphas],
-                   0.02,
+                   [car1_Ps, car2_Ps, unicycle_Ps],
+                   [car1_alphas, car2_alphas, unicycle_alphas],
                    0.1,
+                   None,
                    logger,
                    visualizer,
                    None)

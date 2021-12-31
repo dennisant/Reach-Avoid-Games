@@ -42,25 +42,25 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from player.unicycle_4d import Unicycle4D
-from player.bicycle_4d import Bicycle4D
-from product_multiplayer_dynamical_system import \
+from resource.unicycle_4d import Unicycle4D
+from resource.bicycle_4d import Bicycle4D
+from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
 
-from point import Point
-from polyline import Polyline
+from resource.point import Point
+from resource.polyline import Polyline
 
-from ilq_solver import ILQSolver
-from proximity_cost import ProximityCost
-from product_state_proximity_cost import ProductStateProximityCost
-from semiquadratic_cost import SemiquadraticCost
-from quadratic_cost import QuadraticCost
-from semiquadratic_polyline_cost import SemiquadraticPolylineCost
-from quadratic_polyline_cost import QuadraticPolylineCost
+from ilq_solver.ilq_solver import ILQSolver
+from cost.proximity_cost import ProximityCost
+from cost.product_state_proximity_cost import ProductStateProximityCost
+from cost.semiquadratic_cost import SemiquadraticCost
+from cost.quadratic_cost import QuadraticCost
+from cost.semiquadratic_polyline_cost import SemiquadraticPolylineCost
+from cost.quadratic_polyline_cost import QuadraticPolylineCost
 from player_cost import PlayerCost
 
-from visualizer import Visualizer
-from logger import Logger
+from utils.visualizer import Visualizer
+from utils.logger import Logger
 
 # General parameters.
 TIME_HORIZON = 5.0   # s

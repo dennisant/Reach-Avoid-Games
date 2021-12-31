@@ -33,7 +33,8 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 """
 ################################################################################
 #
-# Script to run a 1 player collision avoidance example
+# Script to run a 3 player collision avoidance example intended to model
+# a T-intersection.
 #
 ################################################################################
 
@@ -41,41 +42,58 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from car_5d import Car5D
-from obstacle_penalty import ObstacleDistCost
-from product_multiplayer_dynamical_system import \
+from resource.car_5d import Car5D
+from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
-from ilq_solver_oneplayer_cooperative_time_inconsistent_refactored import ILQSolver
-from proximity_cost_reach_avoid_twoplayer import ProximityCost
-from player_cost_reachavoid_timeinconsistent import PlayerCost
+from ilq_solver.ilq_solver_twoplayer_cooperative_time_inconsistent_refactored import ILQSolver
+from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
+from player_cost.player_cost_reachavoid_timeinconsistent import PlayerCost
 
-from visualizer import Visualizer
-from logger import Logger
+from utils.visualizer import Visualizer
+from utils.logger import Logger
 import math
-from point import Point
 
 # General parameters.
-TIME_HORIZON = 12.0    # s #Change back to 2.0
+TIME_HORIZON = 3.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
-LOG_DIRECTORY = "./logs/one_player/"
+LOG_DIRECTORY = "./logs/two_player/"
 
-car = Car5D(2.413)
+car1 = Car5D(2.413)
+car2 = Car5D(2.413)
 
 dynamics = ProductMultiPlayerDynamicalSystem(
-    [car], T=TIME_RESOLUTION)
+    [car1, car2], T=TIME_RESOLUTION)
 
-car_theta0 = np.pi / 2.01
-car_v0 = 12.0
-car_x0 = np.array([
-    [6.0],
+car1_theta0 = np.pi / 2.01
+car1_v0 = 10.0
+car1_x0 = np.array([
+    [7.75],
     [0.0],
-    [car_theta0],
+    [car1_theta0],
     [0.0],
-    [car_v0]
+    [car1_v0]
+])
+
+car2_theta0 = -np.pi / 2.01
+car2_v0 = 10.0             
+car2_x0 = np.array([
+    [3.75],
+    [40.0],
+    [car2_theta0],
+    [0.0],
+    [car2_v0]
 ])
 
 ###################
+road_rules = {
+    "x_min": 2,
+    "x_max": 9.4,
+    "y_max": 27.4,
+    "y_min": 20,
+    "width": 3.7
+}
+
 car_params = {
     "wheelbase": 2.413, 
     "length": 4.267,
@@ -85,61 +103,63 @@ car_params = {
 collision_r = math.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
 
 g_params = {
-    "car": {
-        "position_indices": [(0,1)],
+    "car1": {
+        "position_indices": [(0,1), (5, 6)],
         "player_id": 0, 
+        "road_logic": [0, 1, 0, 1, 0],
+        "road_rules": road_rules,
         "collision_r": collision_r,
+        "goals": [20, 35],
         "car_params": car_params,
-        "theta_indices": [2],
-        "phi_index": 3, 
-        "vel_index": 4,
-        "obstacles": [
-            (9.0, 25.0),
-            (20.0, 35.0),
-            (6.5, 46.0)
-        ],
-        "obstacle_radii": [
-            4.5, 3.0, 3.0
-        ]
+        "theta_indices": [2, 7]
+    },
+    "car2": {
+        "position_indices": [(0,1), (5, 6)],
+        "player_id": 1, 
+        "road_logic": [1, 0, 0, 1, 0],
+        "road_rules": road_rules,
+        "collision_r": collision_r,
+        "goals": [20, 0],
+        "car_params": car_params,
+        "theta_indices": [2, 7]
     }
 }
 ###################
 
-stacked_x0 = np.concatenate([car_x0], axis=0)
+stacked_x0 = np.concatenate([car1_x0, car2_x0], axis=0)
 
-car_Ps = [np.zeros((car._u_dim, dynamics._x_dim))] * HORIZON_STEPS
-car_alphas = [np.zeros((car._u_dim, 1))] * HORIZON_STEPS
+car1_Ps = [np.zeros((car1._u_dim, dynamics._x_dim))] * HORIZON_STEPS
+car2_Ps = [np.zeros((car2._u_dim, dynamics._x_dim))] * HORIZON_STEPS
+
+car1_alphas = [np.zeros((car1._u_dim, 1))] * HORIZON_STEPS
+car2_alphas = [np.zeros((car2._u_dim, 1))] * HORIZON_STEPS
 
 # Create environment:
-car_position_indices_in_product_state = (0, 1)
-car_goal_cost = ProximityCost(
-    car_position_indices_in_product_state,
-    (6.0, 40.0),
-    2.0,
-    name="car_goal"    
-)
+car1_position_indices_in_product_state = (0, 1)
+car1_goal_cost = ProximityToBlockCost(g_params["car1"])
+
+# Environment for Car 2
+car2_position_indices_in_product_state = (5, 6)
+car2_goal_cost = ProximityToBlockCost(g_params["car2"])
 
 # Player ids
-car_player_id = 0
+car1_player_id = 0
+car2_player_id = 1
 
 # Build up total costs for both players. This is basically a zero-sum game.
-car_cost = PlayerCost()
-car_cost.add_cost(car_goal_cost, "x", 1.0)
+car1_cost = PlayerCost()
+car1_cost.add_cost(car1_goal_cost, "x", 1.0)
 
-# obstacle_centers = [Point(6.5, 15.0), Point(0.0, 20.0), Point(12.0, 24.0)]
-obstacle_centers = [Point(6.5, 30.0)]
-# obstacle_radii = [4.5, 1.5, 4.0]
-obstacle_radii = [6.5]
-
-obstacle_costs = [ObstacleDistCost(g_params["car"])]
+car2_cost = PlayerCost()
+car2_cost.add_cost(car2_goal_cost, "x", 1.0)
 
 visualizer = Visualizer(
-    [car_position_indices_in_product_state],
-    [car_goal_cost] + obstacle_costs,
-    [".-g", ".-r", ".-b"],
+    [car1_position_indices_in_product_state, car2_position_indices_in_product_state],
+    [car1_goal_cost, car2_goal_cost],
+    [".-white", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 35, -2,  100]
+    plot_lims=[-5, 25, -2,  40]
 )
 
 # Logger.
@@ -147,18 +167,18 @@ if not os.path.exists(LOG_DIRECTORY):
     os.makedirs(LOG_DIRECTORY)
 
 logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_car_example.pkl'))
+logger = None
 
 # Set up ILQSolver.
 solver = ILQSolver(dynamics,
-                   [car_cost],
+                   [car1_cost, car2_cost],
                    stacked_x0,
-                   [car_Ps],
-                   [car_alphas],
+                   [car1_Ps, car2_Ps],
+                   [car1_alphas, car2_alphas],
                    0.1,
                    None,
                    logger,
                    visualizer,
-                   None,
-                   g_params)
+                   None)
 
 solver.run()

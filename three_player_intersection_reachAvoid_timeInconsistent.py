@@ -42,16 +42,16 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from player.car_5d import Car5D
-from product_multiplayer_dynamical_system import \
+from resource.car_5d import Car5D
+from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
-from ilq_solver_threeplayer_cooperative_time_inconsistent_refactored import ILQSolver
-from proximity_cost_reach_avoid_twoplayer import PedestrianProximityToBlockCost, ProximityToBlockCost
-from player_cost_reachavoid_timeinconsistent import PlayerCost
-from player.unicycle_4d import Unicycle4D
+from ilq_solver.ilq_solver_threeplayer_cooperative_time_inconsistent_refactored import ILQSolver
+from cost.proximity_cost_reach_avoid_twoplayer import PedestrianProximityToBlockCost, ProximityToBlockCost
+from player_cost.player_cost_reachavoid_timeinconsistent import PlayerCost
+from resource.unicycle_4d import Unicycle4D
 
-from visualizer import Visualizer
-from logger import Logger
+from utils.visualizer import Visualizer
+from utils.logger import Logger
 import math
 
 # General parameters.

@@ -44,7 +44,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 import torch
 import numpy as np
 
-from dynamical_system import DynamicalSystem
+from resource.dynamical_system import DynamicalSystem
 
 class PointMass2D(DynamicalSystem):
     def __init__(self, T=0.1):

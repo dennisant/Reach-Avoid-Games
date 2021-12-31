@@ -43,12 +43,8 @@ import torch
 import matplotlib.pyplot as plt
 
 from player_cost import PlayerCost
-from proximity_cost import ProximityCost
-from product_state_proximity_cost import ProductStateProximityCost
-from reference_deviation_cost import ReferenceDeviationCost
+from cost.proximity_cost import ProximityCost
 from solve_lq_game import solve_lq_game
-from visualizer import Visualizer
-from logger import Logger
 
 class ILQSolver(object):
     def __init__(self,

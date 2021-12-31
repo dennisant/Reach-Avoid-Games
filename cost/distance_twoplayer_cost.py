@@ -45,7 +45,7 @@ import numpy as np
 import math
 
 from cost.cost import Cost
-from utils import MaxFuncMux
+from utils.utils import MaxFuncMux
 
 class ProductStateProximityCost(Cost):
     # def __init__(self, position_indices, max_distance, player_id, name=""):

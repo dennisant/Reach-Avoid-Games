@@ -45,12 +45,12 @@ import matplotlib.pyplot as plt
 import os
 from scipy.linalg import block_diag
 from collections import deque
-from obstacle_penalty import ObstacleDistCost
+from cost.obstacle_penalty import ObstacleDistCost
 
-from player_cost_reachavoid_timeconsistent import PlayerCost
-from point import Point
-from proximity_cost_reach_avoid_twoplayer import ProximityCost
-from solve_lq_game_reachavoid_timeconsistent import solve_lq_game
+from player_cost.player_cost_reachavoid_timeconsistent import PlayerCost
+from resource.point import Point
+from cost.proximity_cost_reach_avoid_twoplayer import ProximityCost
+from solve_lq_game.solve_lq_game_reachavoid_timeconsistent import solve_lq_game
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")
 

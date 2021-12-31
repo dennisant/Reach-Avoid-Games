@@ -44,7 +44,7 @@ from matplotlib import animation, markers
 import os
 from matplotlib.transforms import Affine2D
 
-from car_5d import Car5Dv2
+from resource.car_5d import Car5Dv2
 
 class Visualizer(object):
     def __init__(self,

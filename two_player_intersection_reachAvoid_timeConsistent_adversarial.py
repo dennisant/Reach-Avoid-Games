@@ -41,23 +41,23 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 import os
 import numpy as np
 
-from car_5d import Car5D
-from car_10d import Car10D
-from product_multiplayer_dynamical_system import \
+from resource.car_5d import Car5D
+from resource.car_10d import Car10D
+from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
-from ilq_solver_twoplayer_cooperative_time_inconsistent_refactored_adversarial import ILQSolver
-from proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
-from player_cost_reachavoid_timeconsistent import PlayerCost
+from ilq_solver.ilq_solver_twoplayer_cooperative_time_consistent_refactored_adversarial import ILQSolver
+from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
+from player_cost.player_cost_reachavoid_timeconsistent import PlayerCost
 
-from visualizer import Visualizer
-from logger import Logger
+from utils.visualizer import Visualizer
+from utils.logger import Logger
 import math
 
 # General parameters.
 TIME_HORIZON = 3.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
-LOG_DIRECTORY = "./logs/two_player_time_inconsistent_adversarial/"
+LOG_DIRECTORY = "./logs/two_player_time_consistent_adversarial/"
 
 car1 = Car5D(2.413)
 car2 = Car5D(2.413)
@@ -73,14 +73,14 @@ car1_theta0 = np.pi / 2.01
 car1_v0 = 5.0
 car1_x0 = np.array([
     [7.75],
-    [5.0],
+    [10.0],
     [car1_theta0],
     [0.0],
     [car1_v0]
 ])
 
 car2_theta0 = -np.pi / 2.01
-car2_v0 = 10.0             
+car2_v0 = 5.0             
 car2_x0 = np.array([
     [3.75],
     [35.0],
@@ -158,7 +158,7 @@ car2_cost = PlayerCost()
 car2_cost.add_cost(car2_goal_cost, "x", 1.0)
 
 # adversarial params
-t_react = 10
+t_react = 15
 
 visualizer = Visualizer(
     [car1_position_indices_in_product_state, car2_position_indices_in_product_state],

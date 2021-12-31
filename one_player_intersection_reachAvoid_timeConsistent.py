@@ -41,18 +41,18 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from car_5d import Car5D
-from obstacle_penalty import ObstacleDistCost
-from product_multiplayer_dynamical_system import \
+from resource.car_5d import Car5D
+from cost.obstacle_penalty import ObstacleDistCost
+from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
-from ilq_solver_oneplayer_cooperative_time_consistent_refactored import ILQSolver
-from proximity_cost_reach_avoid_twoplayer import ProximityCost
-from player_cost_reachavoid_timeconsistent import PlayerCost
+from ilq_solver.ilq_solver_oneplayer_cooperative_time_consistent_refactored import ILQSolver
+from cost.proximity_cost_reach_avoid_twoplayer import ProximityCost
+from player_cost.player_cost_reachavoid_timeconsistent import PlayerCost
 
-from visualizer import Visualizer
-from logger import Logger
+from utils.visualizer import Visualizer
+from utils.logger import Logger
 import math
-from point import Point
+from resource.point import Point
 
 # General parameters.
 TIME_HORIZON = 4.0    # s #Change back to 2.0

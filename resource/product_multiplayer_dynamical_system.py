@@ -43,7 +43,7 @@ import numpy as np
 import scipy as sp
 from scipy.linalg import block_diag
 
-from multiplayer_dynamical_system import MultiPlayerDynamicalSystem
+from resource.multiplayer_dynamical_system import MultiPlayerDynamicalSystem
 
 class ProductMultiPlayerDynamicalSystem(MultiPlayerDynamicalSystem):
     def __init__(self, subsystems, T=0.1):

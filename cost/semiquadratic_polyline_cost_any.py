@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 from cost.cost import Cost
 from resource.point import Point
 from resource.polyline import Polyline
-from utils import MaxFuncMux, MinFuncMux
+from utils.utils import MaxFuncMux, MinFuncMux
 import numpy as np
 import math
 

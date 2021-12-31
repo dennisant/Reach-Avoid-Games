@@ -6,7 +6,7 @@ from cost.cost import Cost
 from resource.point import Point
 import math
 
-from utils import MaxFuncMux
+from utils.utils import MaxFuncMux
 
 class ObstacleDistCost(Cost):
     def __init__(self, g_params, name=""):
