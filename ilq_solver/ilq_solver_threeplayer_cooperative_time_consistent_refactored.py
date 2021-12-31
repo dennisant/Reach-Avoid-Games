@@ -55,7 +55,6 @@ from cost.distance_twoplayer_cost import CollisionPenalty, PedestrianToCarCollis
 from cost.semiquadratic_polyline_cost_any import RoadRulesPenalty
 from solve_lq_game.solve_lq_game_reachavoid_timeconsistent import solve_lq_game
 import time
-timestr = time.strftime("%Y-%m-%d-%H_%M")
 
 class ILQSolver(object):
     def __init__(self,

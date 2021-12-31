@@ -108,6 +108,14 @@ g_params = {
         ]
     }
 }
+
+config = {
+    "g_params": g_params,
+    "experiment": {
+        "name": EXP_NAME,
+        "log_dir": LOG_DIRECTORY
+    }
+}
 ###################
 
 stacked_x0 = np.concatenate([car_x0], axis=0)
@@ -151,7 +159,7 @@ visualizer = Visualizer(
 if not os.path.exists(LOG_DIRECTORY):
     os.makedirs(LOG_DIRECTORY)
 
-logger = Logger(os.path.join(LOG_DIRECTORY, 'intersection_car_example.pkl'))
+logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
 
 # Set up ILQSolver.
 solver = ILQSolver(dynamics,
@@ -164,6 +172,6 @@ solver = ILQSolver(dynamics,
                    logger,
                    visualizer,
                    None,
-                   g_params)
+                   config)
 
 solver.run()

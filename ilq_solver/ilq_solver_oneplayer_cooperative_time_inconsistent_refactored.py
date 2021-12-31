@@ -45,14 +45,13 @@ import matplotlib.pyplot as plt
 import os
 from scipy.linalg import block_diag
 from collections import deque
-from obstacle_penalty import ObstacleDistCost
+from cost.obstacle_penalty import ObstacleDistCost
 
-from player_cost_reachavoid_timeinconsistent import PlayerCost
-from point import Point
-from proximity_cost_reach_avoid_twoplayer import ProximityCost
-from solve_lq_game_reachavoid_timeinconsistent import solve_lq_game
+from player_cost.player_cost_reachavoid_timeinconsistent import PlayerCost
+from resource.point import Point
+from cost.proximity_cost_reach_avoid_twoplayer import ProximityCost
+from solve_lq_game.solve_lq_game_reachavoid_timeinconsistent import solve_lq_game
 import time
-timestr = time.strftime("%Y-%m-%d-%H_%M")
 
 class ILQSolver(object):
     def __init__(self,
@@ -101,7 +100,8 @@ class ILQSolver(object):
         self._u_constraints = u_constraints
         self._horizon = len(Ps[0])
         self._num_players = len(player_costs)
-        self.config = config
+        self.exp_info = config["experiment"]
+        self.g_params = config["g_params"]
     
         self._player_costs = player_costs
 
@@ -142,14 +142,11 @@ class ILQSolver(object):
             
             if iteration%store_freq == 0:
                 xs_store = [xs_i.flatten() for xs_i in xs]
-            #     #print(xs_store[0])
-            #     #print(len(xs_store))
-            #     #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
-                if not os.path.exists("logs/one_player_time_inconsistent_{}".format(timestr)):
-                    os.makedirs("logs/one_player_time_inconsistent_{}".format(timestr))
-                np.savetxt('logs/one_player_time_inconsistent_{}/oneplayer_intersection_'.format(timestr) 
-                    + str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
-            
+                #print(xs_store[0])
+                #print(len(xs_store))
+                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
+
+                np.savetxt(self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')
 
             # Visualization.
             if self._visualizer is not None:
@@ -166,9 +163,9 @@ class ILQSolver(object):
                 # plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
-                if not os.path.exists("image_outputs_{}".format(timestr)):
-                    os.makedirs("image_outputs_{}".format(timestr))
-                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
+                if not os.path.exists(self.exp_info["log_dir"] + "/figures"):
+                    os.makedirs(self.exp_info["log_dir"] + "/figures")
+                plt.savefig(self.exp_info["log_dir"] +'/figures/plot-{}.jpg'.format(iteration)) # Trying to save these plots
                 plt.clf()
             
             # print("plot is shown above")
@@ -419,7 +416,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.config["car"], xs, k)
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.g_params["car"], xs, k)
                 hold_prox = max_g_func(xs[k])
                 
                 value_function_compare = dict()
@@ -466,7 +463,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.config["car"], xs, k)
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.g_params["car"], xs, k)
                 hold_prox = max_g_func(xs[k])
                 
                 value_function_compare = dict()
@@ -620,7 +617,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.config["car"], xs, k)
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.g_params["car"], xs, k)
                 hold_prox = max_g_func(xs[k])
                 
                 value_function_compare = dict()
@@ -667,7 +664,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.config["car"], xs, k)
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.g_params["car"], xs, k)
                 hold_prox = max_g_func(xs[k])
                 
                 value_function_compare = dict()

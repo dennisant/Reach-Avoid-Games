@@ -275,12 +275,12 @@ class Visualizer(object):
     def plot(self):
         """ Plot everything. """
         
-        script_dir = os.path.dirname(__file__)
-        results_dir = os.path.join(script_dir, 'results/')
-        sample_file_name = "sample"
+        # script_dir = os.path.dirname(__file__)
+        # results_dir = os.path.join(script_dir, 'results/')
+        # sample_file_name = "sample"
         
-        if not os.path.isdir(results_dir):
-            os.makedirs(results_dir)
+        # if not os.path.isdir(results_dir):
+        #     os.makedirs(results_dir)
         
         plt.figure(self._figure_number, figsize=(12, 20))
         # plt.rc("text", usetex=True)
@@ -380,17 +380,17 @@ class Visualizer(object):
         # plt.title("ILQ solver solution (iterations {}-{})".format(
         #     plotted_iterations[0], plotted_iterations[-1]))
         
-        plt.savefig(results_dir + sample_file_name) # trying to save figure
+        # plt.savefig(results_dir + sample_file_name) # trying to save figure
 
     def plot_simplified(self):
         """ Plot everything, simplified """
         
-        script_dir = os.path.dirname(__file__)
-        results_dir = os.path.join(script_dir, 'results/')
-        sample_file_name = "sample"
+        # script_dir = os.path.dirname(__file__)
+        # results_dir = os.path.join(script_dir, 'results/')
+        # sample_file_name = "sample"
         
-        if not os.path.isdir(results_dir):
-            os.makedirs(results_dir)
+        # if not os.path.isdir(results_dir):
+        #     os.makedirs(results_dir)
         
         plt.figure(self._figure_number, figsize=(8, 10))
         ax = plt.gca()
