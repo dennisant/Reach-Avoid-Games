@@ -152,27 +152,6 @@ class ILQSolver(object):
 
                 if self.log:
                     np.savetxt(self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')
-
-            # Visualization.
-            if self._visualizer is not None:
-                traj = {"xs" : xs}
-                for ii in range(self._num_players):
-                    traj["u%ds" % (ii + 1)] = us[ii]
-
-                self._visualizer.add_trajectory(iteration, traj)
-                # self._visualizer.plot_controls(1)
-                # plt.pause(0.001)
-                # plt.clf()
-                # self._visualizer.plot_controls(2)
-                # plt.pause(0.001)
-                # plt.clf()
-                self._visualizer.plot()
-                plt.pause(0.001)
-                if self.plot:
-                    if not os.path.exists(self.exp_info["log_dir"] + "/figures"):
-                        os.makedirs(self.exp_info["log_dir"] + "/figures")
-                    plt.savefig(self.exp_info["log_dir"] +'/figures/plot-{}.jpg'.format(iteration)) # Trying to save these plots
-                plt.clf()
             
             # print("plot is shown above")
             # print("self._num_players is: ", self._num_players)                
@@ -224,6 +203,42 @@ class ILQSolver(object):
             self._xs = xs
             self._us= us
 
+            # Visualization.
+            plot_critical_points = True
+            plot_car_for_critical_points = False
+            if self._visualizer is not None:
+                traj = {"xs" : xs}
+                for ii in range(self._num_players):
+                    traj["u%ds" % (ii + 1)] = us[ii]
+
+                self._visualizer.add_trajectory(iteration, traj)
+                # self._visualizer.plot_controls(1)
+                # plt.pause(0.001)
+                # plt.clf()
+                # self._visualizer.plot_controls(2)
+                # plt.pause(0.001)
+                # plt.clf()
+                self._visualizer.plot()
+                if plot_critical_points:
+                    for i in range(self._num_players):
+                        g_critical_index = np.where(np.array(func_array[i]) == "g_x")[0]
+                        l_critical_index = np.where(np.array(func_array[i]) == "l_x")[0]
+                        self._visualizer.draw_real_car(i, np.array(xs)[[0]])
+                        if plot_car_for_critical_points:
+                            self._visualizer.draw_real_car(i, np.array(xs)[g_critical_index])
+                            self._visualizer.draw_real_car(i, np.array(xs)[l_critical_index])
+                        else:
+                            plt.figure(1)
+                            plt.scatter(np.array(xs)[g_critical_index, 5*i], np.array(xs)[g_critical_index, 5*i + 1], color="k", s=40, marker="*", zorder=10)
+                            plt.scatter(np.array(xs)[l_critical_index, 5*i], np.array(xs)[l_critical_index, 5*i + 1], color="magenta", s=20, marker="o", zorder=10)
+                        
+                plt.pause(0.001)
+                if self.plot:
+                    if not os.path.exists(self.exp_info["log_dir"] + "/figures"):
+                        os.makedirs(self.exp_info["log_dir"] + "/figures")
+                    plt.savefig(self.exp_info["log_dir"] +'/figures/plot-{}.jpg'.format(iteration)) # Trying to save these plots
+                plt.clf()
+
             # draw velocity and timestar overlay graph for 2 cars
             if self.vel_plot:
                 for i in range(self._num_players):
@@ -231,6 +246,7 @@ class ILQSolver(object):
                     l_critical_index = np.where(np.array(func_array[i]) == "l_x")[0]
                     value_critical_index = np.where(np.array(func_array[i]) == "value")[0]
                     gradient_critical_index = np.where(np.array(func_array[i]) != "value")[0]
+                    
                     plt.figure(4+i)
                     vel_array = np.array([x[5*i + 4] for x in xs]).flatten()
                     
@@ -300,8 +316,11 @@ class ILQSolver(object):
             self._alphas = alphas
             self._ns = ns
             
-            # self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.5
-            self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
+            self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.3
+            if self._alpha_scaling < .2:
+                self._alpha_scaling = .2
+            
+            # self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
             # self._alpha_scaling = self._linesearch(iteration = iteration)
             # self._alpha_scaling = 0.05
             iteration += 1

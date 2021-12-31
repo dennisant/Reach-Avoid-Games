@@ -66,5 +66,5 @@ class ObstacleDistCost(Cost):
         for i in range(len(self._obs)):
             circle = plt.Circle(
                 (self._obs[i].x, self._obs[i].y), self._obs_radii[i],
-                color="r", fill=True, alpha=0.75)
+                color="k", fill=True, alpha=0.75)
             ax.add_artist(circle)

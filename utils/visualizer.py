@@ -329,7 +329,7 @@ class Visualizer(object):
                         plt.plot(xs, ys,
                             self._player_linestyles[ii],
                             label = "Player {}, iteration {}".format(ii, iteration),
-                            alpha = 0.4,
+                            # alpha = 0.4,
                             linewidth = 2
                             #  linewidth = self.linewidth_from_data_units(1.988, ax)
                         )

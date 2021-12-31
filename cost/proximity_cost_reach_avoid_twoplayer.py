@@ -103,7 +103,7 @@ class ProximityCost(Cost):
           radius = np.sqrt(self._max_squared_distance)
       circle = plt.Circle(
           (self._point[0], self._point[1]), radius,
-          color="g", fill=True, alpha=0.5)
+          color="magenta", fill=True, alpha=0.5)
       ax.add_artist(circle)
       # ax.text(self._point[0], self._point[1], "goal", fontsize=10)
 

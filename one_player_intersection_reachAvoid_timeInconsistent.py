@@ -149,11 +149,12 @@ obstacle_costs = [ObstacleDistCost(g_params["car"])]
 visualizer = Visualizer(
     [car_position_indices_in_product_state],
     [car_goal_cost] + obstacle_costs,
-    [".-g", ".-r", ".-b"],
+    # [".-b", ".-r", ".-g"],
+    ["-b", ".-r", ".-g"],
     1,
     False,
     plot_lims=[-20, 75, -20,  100],
-    draw_cars = True
+    draw_cars = args.draw_cars
 )
 
 # Logger.
