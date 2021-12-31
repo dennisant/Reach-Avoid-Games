@@ -53,11 +53,14 @@ from utils.visualizer import Visualizer
 from utils.logger import Logger
 import math
 from resource.point import Point
+from utils.argument import get_argument
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")
 
+args = get_argument()
+
 # General parameters.
-TIME_HORIZON = 4.0    # s #Change back to 2.0
+TIME_HORIZON = 10.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 
@@ -70,7 +73,7 @@ dynamics = ProductMultiPlayerDynamicalSystem(
     [car], T=TIME_RESOLUTION)
 
 car_theta0 = np.pi / 2.01
-car_v0 = 8.0
+car_v0 = 10.0
 car_x0 = np.array([
     [6.0],
     [0.0],
@@ -113,7 +116,8 @@ config = {
     "experiment": {
         "name": EXP_NAME,
         "log_dir": LOG_DIRECTORY
-    }
+    },
+    "args": args
 }
 ###################
 
@@ -151,15 +155,19 @@ visualizer = Visualizer(
     [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 35, -2,  75],
+    plot_lims=[-5, 35, -2,  100],
     # draw_cars = True
 )
 
 # Logger.
-if not os.path.exists(LOG_DIRECTORY):
-    os.makedirs(LOG_DIRECTORY)
+if args.log or args.plot:
+    if not os.path.exists(LOG_DIRECTORY):
+        os.makedirs(LOG_DIRECTORY)
 
-logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
+if args.log:
+    logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
+else:
+    logger = None
 
 # Set up ILQSolver.
 solver = ILQSolver(dynamics,

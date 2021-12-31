@@ -54,8 +54,12 @@ from utils.logger import Logger
 import math
 from resource.point import Point
 
+from utils.argument import get_argument
+
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")
+
+args = get_argument()
 
 # General parameters.
 TIME_HORIZON = 12.0    # s #Change back to 2.0
@@ -114,7 +118,8 @@ config = {
     "experiment": {
         "name": EXP_NAME,
         "log_dir": LOG_DIRECTORY
-    }
+    },
+    "args": args
 }
 ###################
 
@@ -156,10 +161,14 @@ visualizer = Visualizer(
 )
 
 # Logger.
-if not os.path.exists(LOG_DIRECTORY):
-    os.makedirs(LOG_DIRECTORY)
+if args.log or args.plot:
+    if not os.path.exists(LOG_DIRECTORY):
+        os.makedirs(LOG_DIRECTORY)
 
-logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
+if args.log:
+    logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
+else:
+    logger = None
 
 # Set up ILQSolver.
 solver = ILQSolver(dynamics,

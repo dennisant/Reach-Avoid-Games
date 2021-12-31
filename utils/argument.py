@@ -1,0 +1,9 @@
+import argparse
+
+def get_argument():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--log",    help="Turn on log for exp",     action="store_true")
+    parser.add_argument("--plot",   help="Turn on plot for exp",    action="store_true")
+
+    return parser.parse_args()

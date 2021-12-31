@@ -102,7 +102,9 @@ class ILQSolver(object):
         self._num_players = len(player_costs)
         self.exp_info = config["experiment"]
         self.g_params = config["g_params"]
-    
+        self.plot = config["args"].plot
+        self.log = config["args"].log
+            
         self._player_costs = player_costs
 
         # Current and previous operating points (states/controls) for use
@@ -146,7 +148,8 @@ class ILQSolver(object):
                 #print(len(xs_store))
                 #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
 
-                np.savetxt(self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')
+                if self.log:
+                    np.savetxt(self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')
 
             # Visualization.
             if self._visualizer is not None:
@@ -163,9 +166,10 @@ class ILQSolver(object):
                 # plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
-                if not os.path.exists(self.exp_info["log_dir"] + "/figures"):
-                    os.makedirs(self.exp_info["log_dir"] + "/figures")
-                plt.savefig(self.exp_info["log_dir"] +'/figures/plot-{}.jpg'.format(iteration)) # Trying to save these plots
+                if self.plot:
+                    if not os.path.exists(self.exp_info["log_dir"] + "/figures"):
+                        os.makedirs(self.exp_info["log_dir"] + "/figures")
+                    plt.savefig(self.exp_info["log_dir"] +'/figures/plot-{}.jpg'.format(iteration)) # Trying to save these plots
                 plt.clf()
             
             # print("plot is shown above")
