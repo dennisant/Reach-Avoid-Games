@@ -66,7 +66,7 @@ dynamics = ProductMultiPlayerDynamicalSystem(
     [car], T=TIME_RESOLUTION)
 
 car_theta0 = np.pi / 2.01
-car_v0 = 5.0
+car_v0 = 8.0
 car_x0 = np.array([
     [6.0],
     [0.0],
@@ -94,12 +94,12 @@ g_params = {
         "phi_index": 3, 
         "vel_index": 4,
         "obstacles": [
-            (6.5, 25.0),
-            (15.0, 35.0),
-            (6.0, 46.0)
+            (9.0, 25.0),
+            (20.0, 35.0),
+            (6.5, 46.0)
         ],
         "obstacle_radii": [
-            5.5, 3.0, 3.0
+            4.5, 3.0, 3.0
         ]
     }
 }
@@ -159,6 +159,7 @@ solver = ILQSolver(dynamics,
                    None,
                    logger,
                    visualizer,
-                   None)
+                   None, 
+                   g_params)
 
 solver.run()

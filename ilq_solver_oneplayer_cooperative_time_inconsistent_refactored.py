@@ -65,7 +65,8 @@ class ILQSolver(object):
                  reference_deviation_weight=None,
                  logger=None,
                  visualizer=None,
-                 u_constraints=None):
+                 u_constraints=None,
+                 config=None):
         """
         Initialize from dynamics, player costs, current state, and initial
         guesses for control strategies for both players.
@@ -100,6 +101,7 @@ class ILQSolver(object):
         self._u_constraints = u_constraints
         self._horizon = len(Ps[0])
         self._num_players = len(player_costs)
+        self.config = config
     
         self._player_costs = player_costs
 
@@ -143,7 +145,10 @@ class ILQSolver(object):
             #     #print(xs_store[0])
             #     #print(len(xs_store))
             #     #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
-                np.savetxt('logs/one_player_time_inconsistent/oneplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
+                if not os.path.exists("logs/one_player_time_inconsistent_{}".format(timestr)):
+                    os.makedirs("logs/one_player_time_inconsistent_{}".format(timestr))
+                np.savetxt('logs/one_player_time_inconsistent_{}/oneplayer_intersection_'.format(timestr) 
+                    + str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
             # Visualization.
@@ -262,8 +267,9 @@ class ILQSolver(object):
             self._alphas = alphas
             self._ns = ns
             
-            self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.25
-            # self._alpha_scaling = self._linesearch(iteration = iteration)
+            # self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.25
+            self._alpha_scaling = self._linesearch(iteration = iteration)
+            self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
             iteration += 1
 
     def _compute_operating_point(self):
@@ -399,35 +405,6 @@ class ILQSolver(object):
         target_margin_func = np.zeros((self._horizon+1, 1))
         
         value_func_plus = np.zeros((self._horizon+1, 1))
-
-        car_params = {
-            "wheelbase": 2.413, 
-            "length": 4.267,
-            "width": 1.988
-        }
-
-        collision_r = m.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
-
-        # order of road_logic: left, right, up, down, left_turn: [0, 1]
-        g_params = {
-            "car": {
-                "position_indices": [car_position_indices],
-                "player_id": car_player_id, 
-                "collision_r": collision_r,
-                "car_params": car_params,
-                "theta_indices": [car_theta_index],
-                "phi_index": 3, 
-                "vel_index": 4,
-                "obstacles": [
-                    (6.5, 25.0),
-                    (15.0, 35.0),
-                    (6.0, 46.0)
-                ],
-                "obstacle_radii": [
-                    5.5, 3.0, 3.0
-                ]
-            },
-        }
         
         if ii == 0:
             func_key_list = [""] * (self._horizon + 1)
@@ -442,7 +419,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(g_params["car"], xs, k)
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.config["car"], xs, k)
                 hold_prox = max_g_func(xs[k])
                 
                 value_function_compare = dict()
@@ -489,7 +466,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(g_params["car"], xs, k)
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.config["car"], xs, k)
                 hold_prox = max_g_func(xs[k])
                 
                 value_function_compare = dict()
@@ -629,27 +606,6 @@ class ILQSolver(object):
         }
 
         collision_r = m.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
-
-        # order of road_logic: left, right, up, down, left_turn: [0, 1]
-        g_params = {
-            "car": {
-                "position_indices": [car_position_indices],
-                "player_id": car_player_id, 
-                "collision_r": collision_r,
-                "car_params": car_params,
-                "theta_indices": [car_theta_index],
-                "phi_index": 3, 
-                "vel_index": 4,
-                "obstacles": [
-                    (6.5, 25.0),
-                    (15.0, 35.0),
-                    (6.0, 46.0)
-                ],
-                "obstacle_radii": [
-                    5.5, 3.0, 3.0
-                ]
-            },
-        }
         
         if ii == 0:
             func_key_list = [""] * (self._horizon + 1)
@@ -664,7 +620,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(g_params["car"], xs, k)
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.config["car"], xs, k)
                 hold_prox = max_g_func(xs[k])
                 
                 value_function_compare = dict()
@@ -711,7 +667,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(g_params["car"], xs, k)
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.config["car"], xs, k)
                 hold_prox = max_g_func(xs[k])
                 
                 value_function_compare = dict()

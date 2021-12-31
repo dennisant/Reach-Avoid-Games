@@ -55,7 +55,7 @@ import math
 from point import Point
 
 # General parameters.
-TIME_HORIZON = 4.0    # s #Change back to 2.0
+TIME_HORIZON = 12.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 LOG_DIRECTORY = "./logs/one_player/"
@@ -66,7 +66,7 @@ dynamics = ProductMultiPlayerDynamicalSystem(
     [car], T=TIME_RESOLUTION)
 
 car_theta0 = np.pi / 2.01
-car_v0 = 5.0
+car_v0 = 12.0
 car_x0 = np.array([
     [6.0],
     [0.0],
@@ -94,12 +94,12 @@ g_params = {
         "phi_index": 3, 
         "vel_index": 4,
         "obstacles": [
-            (6.5, 25.0),
-            (15.0, 35.0),
-            (6.0, 46.0)
+            (9.0, 25.0),
+            (20.0, 35.0),
+            (6.5, 46.0)
         ],
         "obstacle_radii": [
-            5.5, 3.0, 3.0
+            4.5, 3.0, 3.0
         ]
     }
 }
@@ -139,7 +139,7 @@ visualizer = Visualizer(
     [".-g", ".-r", ".-b"],
     1,
     False,
-    plot_lims=[-5, 35, -2,  50]
+    plot_lims=[-5, 35, -2,  100]
 )
 
 # Logger.
@@ -158,6 +158,7 @@ solver = ILQSolver(dynamics,
                    None,
                    logger,
                    visualizer,
-                   None)
+                   None,
+                   g_params)
 
 solver.run()
