@@ -40,7 +40,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 
 import torch
 
-from cost import Cost
+from cost.cost import Cost
 
 class ReferenceDeviationCost(Cost):
     def __init__(self, reference):

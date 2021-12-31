@@ -33,33 +33,37 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 """
 ################################################################################
 #
-# Quadratic cost that penalizes distance from a polyline.
+# Semiquadratic cost that takes effect a fixed distance away from a Polyline.
 #
 ################################################################################
 
 import torch
+import matplotlib.pyplot as plt
 
 from cost.cost import Cost
 from resource.point import Point
 from resource.polyline import Polyline
 
-class QuadraticPolylineCost(Cost):
-    def __init__(self, polyline, position_indices, name=""):
+class SemiquadraticPolylineCost(Cost):
+    def __init__(self, polyline, distance_threshold, position_indices, name=""):
         """
-        Initialize with a polyline.
+        Initialize with a polyline, a threshold in distance from the polyline.
 
         :param polyline: piecewise linear path which defines signed distances
         :type polyline: Polyline
+        :param distance_threshold: value above which to penalize
+        :type distance_threshold: float
         :param position_indices: indices of input corresponding to (x, y)
         :type position_indices: (uint, uint)
         """
         self._polyline = polyline
+        self._distance_threshold = distance_threshold
         self._x_index, self._y_index = position_indices
-        super(QuadraticPolylineCost, self).__init__(name)
+        super(SemiquadraticPolylineCost, self).__init__(name)
 
     def __call__(self, x, k=0):
         """
-        Evaluate this cost function on the given state
+        Evaluate this cost function on the given state and time.
         NOTE: `x` should be a PyTorch tensor with `requires_grad` set `True`.
         NOTE: `x` should be a column vector.
 
@@ -68,7 +72,25 @@ class QuadraticPolylineCost(Cost):
         :return: scalar value of cost
         :rtype: torch.Tensor
         """
+        # signed_distance = self._polyline.signed_distance_to(
+        #     Point(x[self._x_index, 0], x[self._y_index, 0]))
+
+        # if abs(signed_distance) > self._distance_threshold:
+        #     return (abs(signed_distance) - self._distance_threshold) ** 2
+
+        # return torch.zeros(1, 1, requires_grad=True).double()
+        
+        
         signed_distance = self._polyline.signed_distance_to(
             Point(x[self._x_index, 0], x[self._y_index, 0]))
 
-        return signed_distance**2
+        if abs(signed_distance) > self._distance_threshold:
+            return ( abs(signed_distance) - self._distance_threshold ) * torch.ones(1, 1, requires_grad=True).double()
+
+        return ( abs(signed_distance) - self._distance_threshold ) * torch.ones(1, 1, requires_grad=True).double()
+
+    def render(self, ax=None):
+        """ Render this cost on the given axes. """
+        xs = [pt.x for pt in self._polyline.points]
+        ys = [pt.y for pt in self._polyline.points]
+        ax.plot(xs, ys, "k", linestyle='dashed', alpha=0.25)

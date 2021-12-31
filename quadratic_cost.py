@@ -40,7 +40,7 @@ Author(s): Ellis Ratner         ( eratner@eecs.berkeley.edu )
 
 import torch
 
-from cost import Cost
+from cost.cost import Cost
 
 class QuadraticCost(Cost):
     def __init__(self, dimension, origin, name=""):

@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import math
 
-from cost import Cost
+from cost.cost import Cost
 from utils import MaxFuncMux
 
 class ManeuverPenalty(Cost):

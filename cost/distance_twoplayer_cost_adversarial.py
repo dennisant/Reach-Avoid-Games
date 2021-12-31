@@ -45,8 +45,8 @@ import numpy as np
 
 from cost.cost import Cost
 
-class LaneBoundaryAdversarial(Cost):
-    def __init__(self, position_indices, oriented_upward, left_boundary_x, right_boundary_x, name=""):
+class ProductStateProximityCostAdversarial(Cost):
+    def __init__(self, position_indices, max_distance, player_id, name=""):
         """
         Initialize with dimension to add cost to and threshold BELOW which
         to impose quadratic cost.
@@ -57,15 +57,10 @@ class LaneBoundaryAdversarial(Cost):
         :type max_distance: float
         """
         self._position_indices = position_indices
-        self._oriented_upward = oriented_upward
-        self._left_boundary_x = left_boundary_x
-        self._right_boundary_x = right_boundary_x
-        
-        
-        #self._max_distance = max_distance
-        #self._num_players = len(position_indices)
-        #self._player_id = int(player_id)
-        super(LaneBoundaryAdversarial, self).__init__(name)
+        self._max_distance = max_distance
+        self._num_players = len(position_indices)
+        self._player_id = int(player_id)
+        super(ProductStateProximityCostAdversarial, self).__init__(name)
 
     def __call__(self, x, k=0):
         """
@@ -78,66 +73,40 @@ class LaneBoundaryAdversarial(Cost):
         :return: scalar value of cost
         :rtype: torch.Tensor
         """
-        #total_cost = torch.zeros(1, 1, requires_grad=True).double()
+        total_cost = torch.zeros(1, 1, requires_grad=True).double()
         # #print("Player id is: ", self._player_id)
         
-        x_index, y_index = self._position_indices
+        xi_idx, yi_idx = self._position_indices[self._player_id]
         
-        # if self._oriented_upward == True:
-        #     if abs(self._left_boundary_x - x[x_index, 0]) <= abs(self._right_boundary_x - x[x_index, 0]):
-        #         dist = x[x_index, 0] - self._left_boundary_x
-    
-        #     else:
-        #         dist = self._right_boundary_x - x[x_index, 0]
-    
-        # else:
-        #     if abs(self._left_boundary_x - x[x_index, 0]) <= abs(self._right_boundary_x - x[x_index, 0]):
-        #         dist = self._left_boundary_x - x[x_index, 0]
-    
-        #     else:
-        #         dist = x[x_index, 0] - self._right_boundary_x
-                
-        # return dist * torch.ones(1, 1, requires_grad=True).double()
-        
-        
-        
-        if self._oriented_upward == True:
-            if abs(self._left_boundary_x - x[x_index, 0]) <= abs(self._right_boundary_x - x[x_index, 0]):
-                dist = (x[x_index, 0] - self._left_boundary_x) * torch.ones(1, 1, requires_grad=True).double()
-                return dist
-    
-            else:
-                dist = (self._right_boundary_x - x[x_index, 0]) * torch.ones(1, 1, requires_grad=True).double()
-                return dist
-    
-        else:
-            if abs(self._left_boundary_x - x[x_index, 0]) <= abs(self._right_boundary_x - x[x_index, 0]):
-                dist = (self._left_boundary_x - x[x_index, 0]) * torch.ones(1, 1, requires_grad=True).double()
-                return dist
-    
-            else:
-                dist = (x[x_index, 0] - self._right_boundary_x) * torch.ones(1, 1, requires_grad=True).double()
-                return dist
-                
-        #return dist
-        
-        
-        
-        
-        
-        
-        # xi_idx, yi_idx = self._position_indices[self._player_id]
-        
-        # for jj in range(self._num_players):
-        #     if self._player_id == jj:
-        #         continue
+        for jj in range(self._num_players):
+            if self._player_id == jj:
+                continue
             
-        #     # Compute relative distance
-        #     xj_idx, yj_idx = self._position_indices[jj]
-        #     dx = x[xi_idx, 0] - x[xj_idx, 0]
-        #     dy = x[yi_idx, 0] - x[yj_idx, 0]
+            # Compute relative distance
+            xj_idx, yj_idx = self._position_indices[jj]
+            dx = x[xi_idx, 0] - x[xj_idx, 0]
+            dy = x[yi_idx, 0] - x[yj_idx, 0]
             
-        #     relative_distance = torch.sqrt(dx*dx + dy*dy)
-        #     #total_cost += min(relative_distance - self._max_distance, 0.0)**2
+            relative_distance = torch.sqrt(dx*dx + dy*dy)
+            #total_cost += min(relative_distance - self._max_distance, 0.0)**2
         
-        # return (self._max_distance - relative_distance) * torch.ones(1, 1, requires_grad=True).double()
+        return (relative_distance - self._max_distance) * torch.ones(1, 1, requires_grad=True).double()
+            
+
+        # for ii in range(self._num_players):
+        #     xi_idx, yi_idx = self._position_indices[ii]
+
+        #     for jj in range(self._num_players):
+        #         if ii == jj:
+        #             continue
+
+        #         # Compute relative distance.
+        #         xj_idx, yj_idx = self._position_indices[jj]
+        #         dx = x[xi_idx, 0] - x[xj_idx, 0]
+        #         dy = x[yi_idx, 0] - x[yj_idx, 0]
+        #         relative_distance = torch.sqrt(dx*dx + dy*dy)
+
+        #         total_cost += min(
+        #             relative_distance - self._max_distance, 0.0)**2
+
+        #return total_cost

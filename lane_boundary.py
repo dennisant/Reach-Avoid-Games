@@ -43,7 +43,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 import torch
 import numpy as np
 
-from cost import Cost
+from cost.cost import Cost
 
 class LaneBoundary(Cost):
     def __init__(self, position_indices, oriented_upward, left_boundary_x, right_boundary_x, name=""):

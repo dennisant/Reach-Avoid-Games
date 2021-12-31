@@ -29,49 +29,62 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Author(s): Ellis Ratner         ( eratner@eecs.berkeley.edu )
-           David Fridovich-Keil ( dfk@eecs.berkeley.edu )
+Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 """
 ################################################################################
 #
-# Quadratic cost, derived from Cost base class.
+# Obstacle cost, derived from Cost base class. Implements a cost function that
+# depends only on state and penalizes min(0, dist - max_distance)^2.
 #
 ################################################################################
 
 import torch
+import numpy as np
+import matplotlib.pyplot as plt
 
 from cost.cost import Cost
+from resource.point import Point
 
-class NominalVelocityDeviationCost(Cost):
-    def __init__(self, dimension, nominal_velocity, name=""):
+class ObstacleCost(Cost):
+    def __init__(self, position_indices, point, max_distance, name=""):
         """
-        Initialize with dimension to add cost to and origin to center the
-        quadratic cost about.
+        Initialize with dimension to add cost to and a max distance beyond
+        which we impose no additional cost.
 
-        :param dimension: dimension to add cost
-        :type dimension: uint
-        :param threshold: value along the specified dim where the cost is zero
+        :param position_indices: indices of input corresponding to (x, y)
+        :type position_indices: (uint, uint)
+        :param point: center of the obstacle from which to compute distance
+        :type point: Point
+        :param max_distance: maximum value of distance to penalize
         :type threshold: float
         """
-        self._dimension = dimension
-        self._nominal_velocity = nominal_velocity
-        super(NominalVelocityDeviationCost, self).__init__(name)
+        self._x_index, self._y_index = position_indices
+        self._point = point
+        self._max_distance = max_distance
+        super(ObstacleCost, self).__init__(name)
 
-    def __call__(self, xu, k=0):
+    def __call__(self, x, k=0):
         """
-        Evaluate this cost function on the given input, which might either be
-        a state `x` or a control `u`. Hence the input is named `xu`.
-        NOTE: `xu` should be a PyTorch tensor with `requires_grad` set `True`.
-        NOTE: `xu` should be a column vector.
+        Evaluate this cost function on the given input state.
+        NOTE: `x` should be a column vector.
 
-        :param xu: state of the system
-        :type xu: torch.Tensor
+        :param x: concatenated state of the two systems
+        :type x: torch.Tensor
         :return: scalar value of cost
         :rtype: torch.Tensor
         """
-        
-        # Print out stuff
-        #print("xu is: ", xu[self._dimension, 0])
-        #print("Origin is: ", self._origin)
-        
-        return (xu[self._dimension, 0] - self._nominal_velocity) ** 2
+        # Compute relative distance.
+        dx = x[self._x_index, 0] - self._point.x
+        dy = x[self._y_index, 0] - self._point.y
+        relative_distance = torch.sqrt(dx*dx + dy*dy)
+
+        return min(relative_distance - self._max_distance, torch.zeros(
+            1, 1, requires_grad=True).double())**2
+
+    def render(self, ax=None):
+        """ Render this obstacle on the given axes. """
+        circle = plt.Circle(
+            (self._point.x, self._point.y), self._max_distance,
+            color="r", fill=True, alpha=0.75)
+        ax.add_artist(circle)
+        ax.text(self._point.x - 1.25, self._point.y - 1.25, "obs", fontsize=8)

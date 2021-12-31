@@ -29,12 +29,13 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Author(s): Ellis Ratner         ( eratner@eecs.berkeley.edu )
-           David Fridovich-Keil ( dfk@eecs.berkeley.edu )
+Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 """
 ################################################################################
 #
-# Quadratic cost, derived from Cost base class.
+# Semiquadratic cost, derived from Cost base class. Implements a
+# cost function that is flat below a threshold and quadratic above, in the
+# given dimension.
 #
 ################################################################################
 
@@ -42,25 +43,29 @@ import torch
 
 from cost.cost import Cost
 
-class NominalVelocityDeviationCost(Cost):
-    def __init__(self, dimension, nominal_velocity, name=""):
+class SemiquadraticCost(Cost):
+    def __init__(self, dimension, threshold, oriented_right, name=""):
         """
-        Initialize with dimension to add cost to and origin to center the
-        quadratic cost about.
+        Initialize with dimension to add cost to and threshold above which
+        to impose quadratic cost.
 
         :param dimension: dimension to add cost
         :type dimension: uint
-        :param threshold: value along the specified dim where the cost is zero
+        :param threshold: value above which to impose quadratic cost
         :type threshold: float
+        :param oriented_right: Boolean flag determining which side of threshold
+          to penalize
+        :type oriented_right: bool
         """
         self._dimension = dimension
-        self._nominal_velocity = nominal_velocity
-        super(NominalVelocityDeviationCost, self).__init__(name)
+        self._threshold = threshold
+        self._oriented_right = oriented_right
+        super(SemiquadraticCost, self).__init__(name)
 
     def __call__(self, xu, k=0):
         """
-        Evaluate this cost function on the given input, which might either be
-        a state `x` or a control `u`. Hence the input is named `xu`.
+        Evaluate this cost function on the given input and itme, which might
+        either be a state `x` or a control `u`. Hence the input is named `xu`.
         NOTE: `xu` should be a PyTorch tensor with `requires_grad` set `True`.
         NOTE: `xu` should be a column vector.
 
@@ -69,9 +74,11 @@ class NominalVelocityDeviationCost(Cost):
         :return: scalar value of cost
         :rtype: torch.Tensor
         """
-        
-        # Print out stuff
-        #print("xu is: ", xu[self._dimension, 0])
-        #print("Origin is: ", self._origin)
-        
-        return (xu[self._dimension, 0] - self._nominal_velocity) ** 2
+        if self._oriented_right:
+            if xu[self._dimension, 0] > self._threshold:
+                return (xu[self._dimension, 0] - self._threshold) ** 2
+        else:
+            if xu[self._dimension, 0] < self._threshold:
+                return (xu[self._dimension, 0] - self._threshold) ** 2
+
+        return torch.zeros(1, 1, requires_grad=True).double()
