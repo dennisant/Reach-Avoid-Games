@@ -42,7 +42,7 @@ import torch
 import unittest
 
 from cost.cost import Cost
-from semiquadratic_cost import SemiquadraticCost
+from cost.semiquadratic_cost import SemiquadraticCost
 from player_cost import PlayerCost
 
 SMALL_NUMBER = 1e-4

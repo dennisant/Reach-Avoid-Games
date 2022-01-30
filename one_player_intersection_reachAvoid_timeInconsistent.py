@@ -78,7 +78,7 @@ car_theta0 = np.pi / 2.01
 car_v0 = 12.0
 car_x0 = np.array([
     [9.0],
-    [15.0],
+    [0.0],
     [car_theta0],
     [0.0],
     [car_v0]

@@ -48,6 +48,7 @@ from resource.point import Point
 import math
 
 class ProximityCost(Cost):
+    # TODO: Rewrite this to have rear and front
     def __init__(self, position_indices, point,
                 max_distance, outside_weight=0.1, apply_after_time=1,
                 name=""):
@@ -94,6 +95,33 @@ class ProximityCost(Cost):
       else:
         relative_squared_distance = math.sqrt(dx*dx + dy*dy) # Comment out the original one below
       return relative_squared_distance - self._max_distance
+
+    def first_order(self, x, k=0):
+      A = x[self._x_index, 0] - self._point[0]
+      B = x[self._y_index, 0] - self._point[1]
+      C = A ** 2 + B ** 2
+      return np.array([
+        A / C ** 0.5, 
+        B / C ** 0.5,
+        0.0,
+        0.0,
+        0.0
+      ])
+
+    def second_order(self, x, k=0):
+      A = x[self._x_index, 0] - self._point[0]
+      B = x[self._y_index, 0] - self._point[1]
+      C = A ** 2 + B ** 2
+      Dxx = B**2 / C ** 1.5
+      Dyy = A**2 / C ** 1.5
+      Dxy = Dyx = -(A * B) / C ** 1.5
+      return np.array([
+        [Dxx, Dxy, 0, 0, 0],
+        [Dyx, Dyy, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0]
+      ])
 
     def render(self, ax=None):
       """ Render this obstacle on the given axes. """

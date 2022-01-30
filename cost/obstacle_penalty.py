@@ -55,6 +55,12 @@ class ObstacleDistCost(Cost):
                 )
         return value
 
+    def first_order(self, x, k=0):
+      pass
+
+    def second_order(self, x, k=0):
+      pass
+
     def __call__(self, x, k=0):
         _max_func = MaxFuncMux()
         _max_func.store(self.g_obstacle_collision, self.g_obstacle_collision(x))
