@@ -55,11 +55,41 @@ class ObstacleDistCost(Cost):
                 )
         return value
 
+    def get_closest_obs(self, x):
+        return np.argmax([self.g_single_obstacle_collision(x, obs_index=i) for i in range(len(self._obs))])
+
     def first_order(self, x, k=0):
-      pass
+        # figure out which obstacle is the closest, pass back index of obs in self._obs
+        obs_index = self.get_closest_obs(x)
+        # use that information for first order
+        A = self._obs[obs_index].x - x[self._x_index, 0]
+        B = self._obs[obs_index].y - x[self._y_index, 0]
+        C = A ** 2 + B ** 2
+        return np.array([
+            A / C ** 0.5, 
+            B / C ** 0.5,
+            0.0,
+            0.0,
+            0.0
+        ])
 
     def second_order(self, x, k=0):
-      pass
+        # figure out which obstacle is the closest
+        obs_index = self.get_closest_obs(x)
+        # use that information for second order
+        A = self._obs[obs_index].x - x[self._x_index, 0]
+        B = self._obs[obs_index].y - x[self._y_index, 0]
+        C = A ** 2 + B ** 2
+        Dxx = -B**2 / C ** 1.5
+        Dyy = -A**2 / C ** 1.5
+        Dxy = Dyx = (-A * -B) / C ** 1.5
+        return np.array([
+            [Dxx, Dxy, 0, 0, 0],
+            [Dyx, Dyy, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+        ])
 
     def __call__(self, x, k=0):
         _max_func = MaxFuncMux()

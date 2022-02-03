@@ -1,4 +1,4 @@
-from test.test_manual_derivative import ProximityCostTest
+from test.test_manual_derivative import ObstacleDistCostTest, ProximityCostTest
 import numpy as np
 import math
 from resource.car_5d import Car5Dv2
@@ -48,7 +48,7 @@ config = {
 }
 
 if __name__ == "__main__":
-    print("TEST COST: ProximityCost")
+    print("TEST COST: ObstacleDistCost")
     car1 = Car5Dv2(T = 0.1, **car_params)
     # car2 = Car5Dv2(T = 0.1, **car_params)
     car1.state = np.array([5, 20, np.pi/2.0, 0, 0])
@@ -56,7 +56,8 @@ if __name__ == "__main__":
 
     # x = np.concatenate((car1.state, car2.state), axis=0).reshape(10, 1)
     x = car1.state.reshape(5, 1)
-    test = ProximityCostTest(config)
+    # test = ProximityCostTest(config)
+    test = ObstacleDistCostTest(config)
 
     print("First order: {}".format(test.compare_first_order(x)))
     print("Second order: {}".format(test.compare_second_order(x)))
