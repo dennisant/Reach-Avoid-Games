@@ -39,6 +39,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 #
 ################################################################################
 
+from calendar import c
 import numpy as np
 import torch
 
@@ -79,7 +80,7 @@ class PlayerCost(object):
             else:
                 weight = 0.0
                 current_term = weight * cost(cost_input, k)
-                
+
             
             #print("current_term in player_cost is: ", current_term)
             #current_term = weight * cost(cost_input, k)
@@ -99,6 +100,26 @@ class PlayerCost(object):
             
 
         return total_cost
+    
+    def get_cost_function(self, x, u, k, calc_deriv_cost):
+        """
+        Evaluate the game cost function at the current state and controls.
+        NOTE: `x`, each `u` are all column vectors.
+
+        :param x: state of the system
+        :type x: np.array or torch.Tensor
+        :param u: list of control inputs for each player
+        :type u: [np.array] or [torch.Tensor]
+        :param k: time step, if cost is time-varying
+        :type k: uint
+        :return: scalar value of cost
+        :rtype: float or torch.Tensor
+        """
+
+        for cost, arg, weight in zip(self._costs, self._args, self._weights):
+            if calc_deriv_cost == True:
+                if weight != 0.0:
+                    return cost
 
     def add_cost(self, cost, arg, weight=1.0):
         """
@@ -208,6 +229,12 @@ class PlayerCost(object):
             eps_state = 0.1
             # eps_control = 0.5
             # eps_state = 0.1
+
+            grad_x_manual = self.get_cost_function(x_torch, u_torch, k, calc_deriv_cost).first_order(x)
+            hess_x_manual = self.get_cost_function(x_torch, u_torch, k, calc_deriv_cost).second_order(x)
+
+            hess_x = hess_x_manual
+            grad_x = np.array(grad_x_manual).reshape(5, 1)
             
             hess_x = hess_x + np.identity(len(x)) * eps_state
             hess_u = num_players * [np.identity(2) * eps_control]

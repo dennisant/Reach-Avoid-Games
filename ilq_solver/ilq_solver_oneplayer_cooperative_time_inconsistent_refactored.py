@@ -468,8 +468,8 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.g_params["car"], xs, k)
-                hold_prox = max_g_func(xs[k])
+                # max_g_func = self._CheckMultipleFunctionsP1_refactored(self.g_params["car"], xs, k)
+                hold_prox = ObstacleDistCost(self.g_params["car"])(xs[k])
                 
                 value_function_compare = dict()
 
@@ -515,8 +515,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.g_params["car"], xs, k)
-                hold_prox = max_g_func(xs[k])
+                hold_prox = ObstacleDistCost(self.g_params["car"])(xs[k])
                 
                 value_function_compare = dict()
                 func_key = ""
@@ -551,12 +550,12 @@ class ILQSolver(object):
                         calc_deriv_cost.appendleft("True")
                         self._calc_deriv_true_P1 = True
                     elif func_key == "g_x":
-                        c1gc = max_g_func
+                        c1gc = ObstacleDistCost(self.g_params["car"])
                         self._player_costs[ii].add_cost(c1gc, "x", 1.0)
                         calc_deriv_cost.appendleft("True")
                         self._calc_deriv_true_P1 = True
                     else:
-                        c1gc = max_g_func
+                        c1gc = ObstacleDistCost(self.g_params["car"])
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
                         calc_deriv_cost.appendleft("False")
                         self._calc_deriv_true_P1 = False
@@ -572,12 +571,12 @@ class ILQSolver(object):
                         calc_deriv_cost.appendleft("False")
                         self._calc_deriv_true_P1 = False
                     elif func_key == "g_x":
-                        c1gc = max_g_func
+                        c1gc = ObstacleDistCost(self.g_params["car"])
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
                         calc_deriv_cost.appendleft("False")
                         self._calc_deriv_true_P1 = False
                     else:
-                        c1gc = max_g_func
+                        c1gc = ObstacleDistCost(self.g_params["car"])
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
                         calc_deriv_cost.appendleft("False")
                         self._calc_deriv_true_P1 = False
@@ -669,8 +668,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.g_params["car"], xs, k)
-                hold_prox = max_g_func(xs[k])
+                hold_prox = ObstacleDistCost(self.g_params["car"])(xs[k])
                 
                 value_function_compare = dict()
 
@@ -716,8 +714,7 @@ class ILQSolver(object):
                 )(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(self.g_params["car"], xs, k)
-                hold_prox = max_g_func(xs[k])
+                hold_prox = ObstacleDistCost(self.g_params["car"])(xs[k])
                 
                 value_function_compare = dict()
                 func_key = ""
@@ -750,10 +747,10 @@ class ILQSolver(object):
                         )
                         self._player_costs[ii].add_cost(c1gc, "x", 1.0)
                     elif func_key == "g_x":
-                        c1gc = max_g_func
+                        c1gc = ObstacleDistCost(self.g_params["car"])
                         self._player_costs[ii].add_cost(c1gc, "x", 1.0)
                     else:
-                        c1gc = max_g_func
+                        c1gc = ObstacleDistCost(self.g_params["car"])
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
                 else:
                     if func_key == "l_x":
@@ -765,10 +762,10 @@ class ILQSolver(object):
                         )
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
                     elif func_key == "g_x":
-                        c1gc = max_g_func
+                        c1gc = ObstacleDistCost(self.g_params["car"])
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
                     else:
-                        c1gc = max_g_func
+                        c1gc = ObstacleDistCost(self.g_params["car"])
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
 
                 costs.append(self._player_costs[ii](

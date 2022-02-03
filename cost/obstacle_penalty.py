@@ -95,7 +95,7 @@ class ObstacleDistCost(Cost):
         _max_func = MaxFuncMux()
         _max_func.store(self.g_obstacle_collision, self.g_obstacle_collision(x))
         _func_of_max_val, _max_val = _max_func.get_max()
-        return _max_val, _func_of_max_val
+        return _max_val
 
     def render(self, ax=None):
         """ Render this obstacle on the given axes. """
