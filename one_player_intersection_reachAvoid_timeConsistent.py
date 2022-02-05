@@ -60,7 +60,7 @@ timestr = time.strftime("%Y-%m-%d-%H_%M")
 args = get_argument()
 
 # General parameters.
-TIME_HORIZON = 11.0    # s #Change back to 2.0
+TIME_HORIZON = 12.0    # s #Change back to 2.0
 TIME_RESOLUTION = 0.1 # s
 HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 
@@ -75,7 +75,7 @@ dynamics = ProductMultiPlayerDynamicalSystem(
 car_theta0 = np.pi / 2.01
 car_v0 = 12.0
 car_x0 = np.array([
-    [6.0],
+    [0.0],
     [0.0],
     [car_theta0],
     [0.0],

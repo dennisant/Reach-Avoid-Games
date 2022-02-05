@@ -74,8 +74,8 @@ car = Car5D(2.413)
 dynamics = ProductMultiPlayerDynamicalSystem(
     [car], T=TIME_RESOLUTION)
 
-car_theta0 = np.pi / 2.01
-car_v0 = 12.0
+car_theta0 = np.pi / 2.5
+car_v0 = 5.0
 car_x0 = np.array([
     [9.0],
     [0.0],
@@ -106,15 +106,29 @@ g_params = {
             (9.0, 25.0),
             (20.0, 35.0),
             (6.5, 46.0)
+            # (6.0, 25.0)
         ],
         "obstacle_radii": [
             4.5, 3.0, 3.0
+            # 4.0
+        ]
+    }
+}
+
+l_params = {
+    "car": {
+        "goals": [
+            (6.0, 40.0)
+        ],
+        "goal_radii": [
+            2.0
         ]
     }
 }
 
 config = {
     "g_params": g_params,
+    "l_params": l_params,
     "experiment": {
         "name": EXP_NAME,
         "log_dir": LOG_DIRECTORY
@@ -130,12 +144,13 @@ car_alphas = [np.zeros((car._u_dim, 1))] * HORIZON_STEPS
 
 # Create environment:
 car_position_indices_in_product_state = (0, 1)
-car_goal_cost = ProximityCost(
-    car_position_indices_in_product_state,
-    (6.0, 40.0),
-    2.0,
-    name="car_goal"    
-)
+for i in range(len(l_params["car"]["goals"])):
+    car_goal_cost = ProximityCost(
+        car_position_indices_in_product_state,
+        l_params["car"]["goals"][i],
+        l_params["car"]["goal_radii"][i],
+        name="car_goal"
+    )
 
 # Player ids
 car_player_id = 0
@@ -149,7 +164,6 @@ obstacle_costs = [ObstacleDistCost(g_params["car"])]
 visualizer = Visualizer(
     [car_position_indices_in_product_state],
     [car_goal_cost] + obstacle_costs,
-    # [".-b", ".-r", ".-g"],
     ["-b", ".-r", ".-g"],
     1,
     False,

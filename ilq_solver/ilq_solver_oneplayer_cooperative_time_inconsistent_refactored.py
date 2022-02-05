@@ -103,6 +103,7 @@ class ILQSolver(object):
         self._num_players = len(player_costs)
         self.exp_info = config["experiment"]
         self.g_params = config["g_params"]
+        self.l_params = config["l_params"]
         self.plot = config["args"].plot
         self.log = config["args"].log
         self.vel_plot = config["args"].vel
@@ -181,12 +182,13 @@ class ILQSolver(object):
             costs = []
             Rs = []
             calc_deriv_cost = []
+            value_func_plus = []
             func_array = []
             func_return_array = []
             total_costs = []
                         
             for ii in range(self._num_players):           
-                Q, l, R, r, costs, total_costss, calc_deriv_cost_, func_array_, func_return_array_ = self._TimeStar(xs, us, ii)
+                Q, l, R, r, costs, total_costss, calc_deriv_cost_, func_array_, func_return_array_, value_func_plus_  = self._TimeStar(xs, us, ii)
 
                 Qs.append(Q[ii])
                 ls.append(l[ii])
@@ -194,6 +196,7 @@ class ILQSolver(object):
                 
                 costs.append(costs[ii])
                 calc_deriv_cost.append(calc_deriv_cost_)
+                value_func_plus.append(value_func_plus_)
                 func_array.append(func_array_)
                 func_return_array.append(func_return_array_)
                 total_costs.append(total_costss)
@@ -222,16 +225,40 @@ class ILQSolver(object):
                 self._visualizer.plot()
                 if plot_critical_points:
                     for i in range(self._num_players):
+                        pinch_point_index = calc_deriv_cost[i].index("True")
                         g_critical_index = np.where(np.array(func_array[i]) == "g_x")[0]
                         l_critical_index = np.where(np.array(func_array[i]) == "l_x")[0]
+                        
+                        g_critical_index_pos = []
+                        g_critical_index_neg = []
+                        for index in g_critical_index:
+                            if value_func_plus[i][index] >= 0:
+                                g_critical_index_pos.append(index)
+                            else:
+                                g_critical_index_neg.append(index)
+                        
+                        l_critical_index_pos = []
+                        l_critical_index_neg = []
+                        for index in l_critical_index:
+                            if value_func_plus[i][index] >= 0:
+                                l_critical_index_pos.append(index)
+                            else:
+                                l_critical_index_neg.append(index)
+                                
                         self._visualizer.draw_real_car(i, np.array(xs)[[0]])
                         if plot_car_for_critical_points:
                             self._visualizer.draw_real_car(i, np.array(xs)[g_critical_index])
                             self._visualizer.draw_real_car(i, np.array(xs)[l_critical_index])
                         else:
                             plt.figure(1)
-                            plt.scatter(np.array(xs)[g_critical_index, 5*i], np.array(xs)[g_critical_index, 5*i + 1], color="k", s=40, marker="*", zorder=10)
-                            plt.scatter(np.array(xs)[l_critical_index, 5*i], np.array(xs)[l_critical_index, 5*i + 1], color="magenta", s=20, marker="o", zorder=10)
+                            plt.scatter(np.array(xs)[g_critical_index_pos, 5*i], np.array(xs)[g_critical_index_pos, 5*i + 1], color="k", s=40, marker="*", zorder=10)
+                            plt.scatter(np.array(xs)[l_critical_index_pos, 5*i], np.array(xs)[l_critical_index_pos, 5*i + 1], color="magenta", s=20, marker="o", zorder=10)
+                            plt.scatter(np.array(xs)[g_critical_index_neg, 5*i], np.array(xs)[g_critical_index_neg, 5*i + 1], color="y", s=40, marker="*", zorder=10)
+                            plt.scatter(np.array(xs)[l_critical_index_neg, 5*i], np.array(xs)[l_critical_index_neg, 5*i + 1], color="y", s=20, marker="o", zorder=10)
+                            if func_array[i][pinch_point_index] == "g_x":
+                                plt.scatter(np.array(xs)[pinch_point_index, 5*i], np.array(xs)[pinch_point_index, 5*i + 1], color="r", s=40, marker="*", zorder=10)
+                            else:
+                                plt.scatter(np.array(xs)[pinch_point_index, 5*i], np.array(xs)[pinch_point_index, 5*i + 1], color="r", s=40, marker="o", zorder=10)
                         
                 plt.pause(0.001)
                 if self.plot:
@@ -318,6 +345,7 @@ class ILQSolver(object):
             
             # self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.25
             # self._alpha_scaling = self._linesearch(iteration = iteration)
+            print("\t{}".format(self._alpha_scaling))
             self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
             iteration += 1
 
@@ -365,7 +393,6 @@ class ILQSolver(object):
         #print("self._aplha_scaling in compute_operating_point is: ", self._alpha_scaling)
         return xs, us
     
-
 
     def _is_converged(self):
         """ Check if the last two operating points are close enough. """
@@ -452,18 +479,18 @@ class ILQSolver(object):
     
         hold_new = 0
         target_margin_func = np.zeros((self._horizon+1, 1))
-        
-        value_func_plus = np.zeros((self._horizon+1, 1))
+        value_func_plus = np.zeros((self._horizon+1, 1)) # this array holds V(k) value, V(k) = max(g(k), min(l(k), V(k+1)))
         
         if ii == 0:
             func_key_list = [""] * (self._horizon + 1)
+            # Calculate value function across trajectory to determine the index of the first l_x or g_x
             for k in range(self._horizon, -1, -1): # T to 0
                 self._player_costs[ii] = PlayerCost()
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 40.0),
-                    2.0,
+                    self.l_params["car"]["goals"][0],
+                    self.l_params["car"]["goal_radii"][0],
                     name="car_goal"    
                 )(xs[k])
                 target_margin_func[k] = hold_new
@@ -474,6 +501,7 @@ class ILQSolver(object):
                 value_function_compare = dict()
 
                 if k == self._horizon:
+                    # if at T, only get max(l_x, g_x)
                     value_function_compare = {
                         "g_x": hold_prox,
                         "l_x": hold_new
@@ -481,6 +509,7 @@ class ILQSolver(object):
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
                 else:
+                    # else, max(g(k), min(l(k), value(k+1)))
                     tmp = {
                         "value": value_func_plus[k+1],
                         "l_x": hold_new,
@@ -492,6 +521,8 @@ class ILQSolver(object):
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
 
+            # We now use the func_key_list that stores all the indices of l_x, g_x and value to determine
+            # the pinch point index
             if "l_x" in func_key_list:
                 first_lx_index = func_key_list.index("l_x")
             else:
@@ -509,8 +540,8 @@ class ILQSolver(object):
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 40.0),
-                    2.0,
+                    self.l_params["car"]["goals"][0],
+                    self.l_params["car"]["goal_radii"][0],
                     name="car_goal"    
                 )(xs[k])
                 target_margin_func[k] = hold_new
@@ -528,6 +559,7 @@ class ILQSolver(object):
                     }
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key = max(value_function_compare, key = value_function_compare.get)
+                    # print("k: {}, l_x: {}, g_x: {}, value: \t, key: {}, value_k: {}".format(k, hold_new, hold_prox, func_key, value_func_plus[k]))
                 else:
                     tmp = {
                         "value": value_func_plus[k+1],
@@ -539,12 +571,14 @@ class ILQSolver(object):
                     }
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key = max(value_function_compare, key = value_function_compare.get)
+                    # print("k: {}, l_x: {}, g_x: {}, value: {}, key: {}, value_k: {}".format(k, hold_new, hold_prox, value_func_plus[k+1], func_key, value_func_plus[k]))
+                # input()
                 if k == first_t_star:
                     if func_key == "l_x":
                         c1gc = ProximityCost(
                             car_position_indices,
-                            (6.0, 40.0),
-                            2.0,
+                            self.l_params["car"]["goals"][0],
+                            self.l_params["car"]["goal_radii"][0],
                             name="car_goal"    
                         )
                         self._player_costs[ii].add_cost(c1gc, "x", 1.0)
@@ -564,8 +598,8 @@ class ILQSolver(object):
                     if func_key == "l_x":
                         c1gc = ProximityCost(
                             car_position_indices,
-                            (6.0, 40.0),
-                            2.0,
+                            self.l_params["car"]["goals"][0],
+                            self.l_params["car"]["goal_radii"][0],
                             name="car_goal"    
                         )
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
@@ -607,7 +641,19 @@ class ILQSolver(object):
             # total_costs = max([c.detach().numpy().flatten()[0] for c in costs])
             total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
 
-        return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_array, func_return_array
+        # val = calc_deriv_cost.count("True")
+        # if val > 1:
+        #     print("Multiple t_stars")
+        #     input()
+        # elif val == 1:
+        #     print("cont")
+
+        # t_star_from_calc_deriv = calc_deriv_cost.index("True")
+        # if t_star_from_calc_deriv != first_t_star:
+        #     print("Different t_star")
+        #     input()
+
+        return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_array, func_return_array, value_func_plus
     
     def _CheckMultipleFunctionsP1_refactored(self, g_params, xs, k):
         max_func = dict()
@@ -663,8 +709,8 @@ class ILQSolver(object):
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 40.0),
-                    2.0,
+                    self.l_params["car"]["goals"][0],
+                    self.l_params["car"]["goal_radii"][0],
                     name="car_goal"    
                 )(xs[k])
                 target_margin_func[k] = hold_new
@@ -710,8 +756,8 @@ class ILQSolver(object):
                 
                 hold_new = ProximityCost(
                     car_position_indices,
-                    (6.0, 40.0),
-                    2.0,
+                    self.l_params["car"]["goals"][0],
+                    self.l_params["car"]["goal_radii"][0],
                     name="car_goal"    
                 )(xs[k])
                 target_margin_func[k] = hold_new
@@ -744,32 +790,38 @@ class ILQSolver(object):
                     if func_key == "l_x":
                         c1gc = ProximityCost(
                             car_position_indices,
-                            (6.0, 40.0),
-                            2.0,
+                            self.l_params["car"]["goals"][0],
+                            self.l_params["car"]["goal_radii"][0],
                             name="car_goal"    
                         )
                         self._player_costs[ii].add_cost(c1gc, "x", 1.0)
+                        self._calc_deriv_true_P1 = True
                     elif func_key == "g_x":
                         c1gc = max_g_func
                         self._player_costs[ii].add_cost(c1gc, "x", 1.0)
+                        self._calc_deriv_true_P1 = True
                     else:
                         c1gc = max_g_func
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
+                        self._calc_deriv_true_P1 = False
                 else:
                     if func_key == "l_x":
                         c1gc = ProximityCost(
                             car_position_indices,
-                            (6.0, 40.0),
-                            2.0,
+                            self.l_params["car"]["goals"][0],
+                            self.l_params["car"]["goal_radii"][0],
                             name="car_goal"    
                         )
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
+                        self._calc_deriv_true_P1 = False
                     elif func_key == "g_x":
                         c1gc = max_g_func
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
+                        self._calc_deriv_true_P1 = False
                     else:
                         c1gc = max_g_func
                         self._player_costs[ii].add_cost(c1gc, "x", 0.0)
+                        self._calc_deriv_true_P1 = False
 
                 costs.append(self._player_costs[ii](
                     torch.as_tensor(xs[k].copy()),
@@ -777,6 +829,7 @@ class ILQSolver(object):
                     k, self._calc_deriv_true_P1))
         
         total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
+        
         return first_t_star, total_costs
 
     def _linesearch(self, beta = 0.9, iteration = None):
@@ -828,15 +881,15 @@ class ILQSolver(object):
             
             # If total cost of this trajectory is less than our current trajectory,
             # then use this alpha. Else, cut alpha down by beta and repeat the above
-            # expected_improvement = 0.0
+            expected_improvement = 0
             if total_cost_new <= self._total_costs[0] + expected_improvement:
                 alpha_converged = True
                 return alpha
             else:
                 alpha = beta * alpha
-                if iteration is not None:
-                    if alpha < 1.0/(iteration+1) ** 0.5:
-                        return alpha
+                # if iteration is not None:
+                #     if alpha < 1.0/(iteration+1) ** 0.5:
+                #         return alpha
                 if alpha < 1e-10:
                     raise ValueError("alpha too small") 
         
@@ -879,9 +932,9 @@ class ILQSolver(object):
                 return alpha
             else:
                 alpha = beta * alpha
-                if iteration is not None:
-                    if alpha < 1.0/(iteration+1) ** 0.5:
-                        return alpha
+                # if iteration is not None:
+                #     if alpha < 1.0/(iteration+1) ** 0.5:
+                #         return alpha
                 if alpha < 1e-10:
                     raise ValueError("alpha too small")
         
