@@ -45,6 +45,7 @@ import matplotlib.pyplot as plt
 import os
 from scipy.linalg import block_diag
 from collections import deque
+from cost.maneuver_penalty import ManeuverPenalty
 from cost.obstacle_penalty import ObstacleDistCost
 
 from player_cost.player_cost_reachavoid_timeconsistent import PlayerCost
@@ -304,8 +305,9 @@ class ILQSolver(object):
             # This is the total cost for the trajectory we are on now
             #total_costs = [sum(costis).item() for costis in costs]
             
-            # print("\rTotal cost for player:\t{:.3f}".format(total_costs[0]), end="")
+            print("\rTotal cost for player:\t{:.3f}".format(total_costs[0]), end="")
             self._total_costs = total_costs
+            self._costs = costs
             
             # if max(total_costs[:2]) < 0.5 or iteration > 300:
             #     print("DONE, Enter to continue")
@@ -344,10 +346,14 @@ class ILQSolver(object):
             #     self._alpha_scaling = .2
             
             # self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
-            self._alpha_scaling = self._linesearch(iteration = iteration)
+            # self._alpha_scaling = self._linesearch(iteration = iteration)
+            self._alpha_scaling = self._linesearch_naive(iteration = iteration)
             # self._alpha_scaling = 0.05
+            print("\t{}".format(self._alpha_scaling))
             iteration += 1
-            print("\rIteration: {}".format(iteration), end="")
+            # print("\rIteration: {}".format(iteration), end="")
+        print("CONVERGE!")
+        input()
 
     def _compute_operating_point(self):
         """
@@ -398,10 +404,10 @@ class ILQSolver(object):
             return False
         
         if self._total_costs[0] > 0.0:
+        # if max(self._costs).detach().numpy().flatten()[0] > 0.0:
            return False
 
-        # return True
-        return False
+        return True
     
     def get_road_logic_dict(self, road_logic):
         return {
@@ -573,7 +579,8 @@ class ILQSolver(object):
             
             first_t_star = min(first_lx_index, first_gx_index)
             # total_costs = max([c.detach().numpy().flatten()[0] for c in costs])
-            total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
+            total_costs = max(costs).detach().numpy().flatten()[0]
+            # total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
 
         return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_array, func_return_array, value_func_plus
     
@@ -581,6 +588,8 @@ class ILQSolver(object):
         max_func = dict()
         max_val, func_of_max_val = ObstacleDistCost(g_params)(xs[k])
         max_func[func_of_max_val] = max_val
+        # max_val, func_of_max_val = ManeuverPenalty(g_params)(xs[k])
+        # max_func[func_of_max_val] = max_val
 
         return max(max_func, key=max_func.get)
 
@@ -724,7 +733,8 @@ class ILQSolver(object):
             
             first_t_star = min(first_lx_index, first_gx_index)
 
-        total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
+        # total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
+        total_costs = max(costs).detach().numpy().flatten()[0]
         return first_t_star, total_costs
 
     def _linesearch(self, beta = 0.9, iteration = None):
@@ -777,9 +787,46 @@ class ILQSolver(object):
             # input()
 
             # TODO: rewrite this part to get correct expected_improvement
-            # expected_improvement = 0
-
+            expected_improvement = 0
             if total_costs_new <= self._total_costs[0] + expected_improvement:
+                alpha_converged = True
+                return alpha
+            else:
+                alpha = beta * alpha
+                # if iteration is not None:
+                #     if alpha < 1.0/(iteration+1) ** 0.5:
+                #         return alpha
+                if alpha < 1e-10:
+                    raise ValueError("alpha too small")
+        
+        self._alpha_scaling = alpha
+        return alpha
+
+    def _linesearch_naive(self, beta = 0.9, iteration = None):
+        """ Linesearch for both players separately. """
+        """
+        x -> us
+        p -> rs
+        may need xs to compute trajectory
+        Line search needs c and tau (c = tau = 0.5 default)
+        m -> local slope (calculate in function)
+        need compute_operating_point routine
+        """        
+        
+        alpha_converged = False
+        alpha = 1.0
+        
+        while not alpha_converged:
+            # Use this alpha in compute_operating_point
+            self._alpha_scaling = alpha
+            
+            # With this alpha, compute trajectory and controls from self._compute_operating_point
+            # For this trajectory, calculate t* and if L or g comes out of min-max
+            xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
+
+            traj_diff = max([np.linalg.norm(np.array(x_new) - np.array(x_old)) for x_old, x_new in zip(xs, self._current_operating_point[0])])
+            
+            if traj_diff < 10.0:
                 alpha_converged = True
                 return alpha
             else:
@@ -829,9 +876,9 @@ class ILQSolver(object):
                 return alpha
             else:
                 alpha = beta * alpha
-                if iteration is not None:
-                    if alpha < 1.0/(iteration+1) ** 0.5:
-                        return alpha
+                # if iteration is not None:
+                #     if alpha < 1.0/(iteration+1) ** 0.5:
+                #         return alpha
                 if alpha < 1e-10:
                     raise ValueError("alpha too small")
         
