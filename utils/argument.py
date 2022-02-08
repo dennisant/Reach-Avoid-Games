@@ -14,7 +14,7 @@ def get_argument():
     parser.add_argument("--t_resolution",       help="Time react",       type=float,     default=0.1)    
 
     parser.add_argument("--exp_name",           help="Name of experiment",              default="experiment")
-    parser.add_argument("--player_types",       help="List of player types car/ped",    default=["car"])
+    parser.add_argument("--player_types",       help="List of player types car/ped",    default=["car"],    nargs="*")
     parser.add_argument("--init_states",        help="Init states for all players",     default=[0.0, 0.0, 0.0, 0.0, 0.0], type=float, nargs="*")
 
     parser.add_argument("--env_type",           help="Type of environment",             default=None,       choices=["goal_with_obs", "t_intersection"])
@@ -33,12 +33,17 @@ def get_argument():
     # visualize params
     parser.add_argument("--draw_cars",    help="Draw cars instead of points",    action="store_true")
     parser.add_argument("--draw_roads",   help="Draw roads",            action="store_true")
+    parser.add_argument("--draw_human",   help="Draw human",            action="store_true")
 
     return parser.parse_args()
 
 def check_argument(args):
+    player_dim = {
+        "car": 5,
+        "ped": 4
+    }
     # Some logistic checking on the available experiments
-    if args.no_players != 1 and args.adversarial:
+    if args.no_players != 2 and args.adversarial:
         raise NotImplementedError("Experiment is not available, please choose another run.")
 
     # check information of env_type
@@ -54,7 +59,23 @@ def check_argument(args):
             raise TypeError("Something is wrong with your obs information, obs should be in the format of 'x y r'")
 
     elif args.env_type == "t_intersection":
-        pass
+        # check to see if the init_states, the no_players and the list of players match each other
+        if args.no_players == 1:
+            raise NotImplementedError("t_intersection env_type only takes no_players > 1")
+        else:
+            # check if the list of player_types and number of players are consistent
+            if args.no_players != len(args.player_types):
+                raise TypeError("The no_players value and length of player_types are not consistent: {} and {}".format(args.no_players, args.player_types))
+            # check if the length of init_states and no_players, player_types are consistent
+            n_dim = sum([player_dim[type] for type in args.player_types])
+            if n_dim != len(args.init_states):
+                raise TypeError("The length of init_states and the expected dimension based on the input number of players and type of players are not consistent: {} and {}".format(args.init_states, args.player_types))
+            # check current availability of run
+            if args.no_players == 2 and args.player_types != ["car", "car"]:
+                raise NotImplementedError("Currently there is only implementation for [car, car] for two players case.")
+            elif args.no_players == 3 and args.player_types != ["car", "car", "ped"]:
+                raise NotImplementedError("Currently there is only implementation for [car, car, ped] for two players case.")
+    
     else:
         raise TypeError("You have not chosen any env_type to run")
 
@@ -70,12 +91,14 @@ def check_argument(args):
         print(" - Goal:\t\t\t\t {}".format(args.goal))
         print(" - Init states:\t\t\t\t {}".format(args.init_states))
     elif args.env_type == "t_intersection":
-        pass
+        print(" - Player types:\t\t\t {}".format(args.player_types))
+        print(" - Init states:\t\t\t\t {}".format(args.init_states))
     print("\nVisualization")
     print(" - Run with plots?:\t\t\t {}".format(args.plot))
     print(" - Run with control plot?:\t\t {}".format(args.ctl_plot))
     print(" - Run with velocity plot?:\t\t {}".format(args.vel_plot))
     print(" - Run with car figures?:\t\t {}".format(args.draw_cars))
+    print(" - Run with human figure?:\t\t {}".format(args.draw_human))
     print(" - Run with graphical roads?:\t\t {}".format(args.draw_roads))
     print("\nLogging")
     print(" - Run with logs?:\t\t\t {}".format(args.log))
