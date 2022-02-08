@@ -1,1 +1,5 @@
-*NOTE* that this Python language implementation is extremely deprecated and should only be used for illustrative purposes in order to implement a similar idea in another language for those who are more comfortable with Python than C++.
+# Write config file for new experiments
+There are the following supported experiments:
+    - **one_player** in **goal_with_obs**
+  
+When **goal_with_obs** is passed as env_name, the goal costs and obstacle costs are automatically loaded.

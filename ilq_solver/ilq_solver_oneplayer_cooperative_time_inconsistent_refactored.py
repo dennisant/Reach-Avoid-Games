@@ -106,7 +106,7 @@ class ILQSolver(object):
         self.l_params = config["l_params"]
         self.plot = config["args"].plot
         self.log = config["args"].log
-        self.vel_plot = config["args"].vel
+        self.vel_plot = config["args"].vel_plot
             
         self._player_costs = player_costs
 
