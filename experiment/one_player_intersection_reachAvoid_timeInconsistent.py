@@ -59,138 +59,117 @@ from utils.argument import get_argument
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")
 
-args = get_argument()
+def one_player_time_inconsistent(args):
+    # General parameters.
+    TIME_HORIZON = args.t_horizon
+    TIME_RESOLUTION = args.t_resolution
+    HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 
-# General parameters.
-TIME_HORIZON = 6.0    # s #Change back to 2.0
-TIME_RESOLUTION = 0.1 # s
-HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
+    EXP_NAME = args.exp_name
+    LOG_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
 
-EXP_NAME = "one_player_time_inconsistent"
-LOG_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
+    car = Car5D(2.413)
 
-car = Car5D(2.413)
+    dynamics = ProductMultiPlayerDynamicalSystem(
+        [car], T=TIME_RESOLUTION)
 
-dynamics = ProductMultiPlayerDynamicalSystem(
-    [car], T=TIME_RESOLUTION)
+    car_x0 = (np.array(args.init_states)[:5]).reshape(5, 1)
 
-car_theta0 = np.pi / 1.9
-car_v0 = 5.0
-car_x0 = np.array([
-    [9.0],
-    [0.0],
-    [car_theta0],
-    [0.0],
-    [car_v0]
-])
-
-###################
-car_params = {
-    "wheelbase": 2.413, 
-    "length": 4.267,
-    "width": 1.988
-}
-
-collision_r = math.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
-
-g_params = {
-    "car": {
-        "position_indices": [(0,1)],
-        "player_id": 0, 
-        "collision_r": collision_r,
-        "car_params": car_params,
-        "theta_indices": [2],
-        "phi_index": 3, 
-        "vel_index": 4,
-        "obstacles": [
-            (9.0, 25.0),
-            (20.0, 35.0),
-            (6.5, 46.0)
-            # (6.0, 25.0)
-        ],
-        "obstacle_radii": [
-            4.5, 3.0, 3.0
-            # 4.0
-        ]
+    ###################
+    car_params = {
+        "wheelbase": 2.413, 
+        "length": 4.267,
+        "width": 1.988
     }
-}
 
-l_params = {
-    "car": {
-        "goals": [
-            (6.0, 40.0)
-        ],
-        "goal_radii": [
-            2.0
-        ]
+    collision_r = math.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
+
+    g_params = {
+        "car": {
+            "position_indices": [(0,1)],
+            "player_id": 0, 
+            "collision_r": collision_r,
+            "car_params": car_params,
+            "theta_indices": [2],
+            "phi_index": 3, 
+            "vel_index": 4,
+            "obstacles": list(zip(*(iter([np.array(args.obstacles)[i] for i in range(len(args.obstacles)) if i % 3 < 2]),) * 2)),
+            "obstacle_radii": [np.array(args.obstacles)[i] for i in range(len(args.obstacles)) if i % 3 == 2]
+        }
     }
-}
 
-config = {
-    "g_params": g_params,
-    "l_params": l_params,
-    "experiment": {
-        "name": EXP_NAME,
-        "log_dir": LOG_DIRECTORY
-    },
-    "args": args
-}
-###################
+    l_params = {
+        "car": {
+            "goals": list(zip(*(iter(args.goal[0:2]),) * 2)),
+            "goal_radii": [args.goal[2]]
+        }
+    }
 
-stacked_x0 = np.concatenate([car_x0], axis=0)
+    config = {
+        "g_params": g_params,
+        "l_params": l_params,
+        "experiment": {
+            "name": EXP_NAME,
+            "log_dir": LOG_DIRECTORY
+        },
+        "args": args
+    }
+    ###################
 
-car_Ps = [np.zeros((car._u_dim, dynamics._x_dim))] * HORIZON_STEPS
-car_alphas = [np.zeros((car._u_dim, 1))] * HORIZON_STEPS
+    stacked_x0 = np.concatenate([car_x0], axis=0)
 
-# Create environment:
-car_position_indices_in_product_state = (0, 1)
-for i in range(len(l_params["car"]["goals"])):
-    car_goal_cost = ProximityCost(
-        car_position_indices_in_product_state,
-        l_params["car"]["goals"][i],
-        l_params["car"]["goal_radii"][i],
-        name="car_goal"
+    car_Ps = [np.zeros((car._u_dim, dynamics._x_dim))] * HORIZON_STEPS
+    car_alphas = [np.zeros((car._u_dim, 1))] * HORIZON_STEPS
+
+    # Create environment:
+    car_position_indices_in_product_state = (0, 1)
+    for i in range(len(l_params["car"]["goals"])):
+        car_goal_cost = ProximityCost(
+            car_position_indices_in_product_state,
+            l_params["car"]["goals"][i],
+            l_params["car"]["goal_radii"][i],
+            name="car_goal"
+        )
+
+    # Player ids
+    car_player_id = 0
+
+    car_cost = PlayerCost()
+    car_cost.add_cost(car_goal_cost, "x", 1.0)
+
+    obstacle_costs = [ObstacleDistCost(g_params["car"])]
+
+    visualizer = Visualizer(
+        [car_position_indices_in_product_state],
+        [car_goal_cost] + obstacle_costs,
+        ["-b", ".-r", ".-g"],
+        1,
+        False,
+        plot_lims=[-20, 75, -20,  100],
+        draw_cars = args.draw_cars
     )
 
-# Player ids
-car_player_id = 0
+    # Logger.
+    if args.log or args.plot:
+        if not os.path.exists(LOG_DIRECTORY):
+            os.makedirs(LOG_DIRECTORY)
 
-car_cost = PlayerCost()
-car_cost.add_cost(car_goal_cost, "x", 1.0)
+    if args.log:
+        logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
+    else:
+        logger = None
 
-obstacle_costs = [ObstacleDistCost(g_params["car"])]
+    # Set up ILQSolver.
+    solver = ILQSolver(dynamics,
+                    [car_cost],
+                    stacked_x0,
+                    [car_Ps],
+                    [car_alphas],
+                    0.1,
+                    None,
+                    logger,
+                    visualizer,
+                    None,
+                    config)
 
-visualizer = Visualizer(
-    [car_position_indices_in_product_state],
-    [car_goal_cost] + obstacle_costs,
-    ["-b", ".-r", ".-g"],
-    1,
-    False,
-    plot_lims=[-20, 75, -20,  100],
-    draw_cars = args.draw_cars
-)
-
-# Logger.
-if args.log or args.plot:
-    if not os.path.exists(LOG_DIRECTORY):
-        os.makedirs(LOG_DIRECTORY)
-
-if args.log:
-    logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
-else:
-    logger = None
-
-# Set up ILQSolver.
-solver = ILQSolver(dynamics,
-                   [car_cost],
-                   stacked_x0,
-                   [car_Ps],
-                   [car_alphas],
-                   0.1,
-                   None,
-                   logger,
-                   visualizer,
-                   None,
-                   config)
-
-solver.run()
+    solver.run()

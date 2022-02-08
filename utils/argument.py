@@ -39,28 +39,24 @@ def get_argument():
 def check_argument(args):
     # Some logistic checking on the available experiments
     if args.no_players != 1 and args.adversarial:
-        print("Experiment is not available, please choose another run.")
-        raise NotImplementedError
+        raise NotImplementedError("Experiment is not available, please choose another run.")
 
     # check information of env_type
     if args.env_type == "goal_with_obs":
         # check to make sure there is only one goal
         if (len(args.goal) % 3) != 0:
-            print("Something is wrong with your goal information, goal should be in the format of 'x y r'")
-            raise TypeError
+            raise TypeError("Something is wrong with your goal information, goal should be in the format of 'x y r'")
         elif int(len(args.goal) / 3) > 1:
-            print("Current implementation only supports single goal for this type of env")
-            raise TypeError
+            raise TypeError("Current implementation only supports single goal for this type of env")
         
         # check information of obstacles
         if (len(args.obstacles) % 3) != 0:
-            print("Something is wrong with your obs information, obs should be in the format of 'x y r'")
-            raise TypeError
+            raise TypeError("Something is wrong with your obs information, obs should be in the format of 'x y r'")
+
     elif args.env_type == "t_intersection":
         pass
     else:
-        print("You have not chosen any env_type to run")
-        raise TypeError
+        raise TypeError("You have not chosen any env_type to run")
 
     print("EXPERIMENT INFORMATION")
     print("\nGeneral information")
