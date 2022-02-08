@@ -49,7 +49,7 @@ from collections import deque
 from torch.autograd import grad
 from cost.maneuver_penalty import ManeuverPenalty
 
-from player_cost.player_cost_reachavoid_timeconsistent import PlayerCost
+from player_cost.player_cost import PlayerCost
 from cost.proximity_cost_reach_avoid_twoplayer import PedestrianProximityToBlockCost, ProximityToBlockCost
 from cost.distance_twoplayer_cost import CollisionPenalty, PedestrianToCarCollisionPenalty
 from cost.semiquadratic_polyline_cost_any import RoadRulesPenalty

@@ -251,7 +251,7 @@ class ILQSolver(object):
             # for the next trajectory
             # print(np.array(Qs).shape)
             # input()
-            Ps, alphas = solve_lq_game(As, Bs, Qs, ls, Rs, rs)
+            Ps, alphas, ns = solve_lq_game(As, Bs, Qs, ls, Rs, rs)
 
             # (7) Accumulate total costs for all players.
             # This is the total cost for the trajectory we are on now

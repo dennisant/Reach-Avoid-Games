@@ -48,7 +48,7 @@ from scipy.linalg import block_diag
 from collections import deque
 from cost.obstacle_penalty import ObstacleDistCost
 
-from player_cost.player_cost_reachavoid_timeinconsistent import PlayerCost
+from player_cost.player_cost import PlayerCost
 from resource.point import Point
 from cost.proximity_cost_reach_avoid_twoplayer import ProximityCost
 from solve_lq_game.solve_lq_game_reachavoid_timeinconsistent import solve_lq_game
@@ -346,7 +346,8 @@ class ILQSolver(object):
             # self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.25
             # self._alpha_scaling = self._linesearch(iteration = iteration)
             # print("\t{}".format(self._alpha_scaling))
-            self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
+            # self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
+            self._alpha_scaling = self._linesearch_naive(iteration = iteration)
             iteration += 1
 
     def _compute_operating_point(self):
@@ -928,6 +929,44 @@ class ILQSolver(object):
                 t = 0.0
             
             if total_costs_new  + t * alpha <= self._total_costs[0]:
+                alpha_converged = True
+                return alpha
+            else:
+                alpha = beta * alpha
+                # if iteration is not None:
+                #     if alpha < 1.0/(iteration+1) ** 0.5:
+                #         return alpha
+                if alpha < 1e-10:
+                    raise ValueError("alpha too small")
+        
+        self._alpha_scaling = alpha
+        return alpha
+
+    def _linesearch_naive(self, beta = 0.9, iteration = None):
+        """ Linesearch for both players separately. """
+        """
+        x -> us
+        p -> rs
+        may need xs to compute trajectory
+        Line search needs c and tau (c = tau = 0.5 default)
+        m -> local slope (calculate in function)
+        need compute_operating_point routine
+        """        
+        
+        alpha_converged = False
+        alpha = 1.0
+        
+        while not alpha_converged:
+            # Use this alpha in compute_operating_point
+            self._alpha_scaling = alpha
+            
+            # With this alpha, compute trajectory and controls from self._compute_operating_point
+            # For this trajectory, calculate t* and if L or g comes out of min-max
+            xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
+
+            traj_diff = max([np.linalg.norm(np.array(x_new) - np.array(x_old)) for x_old, x_new in zip(xs, self._current_operating_point[0])])
+            
+            if traj_diff < 10.0:
                 alpha_converged = True
                 return alpha
             else:

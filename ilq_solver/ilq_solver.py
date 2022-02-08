@@ -43,10 +43,10 @@ import torch
 import matplotlib.pyplot as plt
 import os
 
-from player_cost import PlayerCost
+from player_cost.player_cost import PlayerCost
 from cost.proximity_cost import ProximityCost
 from cost.obstacle_dist_cost import ObstacleDistCost
-from solve_lq_game import solve_lq_game
+from solve_lq_game.solve_lq_game import solve_lq_game
 
 class ILQSolver(object):
     def __init__(self,

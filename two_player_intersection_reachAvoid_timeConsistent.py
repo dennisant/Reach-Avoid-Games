@@ -47,7 +47,7 @@ from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
 from ilq_solver.ilq_solver_twoplayer_cooperative_time_consistent_refactored import ILQSolver
 from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
-from player_cost.player_cost_reachavoid_timeconsistent import PlayerCost
+from player_cost.player_cost import PlayerCost
 
 from utils.visualizer import Visualizer
 from utils.logger import Logger
@@ -160,7 +160,7 @@ visualizer = Visualizer(
     1,
     False,
     plot_lims=[-5, 25, -2,  40],
-    draw_cars = True, 
+    draw_cars = False, 
     draw_roads = True
 )
 

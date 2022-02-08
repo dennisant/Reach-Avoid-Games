@@ -47,7 +47,7 @@ from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
 from ilq_solver.ilq_solver_threeplayer_cooperative_time_inconsistent_refactored import ILQSolver
 from cost.proximity_cost_reach_avoid_twoplayer import PedestrianProximityToBlockCost, ProximityToBlockCost
-from player_cost.player_cost_reachavoid_timeinconsistent import PlayerCost
+from player_cost.player_cost import PlayerCost
 from resource.unicycle_4d import Unicycle4D
 
 from utils.visualizer import Visualizer

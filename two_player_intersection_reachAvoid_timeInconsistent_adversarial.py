@@ -47,7 +47,7 @@ from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
 from ilq_solver.ilq_solver_twoplayer_cooperative_time_inconsistent_refactored_adversarial import ILQSolver
 from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
-from player_cost.player_cost_reachavoid_timeconsistent import PlayerCost
+from player_cost.player_cost import PlayerCost
 
 from utils.visualizer import Visualizer
 from utils.logger import Logger

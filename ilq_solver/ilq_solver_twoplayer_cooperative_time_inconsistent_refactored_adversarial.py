@@ -46,11 +46,11 @@ import matplotlib.pyplot as plt
 from scipy.linalg import block_diag
 from collections import deque
 
-from player_cost_reachavoid_timeinconsistent import PlayerCost
-from proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
-from distance_twoplayer_cost import CollisionPenalty
-from semiquadratic_polyline_cost_any import RoadRulesPenalty
-from solve_lq_game_reachavoid_twoplayer_timeinconsistent_adversarial import solve_lq_game
+from player_cost.player_cost import PlayerCost
+from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
+from cost.distance_twoplayer_cost import CollisionPenalty
+from cost.semiquadratic_polyline_cost_any import RoadRulesPenalty
+from solve_lq_game.solve_lq_game_reachavoid_twoplayer_timeinconsistent_adversarial import solve_lq_game
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")
 

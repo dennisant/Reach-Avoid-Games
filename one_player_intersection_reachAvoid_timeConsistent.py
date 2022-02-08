@@ -47,7 +47,7 @@ from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
 from ilq_solver.ilq_solver_oneplayer_cooperative_time_consistent_refactored import ILQSolver
 from cost.proximity_cost_reach_avoid_twoplayer import ProximityCost
-from player_cost.player_cost_reachavoid_timeconsistent import PlayerCost
+from player_cost.player_cost import PlayerCost
 
 from utils.visualizer import Visualizer
 from utils.logger import Logger
@@ -153,7 +153,6 @@ for i in range(len(l_params["car"]["goals"])):
 # Player ids
 car_player_id = 0
 
-# Build up total costs for both players. This is basically a zero-sum game.
 car_cost = PlayerCost()
 car_cost.add_cost(car_goal_cost, "x", 1.0)
 
