@@ -66,7 +66,8 @@ class ILQSolver(object):
                  reference_deviation_weight=None,
                  logger=None,
                  visualizer=None,
-                 u_constraints=None):
+                 u_constraints=None,
+                 config=None):
         """
         Initialize from dynamics, player costs, current state, and initial
         guesses for control strategies for both players.
@@ -101,6 +102,11 @@ class ILQSolver(object):
         self._u_constraints = u_constraints
         self._horizon = len(Ps[0])
         self._num_players = len(player_costs)
+        self.exp_info = config["experiment"]
+        self.g_params = config["g_params"]
+        self.plot = config["args"].plot
+        self.log = config["args"].log
+        self.vel_plot = config["args"].vel_plot
     
         self._player_costs = player_costs
 
@@ -144,32 +150,9 @@ class ILQSolver(object):
                 #print(xs_store[0])
                 #print(len(xs_store))
                 #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
-                np.savetxt('logs/three_player_time_inconsistent/threeplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
+                if self.log:
+                    np.savetxt('logs/three_player_time_inconsistent/threeplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
-
-            # Visualization.
-            if self._visualizer is not None:
-                traj = {"xs" : xs}
-                for ii in range(self._num_players):
-                    traj["u%ds" % (ii + 1)] = us[ii]
-
-                self._visualizer.add_trajectory(iteration, traj)
-                # self._visualizer.plot_controls(1)
-                # plt.pause(0.001)
-                # plt.clf()
-                # self._visualizer.plot_controls(2)
-                # plt.pause(0.001)
-                # plt.clf()
-                self._visualizer.plot()
-                plt.pause(0.001)
-                if not os.path.exists("image_outputs_{}".format(timestr)):
-                    os.makedirs("image_outputs_{}".format(timestr))
-                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
-                plt.clf()
-            
-            # print("plot is shown above")
-            # print("self._num_players is: ", self._num_players)                
-
             # (2) Linearize about this operating point. Make sure to
             # stack appropriately since we will concatenate state vectors
             # but not control vectors, so that
@@ -218,34 +201,55 @@ class ILQSolver(object):
             self._xs = xs
             self._us= us
 
-            # draw velocity and timestar overlay graph for 2 cars
-            # for i in range(2):
-            #     g_critical_index = np.where(np.array(func_array[i]) == "g_x")[0]
-            #     l_critical_index = np.where(np.array(func_array[i]) == "l_x")[0]
-            #     value_critical_index = np.where(np.array(func_array[i]) == "value")[0]
-            #     gradient_critical_index = np.where(np.array(func_array[i]) != "value")[0]
-            #     plt.figure(4+i)
-            #     vel_array = np.array([x[5*i + 4] for x in xs]).flatten()
-                
-            #     plt.plot(vel_array)
-            #     plt.scatter(g_critical_index, vel_array[g_critical_index], color = "r")
-            #     plt.scatter(l_critical_index, vel_array[l_critical_index], color = "g")
-            #     plt.scatter(value_critical_index, vel_array[value_critical_index], color = "y")
+            # Visualization.
+            if self._visualizer is not None:
+                traj = {"xs" : xs}
+                for ii in range(self._num_players):
+                    traj["u%ds" % (ii + 1)] = us[ii]
 
-            #     name_list = []
-            #     try:
-            #         for func in np.array(func_return_array[i])[gradient_critical_index]:
-            #             try:
-            #                 name_list.append(func.__name__.replace("_",""))
-            #             except:
-            #                 name_list.append(type(func).__name__.replace("_",""))
-            #         for j in range(len(gradient_critical_index)):
-            #             plt.text(gradient_critical_index[j], vel_array[gradient_critical_index][j], name_list[j])
-            #     except Exception as err:
-            #         print(err)
-            #         pass
-            #     plt.pause(0.01)
-            #     plt.clf()
+                self._visualizer.add_trajectory(iteration, traj)
+                # self._visualizer.plot_controls(1)
+                # plt.pause(0.001)
+                # plt.clf()
+                # self._visualizer.plot_controls(2)
+                # plt.pause(0.001)
+                # plt.clf()
+                self._visualizer.plot()
+                plt.pause(0.001)
+                if not os.path.exists("image_outputs_{}".format(timestr)):
+                    os.makedirs("image_outputs_{}".format(timestr))
+                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
+                plt.clf()
+
+            # draw velocity and timestar overlay graph for 2 cars
+            if self.vel_plot:
+                for i in range(2):
+                    g_critical_index = np.where(np.array(func_array[i]) == "g_x")[0]
+                    l_critical_index = np.where(np.array(func_array[i]) == "l_x")[0]
+                    value_critical_index = np.where(np.array(func_array[i]) == "value")[0]
+                    gradient_critical_index = np.where(np.array(func_array[i]) != "value")[0]
+                    plt.figure(4+i)
+                    vel_array = np.array([x[5*i + 4] for x in xs]).flatten()
+                    
+                    plt.plot(vel_array)
+                    plt.scatter(g_critical_index, vel_array[g_critical_index], color = "r")
+                    plt.scatter(l_critical_index, vel_array[l_critical_index], color = "g")
+                    plt.scatter(value_critical_index, vel_array[value_critical_index], color = "y")
+
+                    name_list = []
+                    try:
+                        for func in np.array(func_return_array[i])[gradient_critical_index]:
+                            try:
+                                name_list.append(func.__name__.replace("_",""))
+                            except:
+                                name_list.append(type(func).__name__.replace("_",""))
+                        for j in range(len(gradient_critical_index)):
+                            plt.text(gradient_critical_index[j], vel_array[gradient_critical_index][j], name_list[j])
+                    except Exception as err:
+                        print(err)
+                        pass
+                    plt.pause(0.01)
+                    plt.clf()
 
             # (6) Compute feedback Nash equilibrium of the resulting LQ game.
             # This is getting put into compute_operating_point to solver
@@ -292,19 +296,19 @@ class ILQSolver(object):
             self._alphas = alphas
             self._ns = ns
 
-            if iteration < 5:
-                self._alpha_scaling = 1.0
-            elif iteration < 25:
-                self._alpha_scaling = 0.5
-            else:
-                self._alpha_scaling = 0.1
+            # if iteration < 5:
+            #     self._alpha_scaling = 1.0
+            # elif iteration < 25:
+            #     self._alpha_scaling = 0.5
+            # else:
+            #     self._alpha_scaling = 0.1
             
-            if max(total_costs[:2]) < 1.0:
-                self._alpha_scaling = 0.05
-            elif max(total_costs[:2]) < 0.7:
-                self._alpha_scaling = 0.02
+            # if max(total_costs[:2]) < 1.0:
+            #     self._alpha_scaling = 0.05
+            # elif max(total_costs[:2]) < 0.7:
+            #     self._alpha_scaling = 0.02
 
-            # self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
+            self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
             
             iteration += 1
 

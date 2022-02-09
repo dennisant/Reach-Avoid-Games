@@ -71,24 +71,17 @@ class PlayerCost(object):
             else:
                 cost_input = u[arg]
                 
-                
             global total_cost
             
             if calc_deriv_cost == True:
                 current_term = weight * cost(cost_input, k)
             else:
                 weight = 0.0
-                current_term = weight * cost(cost_input, k)
-                
+                current_term = weight * cost(cost_input, k)                
             
-            #print("current_term in player_cost is: ", current_term)
-            #current_term = weight * cost(cost_input, k)
             if current_term > 1e8:
                 print("Warning: cost %s is %f" % (cost._name, current_term))
                 print("Input is: ", cost_input)
-
-#            if cost._name[:4] == "bike":
-#                print(cost._name, ": ", current_term)
 
             if first_time_through:
                 total_cost = current_term
@@ -96,7 +89,6 @@ class PlayerCost(object):
                 total_cost += current_term
 
             first_time_through = False
-            
 
         return total_cost
 
@@ -203,8 +195,8 @@ class PlayerCost(object):
                 if grad_ui_torch is not None:
                     gradient_u[ii, :] = grad_ui_torch.detach().numpy().copy().T
                 
-            eps_control = 0.4
-            eps_state = 0.4
+            eps_control = 0.1
+            eps_state = 0.1
             
             hess_x = hess_x + np.identity(len(x)) * eps_state
             hess_u = num_players * [np.identity(2) * eps_control]
@@ -214,8 +206,8 @@ class PlayerCost(object):
                 gradient_u = np.vstack((gradient_u, eps_control * u[i+1].T))
                 
         else:
-            eps_control = 0.4
-            eps_state = 0.4
+            eps_control = 0.1
+            eps_state = 0.1
 
             x_torch = torch.from_numpy(x).requires_grad_(True)
             u_torch = [torch.from_numpy(ui).requires_grad_(True) for ui in u]

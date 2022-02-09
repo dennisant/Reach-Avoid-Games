@@ -45,8 +45,9 @@ import matplotlib.pyplot as plt
 from resource.car_5d import Car5D
 from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
-from ilq_solver.ilq_solver_threeplayer_cooperative_time_consistent_refactored import ILQSolver
-from cost.proximity_cost_reach_avoid_twoplayer import PedestrianProximityToBlockCost, ProximityToBlockCost
+from ilq_solver.ilq_solver_threeplayer_time_consistent import ILQSolver
+from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
+from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
 from player_cost.player_cost import PlayerCost
 from resource.unicycle_4d import Unicycle4D
 
@@ -59,11 +60,11 @@ timestr = time.strftime("%Y-%m-%d-%H_%M")
 
 def three_player_time_consistent(args):
     # General parameters.
-    TIME_HORIZON = 3.0    # s #Change back to 2.0
-    TIME_RESOLUTION = 0.1 # s
+    TIME_HORIZON = args.t_horizon
+    TIME_RESOLUTION = args.t_resolution
     HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 
-    EXP_NAME = "three_players_time_consistent"
+    EXP_NAME = args.exp_name
     LOG_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
 
     # Create dynamics.

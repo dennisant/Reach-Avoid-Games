@@ -48,8 +48,8 @@ from collections import deque
 
 from player_cost.player_cost import PlayerCost
 from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
-from cost.distance_twoplayer_cost import CollisionPenalty
-from cost.semiquadratic_polyline_cost_any import RoadRulesPenalty
+from cost.collision_penalty import CollisionPenalty
+from cost.road_rules_penalty import RoadRulesPenalty
 from solve_lq_game.solve_lq_game_reachavoid_twoplayer_timeinconsistent_adversarial import solve_lq_game
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")

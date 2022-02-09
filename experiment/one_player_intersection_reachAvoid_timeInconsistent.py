@@ -39,22 +39,17 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 
 from resource.car_5d import Car5D
 from cost.obstacle_penalty import ObstacleDistCost
-from resource.product_multiplayer_dynamical_system import \
-    ProductMultiPlayerDynamicalSystem
-from ilq_solver.ilq_solver_oneplayer_cooperative_time_inconsistent_refactored import ILQSolver
+from resource.product_multiplayer_dynamical_system import ProductMultiPlayerDynamicalSystem
+from ilq_solver.ilq_solver_oneplayer import ILQSolver
 from cost.proximity_cost_reach_avoid_twoplayer import ProximityCost
 from player_cost.player_cost import PlayerCost
 
 from utils.visualizer import Visualizer
 from utils.logger import Logger
 import math
-from resource.point import Point
-
-from utils.argument import get_argument
 
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")

@@ -6,6 +6,8 @@ cmd = "python3 run.py                                       \
         --no_players 1                                      \
         --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 46.0 3.0 \
         --goal 6.0 40.0 2.0                                 \
+        --t_horizon 10                                      \
+        --linesearch --linesearch_type trust_region         \
         "
 
 os.system(cmd)
