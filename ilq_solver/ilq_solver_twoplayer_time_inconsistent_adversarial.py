@@ -47,7 +47,7 @@ from scipy.linalg import block_diag
 from collections import deque
 
 from player_cost.player_cost import PlayerCost
-from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
+from cost.proximity_cost import ProximityToBlockCost
 from cost.collision_penalty import CollisionPenalty
 from cost.road_rules_penalty import RoadRulesPenalty
 from solve_lq_game.solve_lq_game_reachavoid_twoplayer_timeinconsistent_adversarial import solve_lq_game

@@ -50,7 +50,7 @@ from cost.maneuver_penalty import ManeuverPenalty
 from cost.obstacle_penalty import ObstacleDistCost
 
 from player_cost.player_cost import PlayerCost
-from cost.proximity_cost_reach_avoid_twoplayer import ProximityCost
+from cost.proximity_cost import ProximityCost
 from solve_lq_game.solve_lq_game import solve_lq_game
 
 class ILQSolver(object):
@@ -645,18 +645,17 @@ class ILQSolver(object):
                     value_func_plus[k] = max(value_function_compare.values())
                     func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
             
-            if not self.time_consistency:
-                if "l_x" in func_key_list:
-                    first_lx_index = func_key_list.index("l_x")
-                else:
-                    first_lx_index = np.inf
+            if "l_x" in func_key_list:
+                first_lx_index = func_key_list.index("l_x")
+            else:
+                first_lx_index = np.inf
 
-                if "g_x" in func_key_list:
-                    first_gx_index = func_key_list.index("g_x")
-                else:
-                    first_gx_index = np.inf
-                
-                first_t_star = min(first_lx_index, first_gx_index)
+            if "g_x" in func_key_list:
+                first_gx_index = func_key_list.index("g_x")
+            else:
+                first_gx_index = np.inf
+            
+            first_t_star = min(first_lx_index, first_gx_index)
 
             for k in range(self._horizon, -1, -1): # T to 0
                 self._player_costs[player_index] = PlayerCost()
@@ -687,8 +686,8 @@ class ILQSolver(object):
         max_func = dict()
         max_val, func_of_max_val = ObstacleDistCost(g_params)(xs[k])
         max_func[func_of_max_val] = max_val
-        # max_val, func_of_max_val = ManeuverPenalty(g_params)(xs[k])
-        # max_func[func_of_max_val] = max_val
+        max_val, func_of_max_val = ManeuverPenalty(g_params)(xs[k])
+        max_func[func_of_max_val] = max_val
 
         return max(max_func, key=max_func.get)
 
@@ -728,7 +727,7 @@ class ILQSolver(object):
         self._alpha_scaling = alpha
         return alpha
 
-    def _linesearch_trustregion(self, beta = 0.9, iteration = None, margin = 5.0):
+    def _linesearch_trustregion(self, beta = 0.9, iteration = None, margin = 10.0):
         """ Linesearch using trust region. """
         """
         beta (float) -> discounted term

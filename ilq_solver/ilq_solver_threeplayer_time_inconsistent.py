@@ -39,19 +39,19 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 
 import numpy as np
 import math as m
-from numpy.lib.function_base import gradient
 import torch
 import matplotlib.pyplot as plt
 import os
-from scipy.linalg import block_diag
 from collections import deque
-from cost.maneuver_penalty import ManeuverPenalty
 
+from cost.maneuver_penalty import ManeuverPenalty
 from player_cost.player_cost import PlayerCost
-from cost.proximity_cost_reach_avoid_twoplayer import PedestrianProximityToBlockCost, ProximityToBlockCost
-from cost.distance_twoplayer_cost import CollisionPenalty, PedestrianToCarCollisionPenalty
-from cost.semiquadratic_polyline_cost_any import RoadRulesPenalty
-from solve_lq_game.solve_lq_game_reachavoid_timeinconsistent import solve_lq_game
+from cost.proximity_cost import ProximityToBlockCost
+from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
+from cost.collision_penalty import CollisionPenalty
+from cost.pedestrian_collision_penalty import PedestrianToCarCollisionPenalty
+from cost.road_rules_penalty import RoadRulesPenalty
+from solve_lq_game.solve_lq_game import solve_lq_game
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")
 
@@ -104,6 +104,8 @@ class ILQSolver(object):
         self._num_players = len(player_costs)
         self.exp_info = config["experiment"]
         self.g_params = config["g_params"]
+        self.time_consistency = config["args"].time_consistency
+
         self.plot = config["args"].plot
         self.log = config["args"].log
         self.vel_plot = config["args"].vel_plot
@@ -124,6 +126,9 @@ class ILQSolver(object):
         # Set up visualizer.
         self._visualizer = visualizer
         self._logger = logger
+
+        self.linesearch = config["args"].linesearch
+        self.linesearch_type = config["args"].linesearch_type
 
         # Log some of the paramters.
         if self._logger is not None:
@@ -147,11 +152,8 @@ class ILQSolver(object):
             
             if iteration%store_freq == 0:
                 xs_store = [xs_i.flatten() for xs_i in xs]
-                #print(xs_store[0])
-                #print(len(xs_store))
-                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
                 if self.log:
-                    np.savetxt('logs/three_player_time_inconsistent/threeplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
+                    np.savetxt(self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')
             
             # (2) Linearize about this operating point. Make sure to
             # stack appropriately since we will concatenate state vectors
@@ -216,9 +218,10 @@ class ILQSolver(object):
                 # plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
-                if not os.path.exists("image_outputs_{}".format(timestr)):
-                    os.makedirs("image_outputs_{}".format(timestr))
-                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
+                if self.plot:
+                    if not os.path.exists(self.exp_info["log_dir"] + "/figures"):
+                        os.makedirs(self.exp_info["log_dir"] + "/figures")
+                    plt.savefig(self.exp_info["log_dir"] +'/figures/plot-{}.jpg'.format(iteration)) # Trying to save these plots
                 plt.clf()
 
             # draw velocity and timestar overlay graph for 2 cars
@@ -256,7 +259,7 @@ class ILQSolver(object):
             # for the next trajectory
             # print(np.array(Qs).shape)
             # input()
-            Ps, alphas, ns = solve_lq_game(As, Bs, Qs, ls, Rs, rs)
+            Ps, alphas, ns = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, self.time_consistency)
 
             # (7) Accumulate total costs for all players.
             # This is the total cost for the trajectory we are on now
@@ -295,18 +298,6 @@ class ILQSolver(object):
             self._Ps = Ps
             self._alphas = alphas
             self._ns = ns
-
-            # if iteration < 5:
-            #     self._alpha_scaling = 1.0
-            # elif iteration < 25:
-            #     self._alpha_scaling = 0.5
-            # else:
-            #     self._alpha_scaling = 0.1
-            
-            # if max(total_costs[:2]) < 1.0:
-            #     self._alpha_scaling = 0.05
-            # elif max(total_costs[:2]) < 0.7:
-            #     self._alpha_scaling = 0.02
 
             self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
             

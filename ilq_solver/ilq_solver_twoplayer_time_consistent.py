@@ -48,7 +48,7 @@ from collections import deque
 from cost.maneuver_penalty import ManeuverPenalty
 
 from player_cost.player_cost import PlayerCost
-from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
+from cost.proximity_cost import ProximityToBlockCost
 from cost.distance_twoplayer_cost import CollisionPenalty
 from cost.semiquadratic_polyline_cost_any import RoadRulesPenalty
 from solve_lq_game.solve_lq_game_reachavoid_timeconsistent import solve_lq_game

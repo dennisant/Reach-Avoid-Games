@@ -1,4 +1,4 @@
-from cost.proximity_cost_reach_avoid_twoplayer import ProximityCost
+from cost.proximity_cost import ProximityCost
 from cost.obstacle_penalty import ObstacleDistCost
 import torch
 import numpy as np

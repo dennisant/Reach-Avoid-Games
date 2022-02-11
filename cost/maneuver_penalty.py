@@ -24,7 +24,7 @@ class ManeuverPenalty(Cost):
         return -x[self._vel_index, 0]
 
     def g_steering(self, x, k=0, **kwargs):
-        return x[self._phi_index, 0] ** 2 - self._max_phi ** 2
+        return x[self._phi_index, 0] * x[self._phi_index, 0] - self._max_phi * self._max_phi 
 
     def g_maneuver(self, x, **kwargs):
         _max_func = MaxFuncMux()

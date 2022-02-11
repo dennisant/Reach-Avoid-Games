@@ -46,7 +46,7 @@ from resource.car_5d import Car5D
 from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
 from ilq_solver.ilq_solver_twoplayer_time_inconsistent import ILQSolver
-from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
+from cost.proximity_cost import ProximityToBlockCost
 from player_cost.player_cost import PlayerCost
 
 from utils.visualizer import Visualizer

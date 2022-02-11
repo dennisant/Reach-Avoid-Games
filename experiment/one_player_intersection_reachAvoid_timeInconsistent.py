@@ -44,7 +44,7 @@ from resource.car_5d import Car5D
 from cost.obstacle_penalty import ObstacleDistCost
 from resource.product_multiplayer_dynamical_system import ProductMultiPlayerDynamicalSystem
 from ilq_solver.ilq_solver_oneplayer import ILQSolver
-from cost.proximity_cost_reach_avoid_twoplayer import ProximityCost
+from cost.proximity_cost import ProximityCost
 from player_cost.player_cost import PlayerCost
 
 from utils.visualizer import Visualizer

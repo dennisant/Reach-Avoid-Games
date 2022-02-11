@@ -50,7 +50,7 @@ from torch.autograd import grad
 from cost.maneuver_penalty import ManeuverPenalty
 
 from player_cost.player_cost import PlayerCost
-from cost.proximity_cost_reach_avoid_twoplayer import ProximityToBlockCost
+from cost.proximity_cost import ProximityToBlockCost
 from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
 from cost.collision_penalty import CollisionPenalty
 from cost.pedestrian_collision_penalty import PedestrianToCarCollisionPenalty
@@ -106,6 +106,8 @@ class ILQSolver(object):
         self._num_players = len(player_costs)
         self.exp_info = config["experiment"]
         self.g_params = config["g_params"]
+        self.time_consistency = config["args"].time_consistency
+
         self.plot = config["args"].plot
         self.log = config["args"].log
         self.vel_plot = config["args"].vel_plot
@@ -127,6 +129,9 @@ class ILQSolver(object):
         self._visualizer = visualizer
         self._logger = logger
 
+        self.linesearch = config["args"].linesearch
+        self.linesearch_type = config["args"].linesearch_type
+
         # Log some of the paramters.
         if self._logger is not None:
             self._logger.log("alpha_scaling", self._alpha_scaling)
@@ -146,18 +151,11 @@ class ILQSolver(object):
             xs, us = self._compute_operating_point()
             self._last_operating_point = self._current_operating_point
             self._current_operating_point = (xs, us)
-
-            # print(max([x[4] for x in xs]))
-            # print(max([x[9] for x in xs]))
-            # time.sleep(0.2)
             
             if iteration%store_freq == 0:
                 xs_store = [xs_i.flatten() for xs_i in xs]
-                #print(xs_store[0])
-                #print(len(xs_store))
-                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
                 if self.log:
-                    np.savetxt(self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')           
+                    np.savetxt(self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')
 
             # (2) Linearize about this operating point. Make sure to
             # stack appropriately since we will concatenate state vectors
@@ -268,7 +266,7 @@ class ILQSolver(object):
             # (7) Accumulate total costs for all players.
             # This is the total cost for the trajectory we are on now
             #total_costs = [sum(costis).item() for costis in costs]
-            print("\rTotal cost for all players:\t{:.3f}\t\t{:.3f}\t\t{:.3f}".format(total_costs[0], total_costs[1], total_costs[2]), end="")
+            print("\rInteration: {}\t\tTotal cost for all players:\t{:.3f}\t\t{:.3f}\t\t{:.3f}".format(iteration, total_costs[0], total_costs[1], total_costs[2]), end="")
             self._total_costs = total_costs
             
             # if max(total_costs[:2]) < 0.5 or iteration > 300:
@@ -282,8 +280,7 @@ class ILQSolver(object):
             
             #Plot total cost for all iterations
             if self._total_costs[0] < 0:
-                plt.plot(iteration_store, store_total_cost, color='green', linestyle='dashed', linewidth = 2,
-                         marker='o', markerfacecolor='blue', markersize=6)
+                plt.plot(iteration_store, store_total_cost, color='green', linestyle='dashed', linewidth = 2, marker='o', markerfacecolor='blue', markersize=6)
                 #plt.plot(iteration_store, store_total_cost)
                 plt.xlabel('Iteration')
                 plt.ylabel('Total cost')
