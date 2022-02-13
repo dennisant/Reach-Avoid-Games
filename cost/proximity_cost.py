@@ -47,9 +47,7 @@ import math
 
 class ProximityCost(Cost):
     # TODO: Rewrite this to have rear and front
-    def __init__(self, position_indices, point,
-                max_distance, outside_weight=0.1, apply_after_time=1,
-                name=""):
+    def __init__(self, l_params, g_params, name=""):
       """
       Initialize with dimension to add cost to and threshold BELOW which
       to impose quadratic cost. Above the threshold, we use a very light
@@ -66,12 +64,11 @@ class ProximityCost(Cost):
       :param apply_after_time: only apply proximity time after this time step
       :type apply_after_time: int
       """
-      self._x_index, self._y_index = position_indices
-      self._point = point
-      self._max_squared_distance = max_distance ** 2
-      self._max_distance = max_distance
-      self._outside_weight = outside_weight
-      self._apply_after_time = apply_after_time
+      self._x_index, self._y_index = g_params["position_indices"][g_params["player_id"]]
+      self._point = l_params["goals"][0]
+      self._max_distance = l_params["goal_radii"][0]
+      self._max_squared_distance = self._max_distance ** 2
+      self._player_id = g_params["player_id"]
       super(ProximityCost, self).__init__(name)
 
     def __call__(self, x, k=0):
@@ -85,7 +82,7 @@ class ProximityCost(Cost):
       :type k: uint
       :return: scalar value of cost
       :rtype: torch.Tensor
-      """
+      """       
       dx = x[self._x_index, 0] - self._point[0]
       dy = x[self._y_index, 0] - self._point[1]
       if type(x) is torch.Tensor:

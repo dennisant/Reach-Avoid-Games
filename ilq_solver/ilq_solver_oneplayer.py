@@ -109,7 +109,8 @@ class ILQSolver(object):
         self.log = config["args"].log
         self.vel_plot = config["args"].vel_plot
         self.ctl_plot = config["args"].ctl_plot
-    
+
+        self.config = config["args"]
         self._player_costs = player_costs
 
         # Current and previous operating points (states/controls) for use
@@ -183,9 +184,10 @@ class ILQSolver(object):
             func_array = []
             func_return_array = []
             total_costs = []
+            first_t_stars = []
                         
             for ii in range(self._num_players):           
-                Q, l, R, r, costs, total_costss, calc_deriv_cost_, func_array_, func_return_array_, value_func_plus_  = self._TimeStar(xs, us, ii)
+                Q, l, R, r, costs, total_costss, calc_deriv_cost_, func_array_, func_return_array_, value_func_plus_, first_t_star_ = self._TimeStar(xs, us, ii, first_t_star = True)
 
                 Qs.append(Q[ii])
                 ls.append(l[ii])
@@ -197,9 +199,13 @@ class ILQSolver(object):
                 func_array.append(func_array_)
                 func_return_array.append(func_return_array_)
                 total_costs.append(total_costss)
+                first_t_stars.append(first_t_star_)
                 
                 Rs.append(R[ii])
-        
+
+            self._first_t_stars = first_t_stars
+            self._Qs = Qs
+            self._ls = ls
             self._rs = rs
             self._xs = xs
             self._us= us
@@ -260,7 +266,7 @@ class ILQSolver(object):
             plt.title('Total Cost of Trajectory at Each Iteration')
             plt.show()
 
-    def visualize(self, xs, us, iteration, func_array, func_return_array, value_func_plus, calc_deriv_cost):
+    def visualize(self, xs, us, iteration, func_array, func_return_array, value_func_plus, calc_deriv_cost, **kwargs):
         # TODO: flag these values
         plot_critical_points = True
         plot_car_for_critical_points = False
@@ -481,7 +487,7 @@ class ILQSolver(object):
                 self.calc_deriv_cost = False
         return calc_deriv_cost, c1gc
 
-    def _TimeStar(self, xs, us, player_index):
+    def _TimeStar(self, xs, us, player_index, **kwargs):
         car_position_indices = (player_index*5, player_index*5 + 1)
         # Pre-allocate hessian and gradient matrices
         Qs = [deque() for i in range(self._num_players)]
@@ -504,12 +510,7 @@ class ILQSolver(object):
 
             for k in range(self._horizon, -1, -1): # T to 0
                 l_func_list.appendleft(
-                    ProximityCost(
-                        car_position_indices,
-                        self.l_params["car"]["goals"][0],
-                        self.l_params["car"]["goal_radii"][0],
-                        name="car_goal"    
-                    )
+                    ProximityCost(self.l_params["car"], self.g_params["car"])
                 )
                 l_value_list[k] = l_func_list[0](xs[k])
 
@@ -542,21 +543,20 @@ class ILQSolver(object):
 
             # We now use the func_key_list that stores all the indices of l_x, g_x and value to determine
             # the pinch point index
-            if not self.time_consistency:
-                if "l_x" in func_key_list:
-                    first_lx_index = func_key_list.index("l_x")
-                else:
-                    first_lx_index = np.inf
+            if "l_x" in func_key_list:
+                first_lx_index = func_key_list.index("l_x")
+            else:
+                first_lx_index = np.inf
 
-                if "g_x" in func_key_list:
-                    first_gx_index = func_key_list.index("g_x")
-                else:
-                    first_gx_index = np.inf
-                
-                first_t_star = min(first_lx_index, first_gx_index)
+            if "g_x" in func_key_list:
+                first_gx_index = func_key_list.index("g_x")
+            else:
+                first_gx_index = np.inf
+            
+            first_t_star = min(first_lx_index, first_gx_index)
 
             for k in range(self._horizon, -1, -1): # T to 0
-                self._player_costs[player_index] = PlayerCost()
+                self._player_costs[player_index] = PlayerCost(**vars(self.config))
                 if not self.time_consistency:
                     if k == first_t_star:
                         calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=True)
@@ -589,14 +589,25 @@ class ILQSolver(object):
                     )
                 )
 
+            if "first_t_star" in kwargs.keys():
+                if kwargs["first_t_star"]:
+                    total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
+                    return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
+                else:
+                    total_costs = max(costs).detach().numpy().flatten()[0]
+                    return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
+
             if self.time_consistency:
                 total_costs = max(costs).detach().numpy().flatten()[0]
             else:
                 total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
 
-        return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus
+        return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
 
-    def _rollout(self, xs, us, player_index):
+    def _rollout(self, xs, us, player_index, **kwargs):
+        """
+        kwargs: if "first_t_star" is True, regardless of time consistency, pass back the total_cost = cost of first t_star
+        """
         car_position_indices = (player_index*5, player_index*5+1)
         costs = []
             
@@ -611,12 +622,7 @@ class ILQSolver(object):
             
             for k in range(self._horizon, -1, -1): # T to 0
                 l_func_list.appendleft(
-                    ProximityCost(
-                        car_position_indices,
-                        self.l_params["car"]["goals"][0],
-                        self.l_params["car"]["goal_radii"][0],
-                        name="car_goal"    
-                    )
+                    ProximityCost(self.l_params["car"], self.g_params["car"])
                 )
                 l_value_list[k] = l_func_list[0](xs[k])
 
@@ -658,7 +664,7 @@ class ILQSolver(object):
             first_t_star = min(first_lx_index, first_gx_index)
 
             for k in range(self._horizon, -1, -1): # T to 0
-                self._player_costs[player_index] = PlayerCost()
+                self._player_costs[player_index] = PlayerCost(**vars(self.config))
                 if not self.time_consistency:
                     if k == first_t_star:
                         _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=True)
@@ -674,6 +680,12 @@ class ILQSolver(object):
                         k, self.calc_deriv_cost
                     )
                 )
+
+            if "first_t_star" in kwargs.keys():
+                if kwargs["first_t_star"]:
+                    return first_t_star, costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
+                else:
+                    return first_t_star, max(costs).detach().numpy().flatten()[0]
 
             if self.time_consistency:
                 total_costs = max(costs).detach().numpy().flatten()[0]
@@ -727,7 +739,7 @@ class ILQSolver(object):
         self._alpha_scaling = alpha
         return alpha
 
-    def _linesearch_trustregion(self, beta = 0.9, iteration = None, margin = 10.0):
+    def _linesearch_trustregion(self, beta = 0.9, iteration = None, margin=5.0, visualize_hallucination = False):
         """ Linesearch using trust region. """
         """
         beta (float) -> discounted term
@@ -736,6 +748,7 @@ class ILQSolver(object):
         
         alpha_converged = False
         alpha = 1.0
+        error = old_error = 0
         
         while not alpha_converged:
             # Use this alpha in compute_operating_point
@@ -744,16 +757,55 @@ class ILQSolver(object):
             # With this alpha, compute trajectory and controls from self._compute_operating_point
             # For this trajectory, calculate t* and if L or g comes out of min-max
             xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
+            
+            # Visualize hallucinated traj
+            if visualize_hallucination:
+                plt.figure(1)
+                self._visualizer.plot()
+                plt.plot([x[0, 0] for x in xs], [x[1, 0] for x in xs],
+                    "-r",
+                    alpha = 0.4,
+                    linewidth = 2,
+                    zorder=10
+                )
+                plt.pause(0.001)
+                plt.clf()
 
-            traj_diff = max([np.linalg.norm(np.array(x_new) - np.array(x_old)) for x_old, x_new in zip(np.array(xs)[:,:2,:], np.array(self._current_operating_point[0])[:,:2,:])])
+            new_t_star, total_costs_new = self._rollout(xs, us, 0, first_t_star=True)
+
+            traj_diff = max([np.linalg.norm(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[:,:2,:], np.array(self._current_operating_point[0])[:,:2,:])])
+
+            for i in range(self._num_players):
+                old_t_star = self._first_t_stars[i]
+                Q = self._Qs[i][old_t_star]
+                q = self._ls[i][old_t_star]
+                x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[old_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
+                delta_cost_quadratic_approx = 0.5 * (np.transpose(x_diff) @ Q + 2 * np.transpose(q)) @ x_diff
+            
+            delta_cost_quadratic_actual = total_costs_new - self._total_costs[0]
+            error = delta_cost_quadratic_approx - delta_cost_quadratic_actual
 
             if traj_diff < margin:
-                alpha_converged = True
-                return alpha
+                if old_error == error:
+                    alpha_converged = True
+                else:
+                    old_error= error
+                    if abs(error) < 1.2 and abs(error) > 0.8:
+                        margin = margin * 1.5
+                        alpha = 1.0
+                        alpha_converged = False
+                    elif abs(error) >= 1.2:
+                        margin = margin * 0.5
+                        alpha = 1.0
+                        alpha_converged = False
+                    else:
+                        alpha_converged = True
             else:
                 alpha = beta * alpha
                 if alpha < 1e-10:
                     raise ValueError("alpha too small")
+
+            # print("Est cost: {:.5f}\tNew cost: {:.5f}\tAlpha: {:.5f}\tMargin: {:.5f}\tdelta cost: {:.5f}\tTraj diff: {:.5f}".format((delta_cost_quadratic_approx + self._total_costs[0]).flatten()[0], total_costs_new, alpha, margin, delta_cost_quadratic_approx.flatten()[0], traj_diff))
         
         self._alpha_scaling = alpha
         return alpha

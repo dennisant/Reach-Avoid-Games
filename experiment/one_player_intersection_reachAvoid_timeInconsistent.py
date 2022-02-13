@@ -119,17 +119,12 @@ def one_player_time_inconsistent(args):
     # Create environment:
     car_position_indices_in_product_state = (0, 1)
     for i in range(len(l_params["car"]["goals"])):
-        car_goal_cost = ProximityCost(
-            car_position_indices_in_product_state,
-            l_params["car"]["goals"][i],
-            l_params["car"]["goal_radii"][i],
-            name="car_goal"
-        )
+        car_goal_cost = ProximityCost(l_params["car"], g_params["car"])
 
     # Player ids
     car_player_id = 0
 
-    car_cost = PlayerCost()
+    car_cost = PlayerCost(**vars(args))
     car_cost.add_cost(car_goal_cost, "x", 1.0)
 
     obstacle_costs = [ObstacleDistCost(g_params["car"])]

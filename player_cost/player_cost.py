@@ -45,10 +45,21 @@ import torch
 from cost.cost import Cost
 
 class PlayerCost(object):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._costs = []
         self._args = []
         self._weights = []
+
+        self._eps_control = 0.1
+        self._eps_state = 0.1
+
+        # print(kwargs.keys())
+        # print("eps_control" in kwargs.keys())
+
+        if "eps_control" in kwargs.keys():
+            self._eps_control = kwargs["eps_control"]
+        if "eps_state" in kwargs.keys():
+            self._eps_state = kwargs["eps_state"]
 
     def __call__(self, x, u, k, calc_deriv_cost):
         """
@@ -154,6 +165,8 @@ class PlayerCost(object):
         :rtype: float, np.array, np.array, [np.array]
         """
         num_players = len(u)
+        eps_control = self._eps_control
+        eps_state = self._eps_state
         if calc_deriv_cost == True:
             # Congert to torch.Tensor format.
             x_torch = torch.from_numpy(x).requires_grad_(True)
@@ -194,9 +207,6 @@ class PlayerCost(object):
                 grad_ui_torch = grad_u_torch[ii]
                 if grad_ui_torch is not None:
                     gradient_u[ii, :] = grad_ui_torch.detach().numpy().copy().T
-                
-            eps_control = 0.1
-            eps_state = 0.1
             
             hess_x = hess_x + np.identity(len(x)) * eps_state
             hess_u = num_players * [np.identity(2) * eps_control]
@@ -206,9 +216,6 @@ class PlayerCost(object):
                 gradient_u = np.vstack((gradient_u, eps_control * u[i+1].T))
                 
         else:
-            eps_control = 0.1
-            eps_state = 0.1
-
             x_torch = torch.from_numpy(x).requires_grad_(True)
             u_torch = [torch.from_numpy(ui).requires_grad_(True) for ui in u]
 

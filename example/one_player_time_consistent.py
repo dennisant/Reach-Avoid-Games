@@ -9,7 +9,8 @@ cmd = "python3 run.py                                       \
         --goal 6.0 40.0 2.0                                 \
         --time_consistency                                  \
         --linesearch --linesearch_type trust_region         \
-        --t_horizon 10.0                                    \
-        ".format(np.pi/2.5)
-
+        --t_horizon 12.0                                    \
+        --eps_control 0.1 --eps_state 0.1                   \
+        --plot                                              \
+        ".format(np.pi/4.0)
 os.system(cmd)

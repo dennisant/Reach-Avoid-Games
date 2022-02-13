@@ -21,6 +21,9 @@ def get_argument():
     parser.add_argument("--env_type",           help="Type of environment",             default=None,       choices=["goal_with_obs", "t_intersection"])
     parser.add_argument("--linesearch_type",    help="Type of linesearch",              default=None,       choices=["ahmijo", "trust_region"])
 
+    parser.add_argument("--eps_state",          help="Epsilon state for Player Cost",           type=float,     default=0.1)    
+    parser.add_argument("--eps_control",        help="Epsilon control for Player Cost",         type=float,     default=0.1)    
+
     # if goal_with_obs is chosen for env_type
     parser.add_argument("--obstacles",          help="List of obstacle in format [x, y, r]",    default=[6.0, 25.0, 4.0], type=float, nargs="*")
     parser.add_argument("--goal",               help="Goal information in format [x, y, r]",    default=[6.0, 40.0, 2.0], type=float, nargs="*")
@@ -90,6 +93,8 @@ def check_argument(args):
     print(" - T resolution:\t\t\t {}".format(args.t_resolution))
     print(" - No. of players:\t\t\t {}".format(args.no_players))
     print(" - Time consistency:\t\t\t {}".format(args.time_consistency))
+    print(" - Eps state:\t\t\t\t {}".format(args.eps_state))
+    print(" - Eps control:\t\t\t\t {}".format(args.eps_control))
     if args.env_type == "goal_with_obs":
         print(" - Obstacles:\t\t\t\t {}".format(args.obstacles))
         print(" - Goal:\t\t\t\t {}".format(args.goal))
