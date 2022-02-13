@@ -316,6 +316,7 @@ class Visualizer(object):
             traj = self._history[kk]
             iteration = self._iterations[kk]
             plotted_iterations.append(iteration)
+            plt.title("Iteration: {}".format(iteration))
 
             for ii in range(self._num_players):
                 x_idx, y_idx = self._position_indices[ii]
