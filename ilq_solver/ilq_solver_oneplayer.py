@@ -105,6 +105,7 @@ class ILQSolver(object):
         self.l_params = config["l_params"]
         self.time_consistency = config["args"].time_consistency
         self.max_steps = config["args"].max_steps
+        self.is_batch_run = config["args"].batch_run
 
         self.plot = config["args"].plot
         self.log = config["args"].log
@@ -266,7 +267,10 @@ class ILQSolver(object):
             plt.xlabel('Iteration')
             plt.ylabel('Total cost')
             plt.title('Total Cost of Trajectory at Each Iteration')
-            plt.show()
+            if self.plot:
+                plt.savefig(self.exp_info["figure_dir"] +'total_cost_after_{}_steps.jpg'.format(iteration)) # Trying to save these plots
+            if not self.is_batch_run:
+                plt.show()
 
     def visualize(self, xs, us, iteration, func_array, func_return_array, value_func_plus, calc_deriv_cost, **kwargs):
         # TODO: flag these values

@@ -10,6 +10,8 @@ def get_argument():
     parser.add_argument("--adversarial",        help="Is the run adversarial",      action="store_true")
     parser.add_argument("--linesearch",         help="Is linesearch used",          action="store_true")
 
+    parser.add_argument("--batch_run",          help="Experiment is running in batch",          action="store_true")
+
     parser.add_argument("--t_react",            help="T reaction for adversarial case",     type=int,       default=10)
     parser.add_argument("--t_horizon",          help="Time horizon for the traj",           type=float,     default=3.0)
     parser.add_argument("--t_resolution",       help="Time react",       type=float,     default=0.1)    

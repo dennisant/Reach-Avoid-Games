@@ -53,6 +53,7 @@ import math
 
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")
+datestr = time.strftime("%Y-%m-%d")
 
 def one_player_time_inconsistent(args):
     # General parameters.
@@ -61,7 +62,10 @@ def one_player_time_inconsistent(args):
     HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 
     EXP_NAME = args.exp_name
-    RESULT_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
+    if args.batch_run:
+        RESULT_DIRECTORY = "./result/batch-" + datestr + "/" + EXP_NAME + "_" + timestr + "/"
+    else:
+        RESULT_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
     LOG_DIRECTORY = RESULT_DIRECTORY + "logs/"
     FIGURE_DIRECTORY = RESULT_DIRECTORY + "figures/"
     car = Car5D(2.413)
