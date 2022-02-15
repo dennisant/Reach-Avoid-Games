@@ -37,6 +37,14 @@ logging.basicConfig(
             "result/batch-{}/batch_test.log".format(datestr)),
         logging.StreamHandler()])
 
+car_params = {
+        "wheelbase": 2.413, 
+        "length": 4.267,
+        "width": 1.988
+    }
+
+collision_r = math.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
+
 # Constant params
 base_flag = "   python3 run.py                      \
                 --no_players 1                      \
@@ -61,22 +69,45 @@ obstacle_flag = " --obstacles             \
 goal_flag = " --goal 6.0 40.0 2.0"
 
 # Dynamic params
-no_of_runs = 5
-x = np.random.uniform(-20, 30, no_of_runs)
-y = np.random.uniform(-2, 60, no_of_runs)
+no_of_runs = 100
+# x = np.random.uniform(-20, 30, no_of_runs)
+# y = np.random.uniform(-2, 60, no_of_runs)
 # theta = np.random.uniform(0, 2*np.pi, no_of_runs)
 v = np.random.uniform(3, 10, no_of_runs)
 time_horizon = np.random.randint(3, 11, no_of_runs)
 max_runtime = 150
 time_consistency = False
 
+obstacles = [float(i) for i in obstacle_flag.replace("--obstacles", "").split()]
+
+def get_random_initial_pos():
+    x = np.random.uniform(-20, 30)
+    y = np.random.uniform(-2, 60)
+    return x, y
+
 for i in range(no_of_runs):
+    found_good_initial_pos = False
+
+    # check if the sampled x, y are too close to obstacle (using ObstacleDistCost)
+    while not found_good_initial_pos:
+        x, y = get_random_initial_pos()
+        found_good_initial_pos = True
+        for j in range(int(len(obstacles)/3.0)):
+            dx = x - obstacles[j*3]
+            dy = y - obstacles[j*3 + 1]
+            r = obstacles[j*3 + 2]
+            relative_distance = math.sqrt(dx*dx + dy*dy)
+            if r - relative_distance + 3.0 * collision_r > 0:
+                # the initial position collides with an obstacle
+                found_good_initial_pos = False
+                break
+
     # calculate the effective theta heading of the car to the goal
-    effective_theta = math.atan2(40.0 - y[i], 6.0 - x[i])
-    print(effective_theta)
+    effective_theta = math.atan2(40.0 - y, 6.0 - x)
     # sampling theta in the range [-pi/4 + effective_theta, pi/4 + effective theta]
     theta = np.random.uniform(-np.pi/4.0, np.pi/4.0) + effective_theta
-    init_state_flag = " --init_states {} {} {} 0.0 {}".format(x[i], y[i], theta, v[i])
+
+    init_state_flag = " --init_states {} {} {} 0.0 {}".format(x, y, theta, v[i])
     time_horizon_flag = " --t_horizon {}".format(time_horizon[i])
     max_runtime_flag = " --max_steps {}".format(max_runtime)
 
