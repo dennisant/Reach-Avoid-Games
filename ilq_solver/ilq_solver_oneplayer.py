@@ -246,7 +246,7 @@ class ILQSolver(object):
             
             if self.linesearch:
                 if self.linesearch_type == "trust_region":
-                    self._alpha_scaling = self._linesearch_trustregion(iteration = iteration, visualize_hallucination=True)
+                    self._alpha_scaling = self._linesearch_trustregion(iteration = iteration, visualize_hallucination=False)
                 elif self.linesearch_type == "ahmijo":
                     self._alpha_scaling = self._linesearch_ahmijo(iteration = iteration)
                 else:

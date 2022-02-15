@@ -55,6 +55,7 @@ base_flag = "   python3 run.py                      \
                 --batch_run                         \
                 --plot                              \
                 --log                               \
+                --time_consistency                  \
             "
 
 obstacle_flag = " --obstacles             \
