@@ -61,8 +61,9 @@ def one_player_time_inconsistent(args):
     HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 
     EXP_NAME = args.exp_name
-    LOG_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
-
+    RESULT_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
+    LOG_DIRECTORY = RESULT_DIRECTORY + "logs/"
+    FIGURE_DIRECTORY = RESULT_DIRECTORY + "figures/"
     car = Car5D(2.413)
 
     dynamics = ProductMultiPlayerDynamicalSystem(
@@ -105,7 +106,9 @@ def one_player_time_inconsistent(args):
         "l_params": l_params,
         "experiment": {
             "name": EXP_NAME,
-            "log_dir": LOG_DIRECTORY
+            "result_dir": RESULT_DIRECTORY,
+            "log_dir": LOG_DIRECTORY,
+            "figure_dir": FIGURE_DIRECTORY
         },
         "args": args
     }
@@ -141,8 +144,12 @@ def one_player_time_inconsistent(args):
 
     # Logger.
     if args.log or args.plot:
-        if not os.path.exists(LOG_DIRECTORY):
+        if not os.path.exists(RESULT_DIRECTORY):
+            os.makedirs(RESULT_DIRECTORY)
+        if args.log and not os.path.exists(LOG_DIRECTORY):
             os.makedirs(LOG_DIRECTORY)
+        if args.plot and not os.path.exists(FIGURE_DIRECTORY):
+            os.makedirs(FIGURE_DIRECTORY)
 
     if args.log:
         logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))

@@ -104,6 +104,7 @@ class ILQSolver(object):
         self.g_params = config["g_params"]
         self.l_params = config["l_params"]
         self.time_consistency = config["args"].time_consistency
+        self.max_steps = config["args"].max_steps
 
         self.plot = config["args"].plot
         self.log = config["args"].log
@@ -145,7 +146,7 @@ class ILQSolver(object):
         iteration_store = []
         store_freq = 10
         
-        while not self._is_converged():
+        while not self._is_converged() and (self.max_steps is not None and iteration < self.max_steps):
             # # (1) Compute current operating point and update last one.
             xs, us = self._compute_operating_point()
             self._last_operating_point = self._current_operating_point
@@ -154,7 +155,8 @@ class ILQSolver(object):
             if iteration%store_freq == 0:
                 xs_store = [xs_i.flatten() for xs_i in xs]
                 if self.log:
-                    np.savetxt(self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')      
+                    np.savetxt(
+                        self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')      
 
             # (2) Linearize about this operating point. Make sure to
             # stack appropriately since we will concatenate state vectors
@@ -330,9 +332,7 @@ class ILQSolver(object):
                     
             plt.pause(0.001)
             if self.plot:
-                if not os.path.exists(self.exp_info["log_dir"] + "/figures"):
-                    os.makedirs(self.exp_info["log_dir"] + "/figures")
-                plt.savefig(self.exp_info["log_dir"] +'/figures/plot-{}.jpg'.format(iteration)) # Trying to save these plots
+                plt.savefig(self.exp_info["figure_dir"] +'plot-{}.jpg'.format(iteration)) # Trying to save these plots
             plt.clf()
         
         if self.vel_plot:
