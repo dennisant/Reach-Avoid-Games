@@ -52,7 +52,7 @@ from utils.logger import Logger
 import math
 
 import time
-timestr = time.strftime("%Y-%m-%d-%H_%M")
+timestr = time.strftime("%Y-%m-%d-%H_%M_%S")
 datestr = time.strftime("%Y-%m-%d")
 
 def one_player_time_inconsistent(args):

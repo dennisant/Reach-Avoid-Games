@@ -134,10 +134,13 @@ class ILQSolver(object):
         self.linesearch_type = config["args"].linesearch_type
 
         # Log some of the paramters.
-        if self._logger is not None:
-            self._logger.log("alpha_scaling", self._alpha_scaling)
+        if self._logger is not None and self.log:
             self._logger.log("horizon", self._horizon)
             self._logger.log("x0", self._x0)
+            self._logger.log("config", self.config)
+            self._logger.log("g_params", self.g_params)
+            self._logger.log("l_params", self.l_params)
+            self._logger.log("exp_info", self.exp_info)
 
     def run(self):
         """ Run the algorithm for the specified parameters. """
@@ -145,7 +148,7 @@ class ILQSolver(object):
         # Trying to store stuff in order to plot cost
         store_total_cost = []
         iteration_store = []
-        store_freq = 10
+        # store_freq = 10
         
         while not self._is_converged() and (self.max_steps is not None and iteration < self.max_steps):
             # # (1) Compute current operating point and update last one.
@@ -153,11 +156,12 @@ class ILQSolver(object):
             self._last_operating_point = self._current_operating_point
             self._current_operating_point = (xs, us)
             
-            if iteration%store_freq == 0:
-                xs_store = [xs_i.flatten() for xs_i in xs]
-                if self.log:
-                    np.savetxt(
-                        self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')      
+            # Not using this anymore, use .pkl instead
+            # if iteration%store_freq == 0:
+            #     xs_store = [xs_i.flatten() for xs_i in xs]
+            #     if self.log:
+            #         np.savetxt(
+            #             self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')      
 
             # (2) Linearize about this operating point. Make sure to
             # stack appropriately since we will concatenate state vectors
@@ -235,13 +239,6 @@ class ILQSolver(object):
             store_total_cost.append(total_costs[0])
             iteration_store.append(iteration)
 
-            # Log everything.
-            if self._logger is not None:
-                self._logger.log("xs", xs)
-                self._logger.log("us", us)
-                self._logger.log("total_costs", total_costs)
-                self._logger.dump()
-
             # Update the member variables.
             self._Ps = Ps
             self._alphas = alphas
@@ -260,6 +257,19 @@ class ILQSolver(object):
                     self._alpha_scaling = .2
             iteration += 1
 
+            # Log everything.
+            if self._logger is not None and self.log:
+                self._logger.log("xs", xs)
+                self._logger.log("us", us)
+                self._logger.log("total_costs", total_costs)
+                self._logger.log("alpha_scaling", self._alpha_scaling)
+                self._logger.log("calc_deriv_cost", calc_deriv_cost)
+                self._logger.log("value_func_plus", value_func_plus)
+                self._logger.log("func_array", func_array)
+                self._logger.log("func_return_array", func_return_array)
+                self._logger.log("first_t_star", first_t_stars)
+                self._logger.dump()
+
         if self._is_converged():
             print("\nExperiment converged")
             plt.figure()
@@ -271,7 +281,7 @@ class ILQSolver(object):
                 plt.savefig(self.exp_info["figure_dir"] +'total_cost_after_{}_steps.jpg'.format(iteration)) # Trying to save these plots
             if not self.is_batch_run:
                 plt.show()
-
+        
     def visualize(self, xs, us, iteration, func_array, func_return_array, value_func_plus, calc_deriv_cost, **kwargs):
         # TODO: flag these values
         plot_critical_points = True

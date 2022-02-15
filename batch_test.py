@@ -1,6 +1,6 @@
 """
 x: [-20, 30]
-y: [0, 60]
+y: [-2, 60]
 theta: [0, 2*pi]
 v: [3, 10]
 Time horizon: {3.0, 4.0, 5.0, ..., 10.0}
@@ -8,10 +8,10 @@ Constant Goal:      (x, y, radius)
                 6.0, 40.0, 2.0
 Constant Obstacles: (x, y, radius)
                 9.0, 25.0, 4.5
-	            20.0, 35.0, 3.0
+                20.0, 35.0, 3.0
 	            6.5, 50.0, 3.0
-                1.0, 38.0, 3.0
-	           -1.0, 42.0, 2.0
+	            -4.0, 33.0, 2.0
+	            -5.0, 44.0, 2.0
                 2.5, 50.0, 2.0
 Max runtime before termination: 150
 """
@@ -19,10 +19,11 @@ import numpy as np
 import os
 import logging
 import time
+import math
 datestr = time.strftime("%Y-%m-%d")
 
 if os.path.exists("result/batch-{}/".format(datestr)):
-    raise ValueError("You are running a new batch onto an existing one")
+    raise ValueError("You are running a new batch onto an existing one, please append name or delete old run before running")
 else:
     os.makedirs("result/batch-{}/".format(datestr))
 
@@ -48,13 +49,13 @@ base_flag = "   python3 run.py                      \
                 --log                               \
             "
 
-obstacle_flag = " --obstacles         \
-                    9.0 25.0 4.5      \
-                    20.0 35.0 3.0     \
-	                6.5 50.0 3.0      \
-                    1.0 38.0 3.0      \
-	                -1.0 42.0 2.0     \
-                    2.5 50.0 2.0      \
+obstacle_flag = " --obstacles             \
+                    9.0 25.0 4.5          \
+                    20.0 35.0 3.0         \
+                    6.5 50.0 3.0          \
+                    -4.0 33.0 2.0         \
+                    -5.0 44.0 2.0         \
+                    2.5 50.0 2.0          \
                 "
 
 goal_flag = " --goal 6.0 40.0 2.0"
@@ -62,15 +63,20 @@ goal_flag = " --goal 6.0 40.0 2.0"
 # Dynamic params
 no_of_runs = 5
 x = np.random.uniform(-20, 30, no_of_runs)
-y = np.random.uniform(0, 60, no_of_runs)
-theta = np.random.uniform(0, 2*np.pi, no_of_runs)
+y = np.random.uniform(-2, 60, no_of_runs)
+# theta = np.random.uniform(0, 2*np.pi, no_of_runs)
 v = np.random.uniform(3, 10, no_of_runs)
 time_horizon = np.random.randint(3, 11, no_of_runs)
 max_runtime = 150
 time_consistency = False
 
 for i in range(no_of_runs):
-    init_state_flag = " --init_states {} {} {} 0.0 {}".format(x[i], y[i], theta[i], v[i])
+    # calculate the effective theta heading of the car to the goal
+    effective_theta = math.atan2(40.0 - y[i], 6.0 - x[i])
+    print(effective_theta)
+    # sampling theta in the range [-pi/4 + effective_theta, pi/4 + effective theta]
+    theta = np.random.uniform(-np.pi/4.0, np.pi/4.0) + effective_theta
+    init_state_flag = " --init_states {} {} {} 0.0 {}".format(x[i], y[i], theta, v[i])
     time_horizon_flag = " --t_horizon {}".format(time_horizon[i])
     max_runtime_flag = " --max_steps {}".format(max_runtime)
 
