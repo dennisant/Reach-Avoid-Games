@@ -148,7 +148,7 @@ class ILQSolver(object):
         # Trying to store stuff in order to plot cost
         store_total_cost = []
         iteration_store = []
-        # store_freq = 10
+        store_freq = 10
         
         while not self._is_converged() and (self.max_steps is not None and iteration < self.max_steps):
             # # (1) Compute current operating point and update last one.
@@ -258,7 +258,7 @@ class ILQSolver(object):
             iteration += 1
 
             # Log everything.
-            if self._logger is not None and self.log:
+            if self._logger is not None and self.log and iteration%store_freq == 0:
                 self._logger.log("xs", xs)
                 self._logger.log("us", us)
                 self._logger.log("total_costs", total_costs)
@@ -268,6 +268,7 @@ class ILQSolver(object):
                 self._logger.log("func_array", func_array)
                 self._logger.log("func_return_array", func_return_array)
                 self._logger.log("first_t_star", first_t_stars)
+                self._logger.log("iteration", iteration)
                 self._logger.dump()
 
         if self._is_converged():
@@ -281,6 +282,23 @@ class ILQSolver(object):
                 plt.savefig(self.exp_info["figure_dir"] +'total_cost_after_{}_steps.jpg'.format(iteration)) # Trying to save these plots
             if not self.is_batch_run:
                 plt.show()
+            
+            if self._logger is not None and self.log:
+                self._logger.log("xs", xs)
+                self._logger.log("us", us)
+                self._logger.log("total_costs", total_costs)
+                self._logger.log("alpha_scaling", self._alpha_scaling)
+                self._logger.log("calc_deriv_cost", calc_deriv_cost)
+                self._logger.log("value_func_plus", value_func_plus)
+                self._logger.log("func_array", func_array)
+                self._logger.log("func_return_array", func_return_array)
+                self._logger.log("first_t_star", first_t_stars)
+                self._logger.log("iteration", iteration)
+                self._logger.log("is_converged", True)
+                self._logger.dump()
+        else:
+            self._logger.log("is_converged", False)
+            self._logger.dump()
         
     def visualize(self, xs, us, iteration, func_array, func_return_array, value_func_plus, calc_deriv_cost, **kwargs):
         # TODO: flag these values
