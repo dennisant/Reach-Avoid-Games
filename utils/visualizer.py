@@ -272,9 +272,12 @@ class Visualizer(object):
         ax.plot([x_center, x_center], [0, y_max], "--", c = 'white', linewidth = 5, dashes=(5, 5), zorder = -1)
         ax.plot([road_rules["x_max"], x_max], [y_center, y_center], "--", c = 'white', linewidth = 5, dashes=(5, 5), zorder = -1)
 
-    def plot(self):
+    def plot(self, **kwargs):
         """ Plot everything. """
-        
+        if "alpha" in kwargs.keys():
+            alpha = kwargs["alpha"]
+        else:
+            alpha = 1.0
         # script_dir = os.path.dirname(__file__)
         # results_dir = os.path.join(script_dir, 'results/')
         # sample_file_name = "sample"
@@ -330,7 +333,7 @@ class Visualizer(object):
                         plt.plot(xs, ys,
                             self._player_linestyles[ii],
                             label = "Player {}, iteration {}".format(ii, iteration),
-                            # alpha = 0.4,
+                            alpha = alpha,
                             linewidth = 2
                             #  linewidth = self.linewidth_from_data_units(1.988, ax)
                         )
