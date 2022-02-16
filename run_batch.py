@@ -71,7 +71,7 @@ obstacle_flag = " --obstacles             \
 goal_flag = " --goal 6.0 40.0 2.0"
 
 # Dynamic params
-no_of_runs = 200
+no_of_runs = 10
 v = np.random.uniform(3, 10, no_of_runs)
 time_horizon = np.random.randint(3, 11, no_of_runs)
 max_runtime = 150

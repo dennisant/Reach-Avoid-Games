@@ -68,6 +68,9 @@ class BaseSolver(ABC):
             self._logger.log("l_params", self.l_params)
             self._logger.log("exp_info", self.exp_info)
 
+        if self.linesearch and self.linesearch_type == "trust_region":
+            self.margin = 5.0
+
     @abstractmethod
     def _TimeStar(self, xs, us, player_index, **kwargs):
         raise NotImplementedError
