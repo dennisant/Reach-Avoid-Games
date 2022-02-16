@@ -139,6 +139,7 @@ def three_player(args):
     config = {
         "args": args,
         "g_params": g_params,
+        "l_params": None,
         "experiment": {
             "name": EXP_NAME,
             "log_dir": LOG_DIRECTORY
