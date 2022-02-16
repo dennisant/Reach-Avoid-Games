@@ -16,5 +16,6 @@ cmd = "python3 run.py                                       \
         --t_horizon 12.0                                    \
         --eps_control 0.1 --eps_state 0.1                   \
         --plot                                              \
+        --hallucinated                                      \
         ".format(np.pi/4.0)
 os.system(cmd)

@@ -10,6 +10,7 @@ cmd = "python3 run.py                                       \
         --linesearch --linesearch_type trust_region         \
         --t_horizon 12.0                                    \
         --eps_control 0.1 --eps_state 0.1                   \
+        --hallucinated                                      \
         ".format(np.pi/2.5)
         
 os.system(cmd)

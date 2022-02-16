@@ -7,7 +7,7 @@ from cost.proximity_cost import ProximityCost
 import matplotlib.pyplot as plt
 from utils.visualizer import Visualizer
 
-batch_name = "batch-2022-02-15"
+batch_name = "batch-2022-02-15-time-inconsistent-1"
 is_converged = []
 xs = []
 
