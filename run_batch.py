@@ -56,7 +56,7 @@ base_flag = "   python3 run.py                      \
                 --batch_run                         \
                 --plot                              \
                 --log                               \
-                --time_consistency                  \
+                --hallucinated                      \
             "
 
 obstacle_flag = " --obstacles             \
@@ -71,14 +71,12 @@ obstacle_flag = " --obstacles             \
 goal_flag = " --goal 6.0 40.0 2.0"
 
 # Dynamic params
-no_of_runs = 10
-# x = np.random.uniform(-20, 30, no_of_runs)
-# y = np.random.uniform(-2, 60, no_of_runs)
-# theta = np.random.uniform(0, 2*np.pi, no_of_runs)
+no_of_runs = 200
 v = np.random.uniform(3, 10, no_of_runs)
 time_horizon = np.random.randint(3, 11, no_of_runs)
 max_runtime = 150
-time_consistency = False
+# time_consistent, time_inconsistent, both
+run_type = "both"
 
 obstacles = [float(i) for i in obstacle_flag.replace("--obstacles", "").split()]
 goal = [float(i) for i in goal_flag.replace("--goal", "").split()]
@@ -99,6 +97,18 @@ def format_angle(angle):
         elif angle < -np.pi:
             angle = angle + 2*np.pi
     return angle
+
+def run_time_consistent(cmd):
+    cmd = cmd + " --time_consistency --exp_name exp_time_consistent"
+    cmd = " ".join(cmd.split())
+    logging.info("Running test#{} with data: \n\r\t\n".format(i) + cmd.strip("\t"))
+    os.system(cmd)
+
+def run_time_inconsistent(cmd):
+    cmd = cmd + " --exp_name exp_time_inconsistent"
+    cmd = " ".join(cmd.split())
+    logging.info("Running test#{} with data: \n\r\t\n".format(i) + cmd.strip("\t"))
+    os.system(cmd)
 
 for i in range(no_of_runs):
     found_good_initial_pos = False
@@ -130,9 +140,13 @@ for i in range(no_of_runs):
     max_runtime_flag = " --max_steps {}".format(max_runtime)
 
     cmd = base_flag + obstacle_flag + goal_flag + init_state_flag + time_horizon_flag + max_runtime_flag
-    if time_consistency:
-        cmd = cmd + " --time_consistency"
-    cmd = " ".join(cmd.split())
-    logging.info("Running test#{} with data: \n\r\t\n".format(i) + cmd.strip("\t"))
-    os.system(cmd)
+    if run_type == "time_consistent":
+        run_time_consistent(cmd)
+    elif run_type == "time_inconsistent":
+        run_time_inconsistent(cmd)
+    elif run_type == "both":
+        run_time_consistent(cmd)
+        run_time_inconsistent(cmd)
+    else:
+        raise NotImplementedError
 
