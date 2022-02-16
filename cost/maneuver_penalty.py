@@ -13,7 +13,7 @@ class ManeuverPenalty(Cost):
       self._phi_index = g_params["phi_index"]
       self._vel_index = g_params["vel_index"]
       self._max_vel = 25.0
-      self._max_phi = np.pi / 6.0
+      self._max_phi = np.pi / 4.0
 
       super(ManeuverPenalty, self).__init__("car{}_".format(g_params["player_id"]+1)+name)
     

@@ -299,7 +299,18 @@ class ILQSolver(object):
             self._alphas = alphas
             self._ns = ns
 
-            self._alpha_scaling = self._linesearch_backtracking(iteration = iteration)
+            if self.linesearch:
+                if self.linesearch_type == "trust_region":
+                    self._alpha_scaling = self._linesearch_trustregion(iteration = iteration, visualize_hallucination=True)
+                elif self.linesearch_type == "armijo":
+                    self._alpha_scaling = self._linesearch_armijo(iteration = iteration)
+                else:
+                    self._alpha_scaling = 0.05
+            else:
+                self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.3
+                if self._alpha_scaling < .2:
+                    self._alpha_scaling = .2
+            iteration += 1
             
             iteration += 1
 
@@ -1419,8 +1430,8 @@ class ILQSolver(object):
         # overwrite total_costs to be the cost of the first t_star
         total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
         return first_t_star, total_costs
-
-    def _linesearch(self, beta = 0.9, iteration = None):
+    
+    def _linesearch_residual(self, beta = 0.9, iteration = None):
         """ Linesearch for both players separately. """
         """
         x -> us
@@ -1466,7 +1477,124 @@ class ILQSolver(object):
         self._alpha_scaling = alpha
         return alpha
 
-    def _linesearch_backtracking(self, beta=0.9, iteration = None):
+    def _linesearch_trustregion(self, beta = 0.9, iteration = None, margin=5.0, visualize_hallucination = False):
+        """ Linesearch using trust region. """
+        """
+        beta (float) -> discounted term
+        iteration (int) -> current iteration
+        """        
+        
+        alpha_converged = False
+        alpha = 1.0
+        error = old_error = 0
+        
+        while not alpha_converged:
+            # Use this alpha in compute_operating_point
+            self._alpha_scaling = alpha
+            
+            # With this alpha, compute trajectory and controls from self._compute_operating_point
+            # For this trajectory, calculate t* and if L or g comes out of min-max
+            xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
+            
+            # Visualize hallucinated traj
+            if visualize_hallucination:
+                plt.figure(1)
+                self._visualizer.plot()
+                plt.plot([x[0, 0] for x in xs], [x[1, 0] for x in xs],
+                    "-r",
+                    alpha = 0.4,
+                    linewidth = 2,
+                    zorder=10
+                )
+                plt.pause(0.001)
+                plt.clf()
+
+            new_t_star, total_costs_new = self._rollout(xs, us, 0, first_t_star=True)
+
+            traj_diff = max([np.linalg.norm(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[:,:2,:], np.array(self._current_operating_point[0])[:,:2,:])])
+
+            for i in range(self._num_players):
+                old_t_star = self._first_t_stars[i]
+                Q = self._Qs[i][old_t_star]
+                q = self._ls[i][old_t_star]
+                x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[old_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
+                delta_cost_quadratic_approx = 0.5 * (np.transpose(x_diff) @ Q + 2 * np.transpose(q)) @ x_diff
+            
+            delta_cost_quadratic_actual = total_costs_new - self._total_costs[0]
+            error = delta_cost_quadratic_approx - delta_cost_quadratic_actual
+
+            if traj_diff < margin:
+                if old_error == error:
+                    alpha_converged = True
+                else:
+                    old_error= error
+                    if abs(error) < 1.2 and abs(error) > 0.8:
+                        margin = margin * 1.5
+                        alpha = 1.0
+                        alpha_converged = False
+                    elif abs(error) >= 1.2:
+                        margin = margin * 0.5
+                        alpha = 1.0
+                        alpha_converged = False
+                    else:
+                        alpha_converged = True
+            else:
+                alpha = beta * alpha
+                if alpha < 1e-10:
+                    raise ValueError("alpha too small")
+
+            # print("Est cost: {:.5f}\tNew cost: {:.5f}\tAlpha: {:.5f}\tMargin: {:.5f}\tdelta cost: {:.5f}\tTraj diff: {:.5f}".format((delta_cost_quadratic_approx + self._total_costs[0]).flatten()[0], total_costs_new, alpha, margin, delta_cost_quadratic_approx.flatten()[0], traj_diff))
+        
+        self._alpha_scaling = alpha
+        return alpha
+
+    def _linesearch_residual(self, beta = 0.9, iteration = None):
+        """ Linesearch for both players separately. """
+        """
+        x -> us
+        p -> rs
+        may need xs to compute trajectory
+        Line search needs c and tau (c = tau = 0.5 default)
+        m -> local slope (calculate in function)
+        need compute_operating_point routine
+        """        
+        
+        alpha_converged = False
+        alpha = 1.0
+        expected_improvement = np.zeros(self._num_players)
+        total_costs_new = np.zeros(self._num_players)
+        
+        while not alpha_converged:
+            # Use this alpha in compute_operating_point
+            self._alpha_scaling = alpha
+            
+            # With this alpha, compute trajectory and controls from self._compute_operating_point
+            # For this trajectory, calculate t* and if L or g comes out of min-max
+            xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
+            for ii in range(self._num_players):
+                t_star, total_cost_new = self._TimeStarRollout(xs, us, ii)
+
+                expected_rate = self._ns[ii][0]
+                expected_improvement[ii] = expected_rate * alpha
+
+                total_costs_new[ii] = total_cost_new
+            
+            expected_improvement = np.zeros(self._num_players)
+            if max(total_costs_new - self._total_costs - expected_improvement) < 0:
+                alpha_converged = True
+                return alpha
+            else:
+                alpha = beta * alpha
+                if iteration is not None:
+                    if alpha < 1.0/(iteration+1) ** 0.5:
+                        return alpha
+                if alpha < 1e-10:
+                    raise ValueError("alpha too small") 
+            
+        self._alpha_scaling = alpha
+        return alpha
+
+    def _linesearch_armijo(self, beta=0.9, iteration = None):
         """ Linesearch for both players separately. """
         """
         x -> us

@@ -246,9 +246,9 @@ class ILQSolver(object):
             
             if self.linesearch:
                 if self.linesearch_type == "trust_region":
-                    self._alpha_scaling = self._linesearch_trustregion(iteration = iteration, visualize_hallucination=False)
-                elif self.linesearch_type == "ahmijo":
-                    self._alpha_scaling = self._linesearch_ahmijo(iteration = iteration)
+                    self._alpha_scaling = self._linesearch_trustregion(iteration = iteration, visualize_hallucination=True)
+                elif self.linesearch_type == "armijo":
+                    self._alpha_scaling = self._linesearch_armijo(iteration = iteration)
                 else:
                     self._alpha_scaling = 0.05
             else:
@@ -445,9 +445,12 @@ class ILQSolver(object):
         if self._last_operating_point is None:
             return False
         
-        if self._total_costs[0] > 0.0:
-        # if max(self._costs).detach().numpy().flatten()[0] > 0.0:
-           return False
+        if not self.time_consistency:
+            if self._total_costs[0] > 0.0:
+                return False
+        else:
+            if max(self._costs).detach().numpy().flatten()[0] > 0.0:
+                return False
 
         return True
     
@@ -842,8 +845,8 @@ class ILQSolver(object):
         self._alpha_scaling = alpha
         return alpha
 
-    def _linesearch_ahmijo(self, beta=0.9, iteration = None):
-        """ Linesearch using ahmijo condition. """
+    def _linesearch_armijo(self, beta=0.9, iteration = None):
+        """ Linesearch using armijo condition. """
         """
         beta (float) -> discounted term
         iteration (int) -> current iteration

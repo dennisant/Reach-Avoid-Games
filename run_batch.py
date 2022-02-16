@@ -15,6 +15,7 @@ Constant Obstacles: (x, y, radius)
                 2.5, 50.0, 2.0
 Max runtime before termination: 150
 """
+from bdb import effective
 import numpy as np
 import os
 import logging
@@ -70,7 +71,7 @@ obstacle_flag = " --obstacles             \
 goal_flag = " --goal 6.0 40.0 2.0"
 
 # Dynamic params
-no_of_runs = 100
+no_of_runs = 10
 # x = np.random.uniform(-20, 30, no_of_runs)
 # y = np.random.uniform(-2, 60, no_of_runs)
 # theta = np.random.uniform(0, 2*np.pi, no_of_runs)
@@ -80,23 +81,36 @@ max_runtime = 150
 time_consistency = False
 
 obstacles = [float(i) for i in obstacle_flag.replace("--obstacles", "").split()]
+goal = [float(i) for i in goal_flag.replace("--goal", "").split()]
+goal_and_obs = obstacles + goal
 
 def get_random_initial_pos():
     x = np.random.uniform(-20, 30)
     y = np.random.uniform(-2, 60)
     return x, y
 
+def format_angle(angle):
+    """
+    Format angle to be within the range of [-pi,pi]
+    """
+    while angle > np.pi or angle < -np.pi:
+        if angle > np.pi:
+            angle = angle - 2*np.pi
+        elif angle < -np.pi:
+            angle = angle + 2*np.pi
+    return angle
+
 for i in range(no_of_runs):
     found_good_initial_pos = False
 
-    # check if the sampled x, y are too close to obstacle (using ObstacleDistCost)
+    # check if the sampled x, y are too close to obstacle or the goal
     while not found_good_initial_pos:
         x, y = get_random_initial_pos()
         found_good_initial_pos = True
-        for j in range(int(len(obstacles)/3.0)):
-            dx = x - obstacles[j*3]
-            dy = y - obstacles[j*3 + 1]
-            r = obstacles[j*3 + 2]
+        for j in range(int(len(goal_and_obs)/3.0)):
+            dx = x - goal_and_obs[j*3]
+            dy = y - goal_and_obs[j*3 + 1]
+            r = goal_and_obs[j*3 + 2]
             relative_distance = math.sqrt(dx*dx + dy*dy)
             if r - relative_distance + 3.0 * collision_r > 0:
                 # the initial position collides with an obstacle
@@ -105,8 +119,11 @@ for i in range(no_of_runs):
 
     # calculate the effective theta heading of the car to the goal
     effective_theta = math.atan2(40.0 - y, 6.0 - x)
+    
     # sampling theta in the range [-pi/4 + effective_theta, pi/4 + effective theta]
-    theta = np.random.uniform(-np.pi/4.0, np.pi/4.0) + effective_theta
+    theta = format_angle(np.random.uniform(-np.pi/4.0, np.pi/4.0) + effective_theta)
+    while abs(theta - format_angle(effective_theta)) < np.pi/60.0:
+        theta = format_angle(np.random.uniform(-np.pi/4.0, np.pi/4.0) + effective_theta)
 
     init_state_flag = " --init_states {} {} {} 0.0 {}".format(x, y, theta, v[i])
     time_horizon_flag = " --t_horizon {}".format(time_horizon[i])

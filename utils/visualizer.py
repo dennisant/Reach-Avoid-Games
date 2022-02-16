@@ -278,6 +278,9 @@ class Visualizer(object):
             alpha = kwargs["alpha"]
         else:
             alpha = 1.0
+        if "color" in kwargs.keys():
+            for i in range(self._num_players):
+                self._player_linestyles[i] = kwargs["color"]
         # script_dir = os.path.dirname(__file__)
         # results_dir = os.path.join(script_dir, 'results/')
         # sample_file_name = "sample"

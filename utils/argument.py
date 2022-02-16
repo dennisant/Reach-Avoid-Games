@@ -21,7 +21,7 @@ def get_argument():
     parser.add_argument("--init_states",        help="Init states for all players",     default=[0.0, 0.0, 0.0, 0.0, 0.0], type=float, nargs="*")
 
     parser.add_argument("--env_type",           help="Type of environment",             default=None,       choices=["goal_with_obs", "t_intersection"])
-    parser.add_argument("--linesearch_type",    help="Type of linesearch",              default=None,       choices=["ahmijo", "trust_region"])
+    parser.add_argument("--linesearch_type",    help="Type of linesearch",              default=None,       choices=["armijo", "trust_region"])
 
     parser.add_argument("--eps_state",          help="Epsilon state for Player Cost",           type=float,     default=0.1)    
     parser.add_argument("--eps_control",        help="Epsilon control for Player Cost",         type=float,     default=0.1)    
