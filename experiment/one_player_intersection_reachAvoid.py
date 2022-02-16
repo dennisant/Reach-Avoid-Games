@@ -39,10 +39,12 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
 from resource.car_5d import Car5D
 from cost.obstacle_penalty import ObstacleDistCost
-from resource.product_multiplayer_dynamical_system import ProductMultiPlayerDynamicalSystem
+from resource.product_multiplayer_dynamical_system import \
+    ProductMultiPlayerDynamicalSystem
 from ilq_solver.ilq_solver_oneplayer import ILQSolver
 from cost.proximity_cost import ProximityCost
 from player_cost.player_cost import PlayerCost
@@ -50,12 +52,13 @@ from player_cost.player_cost import PlayerCost
 from utils.visualizer import Visualizer
 from utils.logger import Logger
 import math
-
+from resource.point import Point
+from utils.argument import get_argument
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M_%S")
 datestr = time.strftime("%Y-%m-%d")
 
-def one_player_time_inconsistent(args):
+def one_player(args):
     # General parameters.
     TIME_HORIZON = args.t_horizon
     TIME_RESOLUTION = args.t_resolution
@@ -68,6 +71,7 @@ def one_player_time_inconsistent(args):
         RESULT_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
     LOG_DIRECTORY = RESULT_DIRECTORY + "logs/"
     FIGURE_DIRECTORY = RESULT_DIRECTORY + "figures/"
+
     car = Car5D(2.413)
 
     dynamics = ProductMultiPlayerDynamicalSystem(
@@ -170,7 +174,7 @@ def one_player_time_inconsistent(args):
                     None,
                     logger,
                     visualizer,
-                    None,
+                    None, 
                     config)
 
     solver.run()

@@ -26,7 +26,7 @@ def get_argument():
     parser.add_argument("--eps_state",          help="Epsilon state for Player Cost",           type=float,     default=0.1)    
     parser.add_argument("--eps_control",        help="Epsilon control for Player Cost",         type=float,     default=0.1)    
 
-    parser.add_argument("--max_steps",          help="Max steps to run before termination regardless of convergence",   type=int,     default=None)
+    parser.add_argument("--max_steps",          help="Max steps to run before termination regardless of convergence",   type=int,     default=1000)
 
     # if goal_with_obs is chosen for env_type
     parser.add_argument("--obstacles",          help="List of obstacle in format [x, y, r]",    default=[6.0, 25.0, 4.0], type=float, nargs="*")

@@ -215,7 +215,7 @@ class ILQSolver(object):
             self._ls = ls
             self._rs = rs
             self._xs = xs
-            self._us= us
+            self._us = us
 
             # Visualization.
             self.visualize(xs, us, iteration, func_array, func_return_array, value_func_plus, calc_deriv_cost)
@@ -297,8 +297,9 @@ class ILQSolver(object):
                 self._logger.log("is_converged", True)
                 self._logger.dump()
         else:
-            self._logger.log("is_converged", False)
-            self._logger.dump()
+            if self._logger is not None:
+                self._logger.log("is_converged", False)
+                self._logger.dump()
         
     def visualize(self, xs, us, iteration, func_array, func_return_array, value_func_plus, calc_deriv_cost, **kwargs):
         # TODO: flag these values

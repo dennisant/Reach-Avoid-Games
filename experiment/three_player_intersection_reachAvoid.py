@@ -45,7 +45,7 @@ import matplotlib.pyplot as plt
 from resource.car_5d import Car5D
 from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
-from ilq_solver.ilq_solver_threeplayer_time_consistent import ILQSolver
+from ilq_solver.ilq_solver_threeplayer import ILQSolver
 from cost.proximity_cost import ProximityToBlockCost
 from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
 from player_cost.player_cost import PlayerCost
@@ -56,9 +56,10 @@ from utils.logger import Logger
 import math
 
 import time
-timestr = time.strftime("%Y-%m-%d-%H_%M")
+timestr = time.strftime("%Y-%m-%d-%H_%M_%S")
+datestr = time.strftime("%Y-%m-%d")
 
-def three_player_time_consistent(args):
+def three_player(args):
     # General parameters.
     TIME_HORIZON = args.t_horizon
     TIME_RESOLUTION = args.t_resolution
@@ -154,7 +155,6 @@ def three_player_time_consistent(args):
     car1_alphas = [np.zeros((car1._u_dim, 1))] * HORIZON_STEPS
     car2_alphas = [np.zeros((car2._u_dim, 1))] * HORIZON_STEPS
     ped_alphas = [np.zeros((ped._u_dim, 1))] * HORIZON_STEPS
-
 
     # Create environment:
     car1_position_indices_in_product_state = (0, 1)
