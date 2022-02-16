@@ -193,9 +193,7 @@ def three_player(args):
         1,
         False,
         plot_lims=[-5, 25, 0,  40],
-        draw_roads = args.draw_roads, 
-        draw_cars = args.draw_cars,
-        draw_human = args.draw_human
+        **vars(args)
     )
 
     # Logger.

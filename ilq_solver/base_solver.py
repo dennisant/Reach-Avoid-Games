@@ -36,6 +36,7 @@ class BaseSolver(ABC):
         self.log = config["args"].log
         self.vel_plot = config["args"].vel_plot
         self.ctl_plot = config["args"].ctl_plot
+        self.hallucinated = config["args"].hallucinated
     
         self.config = config["args"]
         self._player_costs = player_costs
@@ -90,13 +91,13 @@ class BaseSolver(ABC):
 
     def run(self):
         """ Run the algorithm for the specified parameters. """
-        iteration = 0
+        self.iteration = 0
         # Trying to store stuff in order to plot cost
         store_total_cost = []
         iteration_store = []
         store_freq = 10
         
-        while not self._is_converged() and (self.max_steps is not None and iteration < self.max_steps):
+        while not self._is_converged() and (self.max_steps is not None and self.iteration < self.max_steps):
             # # (1) Compute current operating point and update last one.
             xs, us = self._compute_operating_point()
             self._last_operating_point = self._current_operating_point
@@ -155,9 +156,13 @@ class BaseSolver(ABC):
             self._rs = rs
             self._xs = xs
             self._us = us
+            self._func_array = func_array
+            self._func_return_array = func_return_array
+            self._value_func_plus = value_func_plus
+            self._calc_deriv_cost = calc_deriv_cost
 
             # Visualization.
-            self.visualize(xs, us, iteration, func_array, func_return_array, value_func_plus, calc_deriv_cost)
+            self.visualize()
 
             # (6) Compute feedback Nash equilibrium of the resulting LQ game.
             # This is getting put into compute_operating_point to solver
@@ -180,7 +185,7 @@ class BaseSolver(ABC):
             
             #Store total cost at each iteration and the iterations
             store_total_cost.append(total_costs)
-            iteration_store.append(iteration)
+            iteration_store.append(self.iteration)
 
             # Update the member variables.
             self._Ps = Ps
@@ -189,19 +194,19 @@ class BaseSolver(ABC):
             
             if self.linesearch:
                 if self.linesearch_type == "trust_region":
-                    self._alpha_scaling = self._linesearch_trustregion(iteration = iteration, visualize_hallucination=True)
+                    self._alpha_scaling = self._linesearch_trustregion(iteration = self.iteration, visualize_hallucination=self.hallucinated)
                 elif self.linesearch_type == "armijo":
-                    self._alpha_scaling = self._linesearch_armijo(iteration = iteration)
+                    self._alpha_scaling = self._linesearch_armijo(iteration = self.iteration)
                 else:
                     self._alpha_scaling = 0.05
             else:
-                self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.3
+                self._alpha_scaling = 1.0 / ((self.iteration + 1) * 0.5) ** 0.3
                 if self._alpha_scaling < .2:
                     self._alpha_scaling = .2
-            iteration += 1
+            self.iteration += 1
 
             # Log everything.
-            if self._logger is not None and self.log and iteration%store_freq == 0:
+            if self._logger is not None and self.log and self.iteration%store_freq == 0:
                 self._logger.log("xs", xs)
                 self._logger.log("us", us)
                 self._logger.log("total_costs", total_costs)
@@ -211,7 +216,7 @@ class BaseSolver(ABC):
                 self._logger.log("func_array", func_array)
                 self._logger.log("func_return_array", func_return_array)
                 self._logger.log("first_t_star", first_t_stars)
-                self._logger.log("iteration", iteration)
+                self._logger.log("iteration", self.iteration)
                 self._logger.dump()
 
         if self._is_converged():
@@ -222,7 +227,7 @@ class BaseSolver(ABC):
             plt.ylabel('Total cost')
             plt.title('Total Cost of Trajectory at Each Iteration')
             if self.plot:
-                plt.savefig(self.exp_info["figure_dir"] +'total_cost_after_{}_steps.jpg'.format(iteration)) # Trying to save these plots
+                plt.savefig(self.exp_info["figure_dir"] +'total_cost_after_{}_steps.jpg'.format(self.iteration)) # Trying to save these plots
             if not self.is_batch_run:
                 plt.show()
             
@@ -236,7 +241,7 @@ class BaseSolver(ABC):
                 self._logger.log("func_array", func_array)
                 self._logger.log("func_return_array", func_return_array)
                 self._logger.log("first_t_star", first_t_stars)
-                self._logger.log("iteration", iteration)
+                self._logger.log("iteration", self.iteration)
                 self._logger.log("is_converged", True)
                 self._logger.dump()
         else:
@@ -287,6 +292,107 @@ class BaseSolver(ABC):
         #print("self._aplha_scaling in compute_operating_point is: ", self._alpha_scaling)
         return xs, us
 
-    @abstractmethod
-    def visualize(self, xs, us, iteration, func_array, func_return_array, value_func_plus, calc_deriv_cost):
-        raise NotImplementedError
+    def visualize(self, **kwargs):
+        xs = self._current_operating_point[0]
+        us = self._current_operating_point[0]
+        func_array = self._func_array
+        func_return_array = self._func_return_array
+        value_func_plus = self._value_func_plus
+        calc_deriv_cost = self._calc_deriv_cost
+
+        # TODO: flag these values
+        plot_critical_points = True
+        plot_car_for_critical_points = False
+
+        if self._visualizer is not None:
+            traj = {"xs" : xs}
+            for ii in range(self._num_players):
+                traj["u%ds" % (ii + 1)] = us[ii]
+
+            self._visualizer.add_trajectory(self.iteration, traj)
+            if self.ctl_plot:
+                self._visualizer.plot_controls(1)
+                plt.pause(0.001)
+                plt.clf()
+                self._visualizer.plot_controls(2)
+                plt.pause(0.001)
+                plt.clf()
+            self._visualizer.plot()
+
+            if plot_critical_points:
+                for i in range(self._num_players):
+                    if not self.time_consistency:
+                        pinch_point_index = calc_deriv_cost[i].index("True")
+                    g_critical_index = np.where(np.array(func_array[i]) == "g_x")[0]
+                    l_critical_index = np.where(np.array(func_array[i]) == "l_x")[0]
+
+                    g_critical_index_pos = []
+                    g_critical_index_neg = []
+                    for index in g_critical_index:
+                        if value_func_plus[i][index] >= 0:
+                            g_critical_index_pos.append(index)
+                        else:
+                            g_critical_index_neg.append(index)
+                    
+                    l_critical_index_pos = []
+                    l_critical_index_neg = []
+                    for index in l_critical_index:
+                        if value_func_plus[i][index] >= 0:
+                            l_critical_index_pos.append(index)
+                        else:
+                            l_critical_index_neg.append(index)
+
+                    self._visualizer.draw_real_car(i, np.array(xs)[[0]])
+                    if plot_car_for_critical_points:
+                        self._visualizer.draw_real_car(i, np.array(xs)[g_critical_index])
+                        self._visualizer.draw_real_car(i, np.array(xs)[l_critical_index])
+                    else:
+                        plt.figure(1)
+                        if not self.time_consistency:
+                            if func_array[i][pinch_point_index] == "g_x":
+                                plt.scatter(np.array(xs)[pinch_point_index, 5*i], np.array(xs)[pinch_point_index, 5*i + 1], color="r", s=40, marker="*", zorder=20)
+                            else:
+                                plt.scatter(np.array(xs)[pinch_point_index, 5*i], np.array(xs)[pinch_point_index, 5*i + 1], color="r", s=40, marker="o", zorder=20)
+                        else:
+                            plt.scatter(np.array(xs)[g_critical_index, 5*i], np.array(xs)[g_critical_index, 5*i + 1], color="k", s=40, marker="*", zorder=20)
+                            plt.scatter(np.array(xs)[l_critical_index, 5*i], np.array(xs)[l_critical_index, 5*i + 1], color="magenta", s=20, marker="o", zorder=20)
+                        
+                        plt.scatter(np.array(xs)[g_critical_index_pos, 5*i], np.array(xs)[g_critical_index_pos, 5*i + 1], color="k", s=40, marker="*", zorder=10)
+                        plt.scatter(np.array(xs)[l_critical_index_pos, 5*i], np.array(xs)[l_critical_index_pos, 5*i + 1], color="magenta", s=20, marker="o", zorder=10)
+                        plt.scatter(np.array(xs)[g_critical_index_neg, 5*i], np.array(xs)[g_critical_index_neg, 5*i + 1], color="y", s=40, marker="*", zorder=10)
+                        plt.scatter(np.array(xs)[l_critical_index_neg, 5*i], np.array(xs)[l_critical_index_neg, 5*i + 1], color="y", s=20, marker="o", zorder=10)
+            
+            plt.pause(0.001)
+            if self.plot:
+                plt.savefig(self.exp_info["figure_dir"] +'plot-{}.jpg'.format(self.iteration)) # Trying to save these plots
+            plt.clf()
+
+        # draw velocity and timestar overlay graph for 2 cars
+        if self.vel_plot:
+            for i in range(self._num_players):
+                g_critical_index = np.where(np.array(func_array[i]) == "g_x")[0]
+                l_critical_index = np.where(np.array(func_array[i]) == "l_x")[0]
+                value_critical_index = np.where(np.array(func_array[i]) == "value")[0]
+                gradient_critical_index = np.where(np.array(func_array[i]) != "value")[0]
+                plt.figure(4+i)
+                vel_array = np.array([x[5*i + 4] for x in xs]).flatten()
+                
+                plt.plot(vel_array)
+                plt.scatter(g_critical_index, vel_array[g_critical_index], color = "r")
+                plt.scatter(l_critical_index, vel_array[l_critical_index], color = "g")
+                plt.scatter(value_critical_index, vel_array[value_critical_index], color = "y")
+
+                name_list = []
+                try:
+                    for func in np.array(func_return_array[i])[gradient_critical_index]:
+                        try:
+                            name_list.append(func.__name__.replace("_",""))
+                        except:
+                            name_list.append(type(func).__name__.replace("_",""))
+                    for j in range(len(gradient_critical_index)):
+                        plt.text(gradient_critical_index[j], vel_array[gradient_critical_index][j], name_list[j])
+                except Exception as err:
+                    print(err)
+                    pass
+                plt.pause(0.01)
+                plt.clf()

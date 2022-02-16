@@ -147,7 +147,7 @@ def one_player(args):
         1,
         False,
         plot_lims=[-20, 75, -20,  100],
-        draw_cars = args.draw_cars
+        **vars(args)
     )
 
     # Logger.

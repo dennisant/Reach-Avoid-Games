@@ -39,12 +39,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from matplotlib import animation, markers
-import os
 from matplotlib.transforms import Affine2D
-
-from resource.car_5d import Car5Dv2
 
 class Visualizer(object):
     def __init__(self,
@@ -92,6 +87,7 @@ class Visualizer(object):
         self._draw_cars = False
         self._adversarial = False
         self._draw_human = False
+        self._boundary_only = False
 
         if "draw_roads" in kwargs.keys():
             self._draw_roads = kwargs["draw_roads"]
@@ -103,6 +99,11 @@ class Visualizer(object):
             self._t_react = kwargs["t_react"]
         if "draw_human" in kwargs.keys():
             self._draw_human = kwargs["draw_human"]
+        if "boundary_only" in kwargs.keys():
+            self._boundary_only = kwargs["boundary_only"]
+            self.border_color = "black"
+        else:
+            self.border_color = "white"
 
     def add_trajectory(self, iteration, traj):
         """
@@ -152,7 +153,7 @@ class Visualizer(object):
         per_length = length * 0.5 / number_of_dashes
         for i in range(number_of_dashes):
             crosswalk = plt.Rectangle(
-                [x + (2*i + 0.5)*per_length, y], width = per_length, height = width, color = "white", lw = 0, zorder = 0)
+                [x + (2*i + 0.5)*per_length, y], width = per_length, height = width, color = self.border_color, lw = 0, zorder = 0)
             plt.gca().add_patch(crosswalk)
 
     def draw_car(self, player_id, car_states):
@@ -244,31 +245,34 @@ class Visualizer(object):
         x_max = 25
         y_max = 40
 
-        grass = plt.Rectangle(
-        [-5, 0], width = 30, height = 40, color = "k", lw = 0, zorder = -2, alpha = 0.5)
-        plt.gca().add_patch(grass)  
+        if not self._boundary_only:
+            grass = plt.Rectangle(
+                [-5, 0], width = 30, height = 40, color = "k", lw = 0, zorder = -2, alpha = 0.5)
+            plt.gca().add_patch(grass)  
         
         # plot road rules
         x_center = road_rules["x_min"] + 0.5 * (road_rules["x_max"] - road_rules["x_min"])
         y_center = road_rules["y_min"] + 0.5 * (road_rules["y_max"] - road_rules["y_min"])
-        road = plt.Rectangle(
-        [road_rules["x_min"], 0], width = road_rules["x_max"] - road_rules["x_min"], height = y_max, color = "darkgray", lw = 0, zorder = -2)
-        plt.gca().add_patch(road)
-        road = plt.Rectangle(
-            [road_rules["x_max"], road_rules["y_min"]], width = x_max, height = road_rules["y_max"] - road_rules["y_min"], color = "darkgray", lw = 0, zorder = -2)
-        plt.gca().add_patch(road)
+        
+        if not self._boundary_only:
+            road = plt.Rectangle(
+            [road_rules["x_min"], 0], width = road_rules["x_max"] - road_rules["x_min"], height = y_max, color = "darkgray", lw = 0, zorder = -2)
+            plt.gca().add_patch(road)
+            road = plt.Rectangle(
+                [road_rules["x_max"], road_rules["y_min"]], width = x_max, height = road_rules["y_max"] - road_rules["y_min"], color = "darkgray", lw = 0, zorder = -2)
+            plt.gca().add_patch(road)
 
         crosswalk_width = 3
         crosswalk_length = road_rules["x_max"] - road_rules["x_min"]
         self.draw_crosswalk(road_rules["x_min"], 30 - crosswalk_width*0.5, crosswalk_width, crosswalk_length)
 
-        ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c="white", linewidth = 2, zorder = -1)
-        ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
-        ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c="white", linewidth = 2, zorder = -1)
-        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
-        ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
-        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c="white", linewidth = 2, zorder = -1)
-        ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c="white", linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c=self.border_color, linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c=self.border_color, linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c=self.border_color, linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c=self.border_color, linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c=self.border_color, linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c=self.border_color, linewidth = 2, zorder = -1)
+        ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c=self.border_color, linewidth = 2, zorder = -1)
         ax.plot([x_center, x_center], [0, y_max], "--", c = 'white', linewidth = 5, dashes=(5, 5), zorder = -1)
         ax.plot([road_rules["x_max"], x_max], [y_center, y_center], "--", c = 'white', linewidth = 5, dashes=(5, 5), zorder = -1)
 
@@ -281,21 +285,12 @@ class Visualizer(object):
         if "color" in kwargs.keys():
             for i in range(self._num_players):
                 self._player_linestyles[i] = kwargs["color"]
-        # script_dir = os.path.dirname(__file__)
-        # results_dir = os.path.join(script_dir, 'results/')
-        # sample_file_name = "sample"
-        
-        # if not os.path.isdir(results_dir):
-        #     os.makedirs(results_dir)
         
         ratio = (self._plot_lims[1] - self._plot_lims[0])/(self._plot_lims[3] - self._plot_lims[2])
         plt.figure(self._figure_number, figsize=(ratio*10, 10))
-        # plt.rc("text", usetex=True)
 
         ax = plt.gca()
         plt.axis("off")
-        # ax.set_xlabel("$x(t)$")
-        # ax.set_ylabel("$y(t)$")
 
         if self._plot_lims is not None:
             ax.set_xlim(self._plot_lims[0], self._plot_lims[1])
@@ -391,15 +386,7 @@ class Visualizer(object):
         # plt.savefig(results_dir + sample_file_name) # trying to save figure
 
     def plot_simplified(self):
-        """ Plot everything, simplified """
-        
-        # script_dir = os.path.dirname(__file__)
-        # results_dir = os.path.join(script_dir, 'results/')
-        # sample_file_name = "sample"
-        
-        # if not os.path.isdir(results_dir):
-        #     os.makedirs(results_dir)
-        
+        """ Plot everything, simplified """        
         plt.figure(self._figure_number, figsize=(8, 10))
         ax = plt.gca()
 
