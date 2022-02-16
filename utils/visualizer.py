@@ -286,9 +286,15 @@ class Visualizer(object):
             for i in range(self._num_players):
                 self._player_linestyles[i] = kwargs["color"]
         
+        if "base_size" in kwargs.keys():
+            base_size = kwargs["base_size"]
+        else:
+            base_size = 10.0
+        
         ratio = (self._plot_lims[1] - self._plot_lims[0])/(self._plot_lims[3] - self._plot_lims[2])
-        plt.figure(self._figure_number, figsize=(ratio*10, 10))
-
+        plt.figure(self._figure_number)
+        plt.gcf().set_size_inches(ratio*base_size, base_size)
+        
         ax = plt.gca()
         plt.axis("off")
 
