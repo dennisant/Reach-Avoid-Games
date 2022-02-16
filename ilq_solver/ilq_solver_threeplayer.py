@@ -561,307 +561,125 @@ class ILQSolver(object):
                 "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
             }
         }
+
+        l_functions = {
+            0: ProximityToBlockCost(g_params["car1"]),
+            1: ProximityToBlockCost(g_params["car2"]),
+            2: PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
+        }
+
+        g_functions = {
+            0: self._CheckMultipleGFunctions_P1,
+            1: self._CheckMultipleGFunctions_P2,
+            2: self._CheckMultipleGFunctions_P3,
+        }
         
-        if player_index == 0:
-            func_key_list = [""] * (self._horizon + 1)
+        func_key_list = [""] * (self._horizon + 1)
+        
+        for k in range(self._horizon, -1, -1): # T to 0                
+            l_func_list.appendleft(
+                l_functions[player_index]
+            )
+            l_value_list[k] = l_func_list[0](xs[k])
+
+            max_g_func = g_functions[player_index](g_params, xs, k)
+            g_func_list.appendleft(max_g_func)
+            g_value_list[k] = g_func_list[0](xs[k])
             
-            for k in range(self._horizon, -1, -1): # T to 0                
-                l_func_list.appendleft(
-                    ProximityToBlockCost(g_params["car1"])
-                )
-                l_value_list[k] = l_func_list[0](xs[k])
+            value_function_compare = dict()
 
-                max_g_func = self._CheckMultipleGFunctions_P1(g_params["car1"], xs, k)
-                g_func_list.appendleft(max_g_func)
-                g_value_list[k] = g_func_list[0](xs[k])
-                
-                value_function_compare = dict()
-
-                if k == self._horizon:
-                    # if at T, only get max(l_x, g_x)
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        "l_x": l_value_list[k]
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-                else:
-                    # else, max(g(k), min(l(k), value(k+1)))
-                    tmp = {
-                        "value": value_func_plus[k+1],
-                        "l_x": l_value_list[k],
-                    }
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        min(tmp, key=tmp.get): min(tmp.values())
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-
-            if "l_x" in func_key_list:
-                first_lx_index = func_key_list.index("l_x")
+            if k == self._horizon:
+                # if at T, only get max(l_x, g_x)
+                value_function_compare = {
+                    "g_x": g_value_list[k],
+                    "l_x": l_value_list[k]
+                }
+                value_func_plus[k] = max(value_function_compare.values())
+                func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
             else:
-                first_lx_index = np.inf
+                # else, max(g(k), min(l(k), value(k+1)))
+                tmp = {
+                    "value": value_func_plus[k+1],
+                    "l_x": l_value_list[k],
+                }
+                value_function_compare = {
+                    "g_x": g_value_list[k],
+                    min(tmp, key=tmp.get): min(tmp.values())
+                }
+                value_func_plus[k] = max(value_function_compare.values())
+                func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
 
-            if "g_x" in func_key_list:
-                first_gx_index = func_key_list.index("g_x")
-            else:
-                first_gx_index = np.inf
-            
-            first_t_star = min(first_lx_index, first_gx_index)
+        if "l_x" in func_key_list:
+            first_lx_index = func_key_list.index("l_x")
+        else:
+            first_lx_index = np.inf
 
-            for k in range(self._horizon, -1, -1): # T to 0
-                self._player_costs[player_index] = PlayerCost(**vars(self.config))
-                if not self.time_consistency:
-                    if k == first_t_star:
-                        calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=True)
-                    else:
-                        calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=False)
-                else:
+        if "g_x" in func_key_list:
+            first_gx_index = func_key_list.index("g_x")
+        else:
+            first_gx_index = np.inf
+        
+        first_t_star = min(first_lx_index, first_gx_index)
+
+        for k in range(self._horizon, -1, -1): # T to 0
+            self._player_costs[player_index] = PlayerCost(**vars(self.config))
+            if not self.time_consistency:
+                if k == first_t_star:
                     calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=True)
-                
-                func_return_array.appendleft(c1gc)
-
-                if k == self._horizon:
-                    _, r, l, Q, R = self._player_costs[player_index].quadraticize(
-                        xs[k], np.zeros((self._num_players, self._horizon, self._num_players, 1)), k, self.calc_deriv_cost, player_index)
                 else:
-                    _, r, l, Q, R = self._player_costs[player_index].quadraticize(
-                        xs[k], [uis[k] for uis in us], k, self.calc_deriv_cost, player_index)
-    
-                Qs[player_index].appendleft(Q)
-                ls[player_index].appendleft(l)
-                rs[player_index].appendleft(r)
-    
-                for i in range(self._num_players):
-                    Rs[player_index][i].appendleft(R[i])
-                        
-                costs.append(
-                    self._player_costs[player_index](
-                        torch.as_tensor(xs[k].copy()),
-                        [torch.as_tensor(ui) for ui in us],
-                        k, self.calc_deriv_cost
-                    )
-                )
-
-            if "first_t_star" in kwargs.keys():
-                if kwargs["first_t_star"]:
-                    total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-                    return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
-                else:
-                    total_costs = max(costs).detach().numpy().flatten()[0]
-                    return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
-
-            if self.time_consistency:
-                total_costs = max(costs).detach().numpy().flatten()[0]
+                    calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=False)
             else:
+                calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=True)
+            
+            func_return_array.appendleft(c1gc)
+
+            if k == self._horizon:
+                _, r, l, Q, R = self._player_costs[player_index].quadraticize(
+                    xs[k], np.zeros((self._num_players, self._horizon, self._num_players, 1)), k, self.calc_deriv_cost, player_index)
+            else:
+                _, r, l, Q, R = self._player_costs[player_index].quadraticize(
+                    xs[k], [uis[k] for uis in us], k, self.calc_deriv_cost, player_index)
+
+            Qs[player_index].appendleft(Q)
+            ls[player_index].appendleft(l)
+            rs[player_index].appendleft(r)
+
+            for i in range(self._num_players):
+                Rs[player_index][i].appendleft(R[i])
+                    
+            costs.append(
+                self._player_costs[player_index](
+                    torch.as_tensor(xs[k].copy()),
+                    [torch.as_tensor(ui) for ui in us],
+                    k, self.calc_deriv_cost
+                )
+            )
+
+        if "first_t_star" in kwargs.keys():
+            if kwargs["first_t_star"]:
                 total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-            
-            return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
-
-        # This is for P2:
-        elif player_index == 1:
-            func_key_list = [""] * (self._horizon + 1)
-            for k in range(self._horizon, -1, -1): # T to 0                
-                l_func_list.appendleft(
-                    ProximityToBlockCost(g_params["car2"])
-                )
-                l_value_list[k] = l_func_list[0](xs[k])
-
-                max_g_func = self._CheckMultipleGFunctions_P2(g_params["car2"], xs, k)                
-                g_func_list.appendleft(max_g_func)
-                g_value_list[k] = g_func_list[0](xs[k])
-                
-                value_function_compare = dict()
-
-                if k == self._horizon:
-                    # if at T, only get max(l_x, g_x)
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        "l_x": l_value_list[k]
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-                else:
-                    # else, max(g(k), min(l(k), value(k+1)))
-                    tmp = {
-                        "value": value_func_plus[k+1],
-                        "l_x": l_value_list[k],
-                    }
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        min(tmp, key=tmp.get): min(tmp.values())
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-
-            if "l_x" in func_key_list:
-                first_lx_index = func_key_list.index("l_x")
+                return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
             else:
-                first_lx_index = np.inf
-
-            if "g_x" in func_key_list:
-                first_gx_index = func_key_list.index("g_x")
-            else:
-                first_gx_index = np.inf
-            
-            first_t_star = min(first_lx_index, first_gx_index)
-
-            for k in range(self._horizon, -1, -1): # T to 0
-                self._player_costs[player_index] = PlayerCost(**vars(self.config))
-                if not self.time_consistency:
-                    if k == first_t_star:
-                        calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=True)
-                    else:
-                        calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=False)
-                else:
-                    calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=True)
-                
-                func_return_array.appendleft(c1gc)
-
-                if k == self._horizon:
-                    _, r, l, Q, R = self._player_costs[player_index].quadraticize(
-                        xs[k], np.zeros((self._num_players, self._horizon, self._num_players, 1)), k, self.calc_deriv_cost, player_index)
-                else:
-                    _, r, l, Q, R = self._player_costs[player_index].quadraticize(
-                        xs[k], [uis[k] for uis in us], k, self.calc_deriv_cost, player_index)
-    
-                Qs[player_index].appendleft(Q)
-                ls[player_index].appendleft(l)
-                rs[player_index].appendleft(r)
-    
-                for i in range(self._num_players):
-                    Rs[player_index][i].appendleft(R[i])
-                        
-                costs.append(
-                    self._player_costs[player_index](
-                        torch.as_tensor(xs[k].copy()),
-                        [torch.as_tensor(ui) for ui in us],
-                        k, self.calc_deriv_cost
-                    )
-                )
-
-            if "first_t_star" in kwargs.keys():
-                if kwargs["first_t_star"]:
-                    total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-                    return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
-                else:
-                    total_costs = max(costs).detach().numpy().flatten()[0]
-                    return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
-
-            if self.time_consistency:
                 total_costs = max(costs).detach().numpy().flatten()[0]
-            else:
-                total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-            
-            return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
+                return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
 
-        elif player_index == 2:
-            func_key_list = [""] * (self._horizon + 1)
-            for k in range(self._horizon, -1, -1): # T to 0  
-                l_func_list.appendleft(
-                    PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
-                )
-                l_value_list[k] = l_func_list[0](xs[k])
-
-                max_g_func = self._CheckMultipleGFunctions_P3(g_params, xs, k)
-                g_func_list.appendleft(max_g_func)
-                g_value_list[k] = g_func_list[0](xs[k])
-                
-                value_function_compare = dict()
-
-                if k == self._horizon:
-                    # if at T, only get max(l_x, g_x)
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        "l_x": l_value_list[k]
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-                else:
-                    # else, max(g(k), min(l(k), value(k+1)))
-                    tmp = {
-                        "value": value_func_plus[k+1],
-                        "l_x": l_value_list[k],
-                    }
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        min(tmp, key=tmp.get): min(tmp.values())
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-
-            if "l_x" in func_key_list:
-                first_lx_index = func_key_list.index("l_x")
-            else:
-                first_lx_index = np.inf
-
-            if "g_x" in func_key_list:
-                first_gx_index = func_key_list.index("g_x")
-            else:
-                first_gx_index = np.inf
-            
-            first_t_star = min(first_lx_index, first_gx_index)
-
-            for k in range(self._horizon, -1, -1): # T to 0
-                self._player_costs[player_index] = PlayerCost()
-                if not self.time_consistency:
-                    if k == first_t_star:
-                        calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=True)
-                    else:
-                        calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=False)
-                else:
-                    calc_deriv_cost, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, calc_deriv_cost, is_t_star=True)                
-                        
-                func_return_array.appendleft(c1gc)
-
-                if k == self._horizon:
-                    _, r, l, Q, R = self._player_costs[player_index].quadraticize(
-                        xs[k], np.zeros((self._num_players, self._horizon, self._num_players, 1)), k, self.calc_deriv_cost, player_index)
-                else:
-                    _, r, l, Q, R = self._player_costs[player_index].quadraticize(
-                        xs[k], [uis[k] for uis in us], k, self.calc_deriv_cost, player_index)
-    
-                Qs[player_index].appendleft(Q)
-                ls[player_index].appendleft(l)
-                rs[player_index].appendleft(r)
-    
-                for i in range(self._num_players):
-                    Rs[player_index][i].appendleft(R[i])
-                        
-                costs.append(
-                    self._player_costs[player_index](
-                        torch.as_tensor(xs[k].copy()),
-                        [torch.as_tensor(ui) for ui in us],
-                        k, self.calc_deriv_cost
-                    )
-                )
-
-            if "first_t_star" in kwargs.keys():
-                if kwargs["first_t_star"]:
-                    total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-                    return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
-                else:
-                    total_costs = max(costs).detach().numpy().flatten()[0]
-                    return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
-
-            if self.time_consistency:
-                total_costs = max(costs).detach().numpy().flatten()[0]
-            else:
-                total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-            
-            return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
+        if self.time_consistency:
+            total_costs = max(costs).detach().numpy().flatten()[0]
+        else:
+            total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
+        
+        return Qs, ls, Rs, rs, costs, total_costs, calc_deriv_cost, func_key_list, func_return_array, value_func_plus, first_t_star
     
     def _CheckMultipleGFunctions_P1(self, g_params, xs, k):
         max_func = dict()
         
-        max_val, func_of_max_val = CollisionPenalty(g_params)(xs[k])
+        max_val, func_of_max_val = CollisionPenalty(g_params["car1"])(xs[k])
         max_func[func_of_max_val] = max_val
         
-        max_val, func_of_max_val = RoadRulesPenalty(g_params)(xs[k])
+        max_val, func_of_max_val = RoadRulesPenalty(g_params["car1"])(xs[k])
         max_func[func_of_max_val] = max_val
 
-        max_val, func_of_max_val = ManeuverPenalty(g_params)(xs[k])
+        max_val, func_of_max_val = ManeuverPenalty(g_params["car1"])(xs[k])
         max_func[func_of_max_val] = max_val
 
         return max(max_func, key=max_func.get)
@@ -869,13 +687,13 @@ class ILQSolver(object):
     def _CheckMultipleGFunctions_P2(self, g_params, xs, k):
         max_func = dict()
         
-        max_val, func_of_max_val = CollisionPenalty(g_params)(xs[k])
+        max_val, func_of_max_val = CollisionPenalty(g_params["car2"])(xs[k])
         max_func[func_of_max_val] = max_val
         
-        max_val, func_of_max_val = RoadRulesPenalty(g_params)(xs[k])
+        max_val, func_of_max_val = RoadRulesPenalty(g_params["car2"])(xs[k])
         max_func[func_of_max_val] = max_val
 
-        max_val, func_of_max_val = ManeuverPenalty(g_params)(xs[k])
+        max_val, func_of_max_val = ManeuverPenalty(g_params["car2"])(xs[k])
         max_func[func_of_max_val] = max_val
 
         return max(max_func, key=max_func.get)
@@ -974,242 +792,96 @@ class ILQSolver(object):
                 "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
             }
         }
+
+        l_functions = {
+            0: ProximityToBlockCost(g_params["car1"]),
+            1: ProximityToBlockCost(g_params["car2"]),
+            2: PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
+        }
+
+        g_functions = {
+            0: self._CheckMultipleGFunctions_P1,
+            1: self._CheckMultipleGFunctions_P2,
+            2: self._CheckMultipleGFunctions_P3,
+        }
         
-        if player_index == 0:
-            func_key_list = [""] * (self._horizon + 1)
+        func_key_list = [""] * (self._horizon + 1)
+        
+        for k in range(self._horizon, -1, -1): # T to 0                
+            l_func_list.appendleft(
+                l_functions[player_index]
+            )
+            l_value_list[k] = l_func_list[0](xs[k])
+
+            max_g_func = g_functions[player_index](g_params, xs, k)
+            g_func_list.appendleft(max_g_func)
+            g_value_list[k] = g_func_list[0](xs[k])
             
-            for k in range(self._horizon, -1, -1): # T to 0                
-                l_func_list.appendleft(
-                    ProximityToBlockCost(g_params["car1"])
-                )
-                l_value_list[k] = l_func_list[0](xs[k])
+            value_function_compare = dict()
 
-                max_g_func = self._CheckMultipleGFunctions_P1(g_params["car1"], xs, k)
-                g_func_list.appendleft(max_g_func)
-                g_value_list[k] = g_func_list[0](xs[k])
-                
-                value_function_compare = dict()
-
-                if k == self._horizon:
-                    # if at T, only get max(l_x, g_x)
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        "l_x": l_value_list[k]
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-                else:
-                    # else, max(g(k), min(l(k), value(k+1)))
-                    tmp = {
-                        "value": value_func_plus[k+1],
-                        "l_x": l_value_list[k],
-                    }
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        min(tmp, key=tmp.get): min(tmp.values())
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-
-            if "l_x" in func_key_list:
-                first_lx_index = func_key_list.index("l_x")
+            if k == self._horizon:
+                # if at T, only get max(l_x, g_x)
+                value_function_compare = {
+                    "g_x": g_value_list[k],
+                    "l_x": l_value_list[k]
+                }
+                value_func_plus[k] = max(value_function_compare.values())
+                func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
             else:
-                first_lx_index = np.inf
+                # else, max(g(k), min(l(k), value(k+1)))
+                tmp = {
+                    "value": value_func_plus[k+1],
+                    "l_x": l_value_list[k],
+                }
+                value_function_compare = {
+                    "g_x": g_value_list[k],
+                    min(tmp, key=tmp.get): min(tmp.values())
+                }
+                value_func_plus[k] = max(value_function_compare.values())
+                func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
 
-            if "g_x" in func_key_list:
-                first_gx_index = func_key_list.index("g_x")
-            else:
-                first_gx_index = np.inf
-            
-            first_t_star = min(first_lx_index, first_gx_index)
+        if "l_x" in func_key_list:
+            first_lx_index = func_key_list.index("l_x")
+        else:
+            first_lx_index = np.inf
 
-            for k in range(self._horizon, -1, -1): # T to 0
-                self._player_costs[player_index] = PlayerCost(**vars(self.config))
-                if not self.time_consistency:
-                    if k == first_t_star:
-                        _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=True)
-                    else:
-                        _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=False)
-                else:
+        if "g_x" in func_key_list:
+            first_gx_index = func_key_list.index("g_x")
+        else:
+            first_gx_index = np.inf
+        
+        first_t_star = min(first_lx_index, first_gx_index)
+
+        for k in range(self._horizon, -1, -1): # T to 0
+            self._player_costs[player_index] = PlayerCost(**vars(self.config))
+            if not self.time_consistency:
+                if k == first_t_star:
                     _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=True)
-                        
-                costs.append(
-                    self._player_costs[player_index](
-                        torch.as_tensor(xs[k].copy()),
-                        [torch.as_tensor(ui) for ui in us],
-                        k, self.calc_deriv_cost
-                    )
+                else:
+                    _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=False)
+            else:
+                _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=True)
+                    
+            costs.append(
+                self._player_costs[player_index](
+                    torch.as_tensor(xs[k].copy()),
+                    [torch.as_tensor(ui) for ui in us],
+                    k, self.calc_deriv_cost
                 )
+            )
 
-            if "first_t_star" in kwargs.keys():
-                if kwargs["first_t_star"]:
-                    return first_t_star, costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-                else:
-                    return first_t_star, max(costs).detach().numpy().flatten()[0]
-
-            if self.time_consistency:
-                total_costs = max(costs).detach().numpy().flatten()[0]
+        if "first_t_star" in kwargs.keys():
+            if kwargs["first_t_star"]:
+                return first_t_star, costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
             else:
-                total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-            
-            return first_t_star, total_costs
+                return first_t_star, max(costs).detach().numpy().flatten()[0]
 
-        # This is for P2:
-        elif player_index == 1:
-            func_key_list = [""] * (self._horizon + 1)
-            for k in range(self._horizon, -1, -1): # T to 0                
-                l_func_list.appendleft(
-                    ProximityToBlockCost(g_params["car2"])
-                )
-                l_value_list[k] = l_func_list[0](xs[k])
-
-                max_g_func = self._CheckMultipleGFunctions_P2(g_params["car2"], xs, k)                
-                g_func_list.appendleft(max_g_func)
-                g_value_list[k] = g_func_list[0](xs[k])
-                
-                value_function_compare = dict()
-
-                if k == self._horizon:
-                    # if at T, only get max(l_x, g_x)
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        "l_x": l_value_list[k]
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-                else:
-                    # else, max(g(k), min(l(k), value(k+1)))
-                    tmp = {
-                        "value": value_func_plus[k+1],
-                        "l_x": l_value_list[k],
-                    }
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        min(tmp, key=tmp.get): min(tmp.values())
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-
-            if "l_x" in func_key_list:
-                first_lx_index = func_key_list.index("l_x")
-            else:
-                first_lx_index = np.inf
-
-            if "g_x" in func_key_list:
-                first_gx_index = func_key_list.index("g_x")
-            else:
-                first_gx_index = np.inf
-            
-            first_t_star = min(first_lx_index, first_gx_index)
-
-            for k in range(self._horizon, -1, -1): # T to 0
-                self._player_costs[player_index] = PlayerCost(**vars(self.config))
-                if not self.time_consistency:
-                    if k == first_t_star:
-                        _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=True)
-                    else:
-                        _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=False)
-                else:
-                    _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=True)
-                
-                costs.append(
-                    self._player_costs[player_index](
-                        torch.as_tensor(xs[k].copy()),
-                        [torch.as_tensor(ui) for ui in us],
-                        k, self.calc_deriv_cost
-                    )
-                )
-
-            if "first_t_star" in kwargs.keys():
-                if kwargs["first_t_star"]:
-                    return first_t_star, costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-                else:
-                    return first_t_star, max(costs).detach().numpy().flatten()[0]
-
-            if self.time_consistency:
-                total_costs = max(costs).detach().numpy().flatten()[0]
-            else:
-                total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-            
-            return first_t_star, total_costs
-
-        elif player_index == 2:
-            func_key_list = [""] * (self._horizon + 1)
-            for k in range(self._horizon, -1, -1): # T to 0  
-                l_func_list.appendleft(
-                    PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
-                )
-                l_value_list[k] = l_func_list[0](xs[k])
-
-                max_g_func = self._CheckMultipleGFunctions_P3(g_params, xs, k)
-                g_func_list.appendleft(max_g_func)
-                g_value_list[k] = g_func_list[0](xs[k])
-                
-                value_function_compare = dict()
-
-                if k == self._horizon:
-                    # if at T, only get max(l_x, g_x)
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        "l_x": l_value_list[k]
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-                else:
-                    # else, max(g(k), min(l(k), value(k+1)))
-                    tmp = {
-                        "value": value_func_plus[k+1],
-                        "l_x": l_value_list[k],
-                    }
-                    value_function_compare = {
-                        "g_x": g_value_list[k],
-                        min(tmp, key=tmp.get): min(tmp.values())
-                    }
-                    value_func_plus[k] = max(value_function_compare.values())
-                    func_key_list[k] = max(value_function_compare, key = value_function_compare.get)
-
-            if "l_x" in func_key_list:
-                first_lx_index = func_key_list.index("l_x")
-            else:
-                first_lx_index = np.inf
-
-            if "g_x" in func_key_list:
-                first_gx_index = func_key_list.index("g_x")
-            else:
-                first_gx_index = np.inf
-            
-            first_t_star = min(first_lx_index, first_gx_index)
-
-            for k in range(self._horizon, -1, -1): # T to 0
-                self._player_costs[player_index] = PlayerCost()
-                if not self.time_consistency:
-                    if k == first_t_star:
-                        _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=True)
-                    else:
-                        _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=False)
-                else:
-                    _, c1gc = self.set_player_cost_derivative(func_key_list, l_func_list, g_func_list, k, player_index, deque(), is_t_star=True)                
-                        
-                costs.append(
-                    self._player_costs[player_index](
-                        torch.as_tensor(xs[k].copy()),
-                        [torch.as_tensor(ui) for ui in us],
-                        k, self.calc_deriv_cost
-                    )
-                )
-
-            if "first_t_star" in kwargs.keys():
-                if kwargs["first_t_star"]:
-                    return first_t_star, costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-                else:
-                    return first_t_star, max(costs).detach().numpy().flatten()[0]
-
-            if self.time_consistency:
-                total_costs = max(costs).detach().numpy().flatten()[0]
-            else:
-                total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
-            
-            return first_t_star, total_costs
+        if self.time_consistency:
+            total_costs = max(costs).detach().numpy().flatten()[0]
+        else:
+            total_costs = costs[self._horizon - first_t_star].detach().numpy().flatten()[0]
+        
+        return first_t_star, total_costs
     
     def _linesearch_residual(self, beta = 0.9, iteration = None):
         """ Linesearch for both players separately. """
