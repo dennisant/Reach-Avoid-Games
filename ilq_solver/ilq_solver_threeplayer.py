@@ -157,11 +157,6 @@ class ILQSolver(object):
             self._last_operating_point = self._current_operating_point
             self._current_operating_point = (xs, us)
             
-            # if iteration%store_freq == 0:
-            #     xs_store = [xs_i.flatten() for xs_i in xs]
-            #     if self.log:
-            #         np.savetxt(self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')
-            
             # (2) Linearize about this operating point. Make sure to
             # stack appropriately since we will concatenate state vectors
             # but not control vectors, so that
@@ -224,12 +219,13 @@ class ILQSolver(object):
                     traj["u%ds" % (ii + 1)] = us[ii]
 
                 self._visualizer.add_trajectory(iteration, traj)
-                # self._visualizer.plot_controls(1)
-                # plt.pause(0.001)
-                # plt.clf()
-                # self._visualizer.plot_controls(2)
-                # plt.pause(0.001)
-                # plt.clf()
+                if self.ctl_plot:
+                    self._visualizer.plot_controls(1)
+                    plt.pause(0.001)
+                    plt.clf()
+                    self._visualizer.plot_controls(2)
+                    plt.pause(0.001)
+                    plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
                 if self.plot:
@@ -271,8 +267,6 @@ class ILQSolver(object):
             # (6) Compute feedback Nash equilibrium of the resulting LQ game.
             # This is getting put into compute_operating_point to solver
             # for the next trajectory
-            # print(np.array(Qs).shape)
-            # input()
             Ps, alphas, ns = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, self.time_consistency)
 
             # (7) Accumulate total costs for all players.
@@ -983,13 +977,6 @@ class ILQSolver(object):
                 old_t_star = self._first_t_stars[i]
                 Q = self._Qs[i][old_t_star]
                 q = self._ls[i][old_t_star]
-
-                # if i == 0:
-                #     index = [0, 1, 2, 3, 4]
-                # elif i == 1:
-                #     index = [5, 6, 7, 8, 9]
-                # else:
-                #     index = [10, 11, 12, 13]
 
                 x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[old_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
                 delta_cost_quadratic_approx = 0.5 * (np.transpose(x_diff) @ Q + 2 * np.transpose(q)) @ x_diff

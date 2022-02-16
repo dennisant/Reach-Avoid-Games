@@ -156,13 +156,6 @@ class ILQSolver(object):
             self._last_operating_point = self._current_operating_point
             self._current_operating_point = (xs, us)
             
-            # Not using this anymore, use .pkl instead
-            # if iteration%store_freq == 0:
-            #     xs_store = [xs_i.flatten() for xs_i in xs]
-            #     if self.log:
-            #         np.savetxt(
-            #             self.exp_info["log_dir"] + self.exp_info["name"] + str(iteration) + '.txt', np.array(xs_store), delimiter = ',')      
-
             # (2) Linearize about this operating point. Make sure to
             # stack appropriately since we will concatenate state vectors
             # but not control vectors, so that
