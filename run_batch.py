@@ -50,7 +50,7 @@ collision_r = math.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"]))
 base_flag = "   python3 run.py                      \
                 --no_players 1                      \
                 --env_type goal_with_obs            \
-                --eps_control 0.1 --eps_state 0.1   \
+                --eps_control 0.1 --eps_state 0.3   \
                 --linesearch                        \
                 --linesearch_type trust_region      \
                 --batch_run                         \
@@ -71,12 +71,14 @@ obstacle_flag = " --obstacles             \
 goal_flag = " --goal 6.0 40.0 2.0"
 
 # Dynamic params
-no_of_runs = 10
+no_of_runs = 200
 v = np.random.uniform(3, 10, no_of_runs)
 time_horizon = np.random.randint(3, 11, no_of_runs)
 max_runtime = 150
-# time_consistent, time_inconsistent, both
+
 run_type = "both"
+if run_type not in ["time_consistent", "time_inconsistent", "both"]:
+    raise ValueError("Run type not found: {}".format(run_type))
 
 obstacles = [float(i) for i in obstacle_flag.replace("--obstacles", "").split()]
 goal = [float(i) for i in goal_flag.replace("--goal", "").split()]

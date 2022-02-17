@@ -98,7 +98,7 @@ class BaseSolver(ABC):
         # Trying to store stuff in order to plot cost
         store_total_cost = []
         iteration_store = []
-        store_freq = 10
+        store_freq = 5
         
         while not self._is_converged() and (self.max_steps is not None and self.iteration < self.max_steps):
             # # (1) Compute current operating point and update last one.
@@ -197,7 +197,7 @@ class BaseSolver(ABC):
             
             if self.linesearch:
                 if self.linesearch_type == "trust_region":
-                    self._alpha_scaling = self._linesearch_trustregion(iteration = self.iteration, visualize_hallucination=self.hallucinated)
+                    self._alpha_scaling = self._linesearch_trustregion_naive(iteration = self.iteration, visualize_hallucination=self.hallucinated)
                 elif self.linesearch_type == "armijo":
                     self._alpha_scaling = self._linesearch_armijo(iteration = self.iteration)
                 else:
@@ -206,7 +206,6 @@ class BaseSolver(ABC):
                 self._alpha_scaling = 1.0 / ((self.iteration + 1) * 0.5) ** 0.3
                 if self._alpha_scaling < .2:
                     self._alpha_scaling = .2
-            self.iteration += 1
 
             # Log everything.
             if self._logger is not None and self.log and self.iteration%store_freq == 0:
@@ -221,6 +220,8 @@ class BaseSolver(ABC):
                 self._logger.log("first_t_star", first_t_stars)
                 self._logger.log("iteration", self.iteration)
                 self._logger.dump()
+            
+            self.iteration += 1
 
         if self._is_converged():
             print("\nExperiment converged")

@@ -589,7 +589,7 @@ class ILQSolver(BaseSolver):
         self._alpha_scaling = alpha
         return alpha
 
-    def _linesearch_trustregion(self, beta = 0.9, iteration = None, margin=2.0, visualize_hallucination = False):
+    def _linesearch_trustregion(self, beta = 0.9, iteration = None, visualize_hallucination = False):
         """ Linesearch using trust region. """
         """
         beta (float) -> discounted term
@@ -654,17 +654,17 @@ class ILQSolver(BaseSolver):
             delta_cost_quadratic_actual = total_costs_new - self._total_costs
             error = np.array(delta_cost_quadratic_approx - delta_cost_quadratic_actual).astype(np.float16)
 
-            if traj_diff < margin:
+            if traj_diff < self.margin:
                 if np.array_equal(old_error, error):
                     alpha_converged = True
                 else:
                     old_error = error
                     if (abs(error[0,0]) < 1.2 and abs(error[0,0]) > 0.8) and (abs(error[0,1]) < 1.2 and abs(error[0,1]) > 0.8) and (abs(error[0,2]) < 1.2 and abs(error[0,2]) > 0.8):
-                        margin = margin * 1.5
+                        self.margin = self.margin * 1.5
                         alpha = 1.0
                         alpha_converged = False
                     elif np.any(abs(error) >= 1.2):
-                        margin = margin * 0.5
+                        self.margin = self.margin * 0.5
                         alpha = 1.0
                         alpha_converged = False
                     else:
@@ -674,7 +674,88 @@ class ILQSolver(BaseSolver):
                 if alpha < 1e-10:
                     raise ValueError("alpha too small")
 
-            # print("Est cost: {:.5f}\tNew cost: {:.5f}\tAlpha: {:.5f}\tMargin: {:.5f}\tdelta cost: {:.5f}\tTraj diff: {:.5f}".format((delta_cost_quadratic_approx + self._total_costs).flatten()[0], total_costs_new[0], alpha, margin, delta_cost_quadratic_approx.flatten()[0], traj_diff))
+            # print("Est cost: {:.5f}\tNew cost: {:.5f}\tAlpha: {:.5f}\tMargin: {:.5f}\tdelta cost: {:.5f}\tTraj diff: {:.5f}".format((delta_cost_quadratic_approx + self._total_costs).flatten()[0], total_costs_new[0], alpha, self.margin, delta_cost_quadratic_approx.flatten()[0], traj_diff))
+        
+        self._alpha_scaling = alpha
+        return alpha
+
+    def _linesearch_trustregion_naive(self, beta = 0.9, iteration = None, visualize_hallucination = False):
+        """ Linesearch using trust region. """
+        """
+        beta (float) -> discounted term
+        iteration (int) -> current iteration
+        """
+        
+        alpha_converged = False
+        alpha = 1.0
+        error = np.zeros(self._num_players).astype(np.float16)
+        total_costs_new = np.zeros(self._num_players)
+        delta_costs_quadratic_approx = np.zeros(self._num_players)
+        
+        while not alpha_converged:
+            # Use this alpha in compute_operating_point
+            self._alpha_scaling = alpha
+
+            # With this alpha, compute trajectory and controls from self._compute_operating_point
+            # For this trajectory, calculate t* and if L or g comes out of min-max
+            xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
+
+            # Visualize hallucinated traj
+            if visualize_hallucination:
+                plt.figure(1)
+                self._visualizer.plot()
+                plt.plot([x[0, 0] for x in xs], [x[1, 0] for x in xs],
+                    "-g",
+                    alpha = 0.4,
+                    linewidth = 2,
+                    zorder=10
+                )
+                plt.plot([x[5, 0] for x in xs], [x[6, 0] for x in xs],
+                    "-r",
+                    alpha = 0.4,
+                    linewidth = 2,
+                    zorder=10
+                )
+                plt.plot([x[10, 0] for x in xs], [x[11, 0] for x in xs],
+                    "-b",
+                    alpha = 0.4,
+                    linewidth = 2,
+                    zorder=10
+                )
+                plt.pause(0.001)
+                plt.clf()
+            
+            for i in range(self._num_players):
+                new_t_star, total_cost_new = self._rollout(xs, us, i, first_t_star=True)
+
+                total_costs_new[i] = total_cost_new
+
+                old_t_star = self._first_t_stars[i]
+                Q = self._Qs[i][old_t_star]
+                q = self._ls[i][old_t_star]
+
+                x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[old_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
+                delta_cost_quadratic_approx = 0.5 * (np.transpose(x_diff) @ Q + 2 * np.transpose(q)) @ x_diff
+
+                delta_costs_quadratic_approx[i] = delta_cost_quadratic_approx
+            
+            traj_diff = max([np.linalg.norm(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[:,[0, 1, 5, 6, 10, 11],:], np.array(self._current_operating_point[0])[:,[0, 1, 5, 6, 10, 11],:])])
+
+            delta_cost_quadratic_actual = total_costs_new - self._total_costs
+            error = np.array(delta_cost_quadratic_approx - delta_cost_quadratic_actual).astype(np.float16)
+
+            if traj_diff < self.margin:
+                if (abs(error[0,0]) < 1.2 and abs(error[0,0]) > 0.8) and (abs(error[0,1]) < 1.2 and abs(error[0,1]) > 0.8) and (abs(error[0,2]) < 1.2 and abs(error[0,2]) > 0.8):
+                    self.margin = self.margin * 1.5
+                elif np.any(abs(error) >= 1.2):
+                    self.margin = self.margin * 0.5
+                alpha_converged = True
+            else:
+                alpha = beta * alpha
+                if alpha < 1e-10:
+                    raise ValueError("alpha too small")
+
+            # print("Est cost: {:.5f}\tNew cost: {:.5f}\tAlpha: {:.5f}\tMargin: {:.5f}\tdelta cost: {:.5f}\tTraj diff: {:.5f}".format((delta_cost_quadratic_approx + self._total_costs).flatten()[0], total_costs_new[0], alpha, self.margin, delta_cost_quadratic_approx.flatten()[0], traj_diff))
         
         self._alpha_scaling = alpha
         return alpha

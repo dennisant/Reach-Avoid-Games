@@ -433,8 +433,9 @@ class ILQSolver(BaseSolver):
         alpha_converged = False
         alpha = 1.0
         error = old_error = 0
+        run_time = 0
         
-        while not alpha_converged:
+        while not alpha_converged and run_time < 50:
             # Use this alpha in compute_operating_point
             self._alpha_scaling = alpha
             
@@ -489,7 +490,8 @@ class ILQSolver(BaseSolver):
                 if alpha < 1e-10:
                     raise ValueError("alpha too small")
 
-            # print("Est cost: {:.5f}\tNew cost: {:.5f}\tAlpha: {:.5f}\tMargin: {:.5f}\tdelta cost: {:.5f}\tTraj diff: {:.5f}".format((delta_cost_quadratic_approx + self._total_costs[0]).flatten()[0], total_costs_new, alpha, margin, delta_cost_quadratic_approx.flatten()[0], traj_diff))
+            # print("Est cost: {:.5f}\tNew cost: {:.5f}\tAlpha: {:.5f}\tMargin: {:.5f}\tdelta cost: {:.5f}\tTraj diff: {:.5f}".format((delta_cost_quadratic_approx + self._total_costs[0]).flatten()[0], total_costs_new, alpha, self.margin, delta_cost_quadratic_approx.flatten()[0], traj_diff))
+            run_time += 1
         
         self._alpha_scaling = alpha
         return alpha
@@ -503,8 +505,9 @@ class ILQSolver(BaseSolver):
         
         alpha_converged = False
         alpha = 1.0
+        run_time = 0
         
-        while not alpha_converged:
+        while not alpha_converged and run_time < 50:
             # Use this alpha in compute_operating_point
             self._alpha_scaling = alpha
             
@@ -541,7 +544,7 @@ class ILQSolver(BaseSolver):
 
             if traj_diff < self.margin:
                 if abs(error) < 1.2 and abs(error) > 0.8:
-                    self.margin = self.margin * 2.0
+                    self.margin = self.margin * 1.5
                 elif abs(error) >= 1.2:
                     self.margin = self.margin * 0.5
                 alpha_converged = True
@@ -550,7 +553,8 @@ class ILQSolver(BaseSolver):
                 if alpha < 1e-10:
                     raise ValueError("alpha too small")
 
-            # print("Est cost: {:.5f}\tNew cost: {:.5f}\tAlpha: {:.5f}\tMargin: {:.5f}\tdelta cost: {:.5f}\tTraj diff: {:.5f}".format((delta_cost_quadratic_approx + self._total_costs[0]).flatten()[0], total_costs_new, alpha, margin, delta_cost_quadratic_approx.flatten()[0], traj_diff))
+            # print("Est cost: {:.5f}\tNew cost: {:.5f}\tAlpha: {:.5f}\tMargin: {:.5f}\tdelta cost: {:.5f}\tTraj diff: {:.5f}".format((delta_cost_quadratic_approx + self._total_costs[0]).flatten()[0], total_costs_new, alpha, self.margin, delta_cost_quadratic_approx.flatten()[0], traj_diff))
+            run_time += 1
 
         self._alpha_scaling = alpha
         return alpha
