@@ -544,7 +544,7 @@ class ILQSolver(BaseSolver):
             error = delta_cost_quadratic_approx - delta_cost_quadratic_actual
 
             if traj_diff < self.margin:
-                if abs(error) < 1.2 and abs(error) > 0.8:
+                if abs(error) <= 0.8 and self.margin - traj_diff < 1e-2:
                     self.margin = self.margin * 1.5
                 elif abs(error) >= 1.2:
                     self.margin = self.margin * 0.5
