@@ -290,6 +290,11 @@ class Visualizer(object):
             base_size = kwargs["base_size"]
         else:
             base_size = 10.0
+
+        if "trust_region" in kwargs.keys():
+            margin = kwargs["trust_region"]
+        else:
+            margin = None
         
         ratio = (self._plot_lims[1] - self._plot_lims[0])/(self._plot_lims[3] - self._plot_lims[2])
         plt.figure(self._figure_number)
@@ -334,6 +339,12 @@ class Visualizer(object):
                     if self._draw_cars:
                         self.draw_real_car(ii, traj["xs"])
                     else:
+                        if margin is not None:
+                            plt.plot(xs, ys,
+                                self._player_linestyles[ii],
+                                alpha = 0.2,
+                                linewidth = self.linewidth_from_data_units(margin * 2.0, ax)
+                            )
                         plt.plot(xs, ys,
                             self._player_linestyles[ii],
                             label = "Player {}, iteration {}".format(ii, iteration),

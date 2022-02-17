@@ -252,6 +252,18 @@ class BaseSolver(ABC):
                 self._logger.log("is_converged", False)
                 self._logger.dump()
 
+    @abstractmethod
+    def _linesearch_trustregion(self, **kwargs):
+        raise NotImplementedError
+    
+    @abstractmethod
+    def _linesearch_trustregion_naive(self, **kwargs):
+        raise NotImplementedError
+    
+    @abstractmethod
+    def _linesearch_armijo(self, **kwargs):
+        raise NotImplementedError
+
     def _compute_operating_point(self):
         """
         Compute current operating point by propagating through dynamics.

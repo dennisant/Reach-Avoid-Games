@@ -423,7 +423,7 @@ class ILQSolver(BaseSolver):
         self._alpha_scaling = alpha
         return alpha
     
-    def _linesearch_trustregion(self, beta = 0.9, iteration = None, margin=5.0, visualize_hallucination = False):
+    def _linesearch_trustregion(self, beta = 0.9, iteration = None, visualize_hallucination = False):
         """ Linesearch using trust region. """
         """
         beta (float) -> discounted term
@@ -445,7 +445,7 @@ class ILQSolver(BaseSolver):
             # Visualize hallucinated traj
             if visualize_hallucination:
                 plt.figure(1)
-                self._visualizer.plot()
+                self._visualizer.plot(trust_region=self.margin)
                 plt.plot([x[0, 0] for x in xs], [x[1, 0] for x in xs],
                     "-r",
                     alpha = 0.4,
@@ -469,17 +469,17 @@ class ILQSolver(BaseSolver):
             delta_cost_quadratic_actual = total_costs_new - self._total_costs[0]
             error = delta_cost_quadratic_approx - delta_cost_quadratic_actual
 
-            if traj_diff < margin:
+            if traj_diff < self.margin:
                 if old_error == error:
                     alpha_converged = True
                 else:
-                    old_error= error
+                    old_error = error
                     if abs(error) < 1.2 and abs(error) > 0.8:
-                        margin = margin * 1.5
+                        self.margin = self.margin * 2.0
                         alpha = 1.0
                         alpha_converged = False
                     elif abs(error) >= 1.2:
-                        margin = margin * 0.5
+                        self.margin = self.margin * 0.5
                         alpha = 1.0
                         alpha_converged = False
                     else:
@@ -515,7 +515,7 @@ class ILQSolver(BaseSolver):
             # Visualize hallucinated traj
             if visualize_hallucination:
                 plt.figure(1)
-                self._visualizer.plot()
+                self._visualizer.plot(trust_region=self.margin)
                 plt.plot([x[0, 0] for x in xs], [x[1, 0] for x in xs],
                     "-r",
                     alpha = 0.4,
@@ -540,10 +540,10 @@ class ILQSolver(BaseSolver):
             error = delta_cost_quadratic_approx - delta_cost_quadratic_actual
 
             if traj_diff < self.margin:
-                if abs(error) < 0.8:
-                    self.margin = self.margin * 1.5
-                elif abs(error) >= 0.8:
-                    self.margin = self.margin * 1.0/abs(error)
+                if abs(error) < 1.2 and abs(error) > 0.8:
+                    self.margin = self.margin * 2.0
+                elif abs(error) >= 1.2:
+                    self.margin = self.margin * 0.5
                 alpha_converged = True
             else:
                 alpha = beta * alpha
