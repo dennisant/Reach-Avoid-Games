@@ -1,0 +1,60 @@
+2022-02-17 15:38:12,665 root                 INFO     Running test#0 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -15.200003559679363 53.29440446440138 0.07613011987414864 0.0 6.207296710633237 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-17 15:45:51,996 root                 INFO     Running test#0 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -15.200003559679363 53.29440446440138 0.07613011987414864 0.0 6.207296710633237 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-17 15:46:28,703 root                 INFO     Running test#1 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 29.647336624639678 5.03199250882756 2.385548925684512 0.0 7.165447836032349 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-17 15:52:34,009 root                 INFO     Running test#1 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 29.647336624639678 5.03199250882756 2.385548925684512 0.0 7.165447836032349 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-17 16:02:48,605 root                 INFO     Running test#2 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 29.780638124440948 22.602565325847152 -3.0223554822533476 0.0 9.608909993106701 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-17 16:08:21,516 root                 INFO     Running test#2 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 29.780638124440948 22.602565325847152 -3.0223554822533476 0.0 9.608909993106701 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-17 16:09:03,300 root                 INFO     Running test#3 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 20.59845054305019 -1.3200272387260101 1.7263836303686673 0.0 8.048051088760033 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-17 16:09:09,319 root                 INFO     Running test#3 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 20.59845054305019 -1.3200272387260101 1.7263836303686673 0.0 8.048051088760033 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-17 16:09:15,136 root                 INFO     Running test#4 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 28.37090910256817 43.82970951700023 2.6333696029950775 0.0 5.372016801044834 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-17 16:17:30,595 root                 INFO     Running test#4 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 28.37090910256817 43.82970951700023 2.6333696029950775 0.0 5.372016801044834 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-17 16:18:12,060 root                 INFO     Running test#5 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 17.36529052775009 11.894233762398942 2.6420906598840137 0.0 9.447387980150772 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-17 16:20:52,412 root                 INFO     Running test#5 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 17.36529052775009 11.894233762398942 2.6420906598840137 0.0 9.447387980150772 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-17 16:22:20,990 root                 INFO     Running test#6 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -9.170428772504485 38.315931235195954 0.8842705044465502 0.0 8.611432237189707 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-17 16:33:30,047 root                 INFO     Running test#6 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -9.170428772504485 38.315931235195954 0.8842705044465502 0.0 8.611432237189707 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-17 16:35:16,990 root                 INFO     Running test#7 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -8.69385774580606 54.12581045127628 -0.6327419053569766 0.0 3.2680832438782805 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-17 16:43:18,907 root                 INFO     Running test#7 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -8.69385774580606 54.12581045127628 -0.6327419053569766 0.0 3.2680832438782805 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-17 16:43:22,167 root                 INFO     Running test#8 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -14.697799665446746 37.83448514235053 0.0487224826604067 0.0 3.8840321869419547 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-17 16:44:19,939 root                 INFO     Running test#8 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -14.697799665446746 37.83448514235053 0.0487224826604067 0.0 3.8840321869419547 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-17 16:44:21,364 root                 INFO     Running test#9 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 5.5889546180775085 11.834204826033197 1.5030264561741937 0.0 8.988608478921652 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-17 16:52:44,476 root                 INFO     Running test#9 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.3 --linesearch --linesearch_type trust_region --batch_run --plot --log --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 5.5889546180775085 11.834204826033197 1.5030264561741937 0.0 8.988608478921652 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
