@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from utils.visualizer import Visualizer
 
 batch_name = "batch-2022-02-17"
-exp_suffix = "exp_time_consistent"
+exp_suffix = "exp_time_inconsistent"
 is_converged = []
 xs = []
 
