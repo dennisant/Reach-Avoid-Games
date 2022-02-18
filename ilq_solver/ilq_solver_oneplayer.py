@@ -536,19 +536,24 @@ class ILQSolver(BaseSolver):
                 old_t_star = self._first_t_stars[i]
                 Q = self._Qs[i][old_t_star]
                 q = self._ls[i][old_t_star]
-                # x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[new_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
-                x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[old_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
+                x_diff = [(np.array(x_old) - np.array(x_new)) for x_new, x_old in zip(np.array(xs)[new_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
+                # x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[old_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
                 delta_cost_quadratic_approx = 0.5 * (np.transpose(x_diff) @ Q + 2 * np.transpose(q)) @ x_diff
             
-            delta_cost_quadratic_actual = total_costs_new - self._total_costs[0]
+            delta_cost_quadratic_actual = self._total_costs[0] - total_costs_new
             error = delta_cost_quadratic_approx - delta_cost_quadratic_actual
+            rho = delta_cost_quadratic_actual / delta_cost_quadratic_approx
 
-            if traj_diff < self.margin:
-                if abs(error) <= 0.8 and self.margin - traj_diff < 1e-2:
-                    self.margin = self.margin * 1.5
-                elif abs(error) >= 1.2:
-                    self.margin = self.margin * 0.5
-                alpha_converged = True
+            if np.linalg.norm(np.array(x_diff)) <= self.margin:
+                if rho < 0.25:
+                    self.margin = 0.5 * self.margin
+                else: 
+                    distance_to_margin = self.margin - np.linalg.norm(np.array(x_diff))
+                    if rho > 0.75 and distance_to_margin < 0.1:
+                        self.margin = min(2.0 * self.margin, 15.0)
+                
+                if rho > 0:
+                    alpha_converged = True
             else:
                 alpha = beta * alpha
                 if alpha < 1e-10:
