@@ -608,11 +608,12 @@ class ILQSolver(BaseSolver):
             error = delta_cost_quadratic_approx - delta_cost_quadratic_actual
             rho = delta_cost_quadratic_actual / delta_cost_quadratic_approx
 
-            if np.linalg.norm(np.array(x_diff)) <= self.margin:
+            # if np.linalg.norm(np.array(x_diff)) <= self.margin:
+            if traj_diff < self.margin:
                 if rho < 0.25:
                     self.margin = 0.5 * self.margin
                 else: 
-                    distance_to_margin = self.margin - np.linalg.norm(np.array(x_diff))
+                    distance_to_margin = self.margin - traj_diff
                     if rho > 0.75 and distance_to_margin < 0.1:
                         self.margin = min(2.0 * self.margin, 15.0)
                 
