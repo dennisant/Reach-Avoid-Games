@@ -536,6 +536,70 @@ class ILQSolver(BaseSolver):
                 old_t_star = self._first_t_stars[i]
                 Q = self._Qs[i][old_t_star]
                 q = self._ls[i][old_t_star]
+                # x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[new_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
+                x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[old_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
+                delta_cost_quadratic_approx = 0.5 * (np.transpose(x_diff) @ Q + 2 * np.transpose(q)) @ x_diff
+            
+            delta_cost_quadratic_actual = total_costs_new - self._total_costs[0]
+            error = delta_cost_quadratic_approx - delta_cost_quadratic_actual
+
+            if traj_diff < self.margin:
+                if abs(error) <= 0.8 and self.margin - traj_diff < 1e-2:
+                    self.margin = self.margin * 1.5
+                elif abs(error) >= 1.2:
+                    self.margin = self.margin * 0.5
+                alpha_converged = True
+            else:
+                alpha = beta * alpha
+                if alpha < 1e-10:
+                    raise ValueError("alpha too small")
+
+            # print("Est cost: {:.5f}\tNew cost: {:.5f}\tAlpha: {:.5f}\tMargin: {:.5f}\tdelta cost: {:.5f}\tTraj diff: {:.5f}".format((delta_cost_quadratic_approx + self._total_costs[0]).flatten()[0], total_costs_new, alpha, self.margin, delta_cost_quadratic_approx.flatten()[0], traj_diff))
+            run_time += 1
+
+        self._alpha_scaling = alpha
+        return alpha
+
+    def _linesearch_trustregion_ratio(self, beta = 0.9, iteration = None, visualize_hallucination = False):
+        """ Linesearch using trust region. """
+        """
+        beta (float) -> discounted term
+        iteration (int) -> current iteration
+        """
+        
+        alpha_converged = False
+        alpha = 1.0
+        run_time = 0
+        
+        while not alpha_converged and run_time < 50:
+            # Use this alpha in compute_operating_point
+            self._alpha_scaling = alpha
+            
+            # With this alpha, compute trajectory and controls from self._compute_operating_point
+            # For this trajectory, calculate t* and if L or g comes out of min-max
+            xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
+            
+            # Visualize hallucinated traj
+            if visualize_hallucination:
+                plt.figure(1)
+                self._visualizer.plot(trust_region=self.margin)
+                plt.plot([x[0, 0] for x in xs], [x[1, 0] for x in xs],
+                    "-r",
+                    alpha = 0.4,
+                    linewidth = 2,
+                    zorder=10
+                )
+                plt.pause(0.001)
+                plt.clf()
+
+            new_t_star, total_costs_new = self._rollout(xs, us, 0, first_t_star=True)
+
+            traj_diff = max([np.linalg.norm(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[:,:2,:], np.array(self._current_operating_point[0])[:,:2,:])])
+
+            for i in range(self._num_players):
+                old_t_star = self._first_t_stars[i]
+                Q = self._Qs[i][old_t_star]
+                q = self._ls[i][old_t_star]
                 x_diff = [(np.array(x_old) - np.array(x_new)) for x_new, x_old in zip(np.array(xs)[new_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
                 # x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[old_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
                 delta_cost_quadratic_approx = 0.5 * (np.transpose(x_diff) @ Q + 2 * np.transpose(q)) @ x_diff
