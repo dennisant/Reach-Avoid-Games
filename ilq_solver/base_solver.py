@@ -197,7 +197,7 @@ class BaseSolver(ABC):
             
             if self.linesearch:
                 if self.linesearch_type == "trust_region":
-                    self._alpha_scaling = self._linesearch_trustregion_naive(iteration = self.iteration, visualize_hallucination=self.hallucinated)
+                    self._alpha_scaling = self._linesearch_trustregion_ratio(iteration = self.iteration, visualize_hallucination=self.hallucinated)
                 elif self.linesearch_type == "armijo":
                     self._alpha_scaling = self._linesearch_armijo(iteration = self.iteration)
                 else:

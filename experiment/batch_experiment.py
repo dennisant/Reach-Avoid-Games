@@ -105,6 +105,7 @@ class Batch(object):
         end_traj = []
         terminal_cost = []
         iteration = []
+        experiment_list = []
 
         for exp in list_of_experiments:
             log_path = os.path.join("result", self.batch_name, exp, "logs", "{}.pkl".format(self.exp_suffix))
@@ -115,6 +116,8 @@ class Batch(object):
             except EOFError:
                 print("\t\t\t>> Dropping exp {} due to EOFError, please manually check the file".format(exp))
                 continue
+
+            experiment_list.append(exp)
 
             # get is_converged data
             if "is_converged" in data.keys():
@@ -144,4 +147,4 @@ class Batch(object):
             else:
                 raise ValueError("Cannot find iteration information")
 
-        return is_converged, start_traj, end_traj, terminal_cost, iteration, list_of_experiments
+        return is_converged, start_traj, end_traj, terminal_cost, iteration, experiment_list

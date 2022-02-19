@@ -614,8 +614,8 @@ class ILQSolver(BaseSolver):
                 old_t_star = self._first_t_stars[i]
                 Q = self._Qs[i][old_t_star]
                 q = self._ls[i][old_t_star]
-                # x_diff = [(np.array(x_old) - np.array(x_new)) for x_new, x_old in zip(np.array(xs)[new_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
-                x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[old_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
+                x_diff = [(np.array(x_old) - np.array(x_new)) for x_new, x_old in zip(np.array(xs)[new_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
+                # x_diff = [(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[old_t_star,:,:], np.array(self._current_operating_point[0])[old_t_star,:,:])]
                 delta_cost_quadratic_approx = 0.5 * (np.transpose(x_diff) @ Q + 2 * np.transpose(q)) @ x_diff
             
             delta_cost_quadratic_actual = self._total_costs[0] - total_costs_new
@@ -625,10 +625,10 @@ class ILQSolver(BaseSolver):
             # if np.linalg.norm(np.array(x_diff)) <= self.margin:
             if traj_diff < self.margin:
                 if rho < 0.25:
-                    self.margin = 0.5 * self.margin
+                    self.margin = 0.75 * self.margin
                 else: 
                     if rho > 0.75 and abs(np.linalg.norm(np.array(x_diff)) - self.margin) < 0.01:
-                        self.margin = min(2.0 * self.margin, 15.0)
+                        self.margin = min(2.0 * self.margin, 7.0)
                 
                 alpha_converged = True
             else:
