@@ -72,7 +72,16 @@ class Batch(object):
         
         return df
     
-    def visualize_all_runs(self):
+    def get_success_run(self):
+        return self.data[self.data["is_converged"]==True]
+    
+    def visualize_all_runs(self, **kwargs):
+        if "data" in kwargs.keys():
+            print("\t\t>> Replace all data with filtered data passed")
+            data = kwargs["data"]
+        else:
+            data = self.data
+
         visualizer = Visualizer(
             [(0, 1)],
             [ProximityCost(self.info["l_params"][0]["car"], self.info["g_params"][0]["car"]), ObstacleDistCost(self.info["g_params"][0]["car"])],
@@ -83,8 +92,8 @@ class Batch(object):
             draw_cars = False
         )
 
-        for i in range(self.data.shape[0]):
-            xs = self.data.iloc[i]["end_traj"]
+        for i in range(data.shape[0]):
+            xs = data.iloc[i]["end_traj"]
             visualizer.add_trajectory(None, {"xs": xs})
             plt.scatter(np.array(xs)[[0]][0][0], np.array(xs)[[0]][0][1], color="firebrick", zorder=10)
             plt.scatter(np.array(xs)[[-1]][0][0], np.array(xs)[[-1]][0][1], color="aqua", zorder=10, alpha = 0.4)

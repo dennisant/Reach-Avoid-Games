@@ -71,12 +71,12 @@ obstacle_flag = " --obstacles             \
 goal_flag = " --goal 6.0 40.0 2.0"
 
 # Dynamic params
-no_of_runs = 20
+no_of_runs = 100
 v = np.random.uniform(3, 10, no_of_runs)
 time_horizon = np.random.randint(3, 11, no_of_runs)
 max_runtime = 150
 
-run_type = "time_consistent"
+run_type = "both"
 if run_type not in ["time_consistent", "time_inconsistent", "both"]:
     raise ValueError("Run type not found: {}".format(run_type))
 
