@@ -613,12 +613,10 @@ class ILQSolver(BaseSolver):
                 if rho < 0.25:
                     self.margin = 0.5 * self.margin
                 else: 
-                    distance_to_margin = self.margin - traj_diff
-                    if rho > 0.75 and distance_to_margin < 0.1:
+                    if rho > 0.75 and abs(np.linalg.norm(np.array(x_diff)) - self.margin) < 0.01:
                         self.margin = min(2.0 * self.margin, 15.0)
                 
-                if rho > 0:
-                    alpha_converged = True
+                alpha_converged = True
             else:
                 alpha = beta * alpha
                 if alpha < 1e-10:
