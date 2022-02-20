@@ -10,7 +10,7 @@ cmd = "python3 run.py                                       \
             3.75 40.0 {} 0.0 15.0                           \
             -2.0 30.0 0.0 2.0                               \
         --draw_roads                                        \
-        --linesearch --linesearch_type trust_region         \
+        --alpha_scaling trust_region                        \
         --boundary_only                                     \
         --hallucinated                                      \
         ".format(np.pi/2.01, -np.pi/2.01)

@@ -7,7 +7,7 @@ cmd = "python3 run.py                                       \
         --no_players 1                                      \
         --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 \
         --goal 6.0 40.0 2.0                                 \
-        --linesearch --linesearch_type trust_region         \
+        --alpha_scaling trust_region                        \
         --t_horizon 12.0                                    \
         --eps_control 0.1 --eps_state 0.1                   \
         --hallucinated                                      \

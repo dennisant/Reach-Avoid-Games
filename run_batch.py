@@ -52,7 +52,7 @@ base_flag = "   python3 run.py                      \
                 --env_type goal_with_obs            \
                 --eps_control 0.1 --eps_state 0.1   \
                 --linesearch                        \
-                --linesearch_type trust_region      \
+                --alpha_scaling trust_region        \
                 --batch_run                         \
                 --plot                              \
                 --log                               \

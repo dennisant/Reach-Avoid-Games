@@ -423,8 +423,11 @@ class ILQSolver(BaseSolver):
         self._alpha_scaling = alpha
         return alpha
     
-    def _linesearch_trustregion(self, beta = 0.9, iteration = None, visualize_hallucination = False):
-        """ Linesearch using trust region. """
+    def _trustregion_conservative(self, beta = 0.9, iteration = None, visualize_hallucination = False):
+        """ 
+        Trust region method 
+        This method will scale up and down trust region and alpha simultaneously in one iteration until it finds a good value
+        """
         """
         beta (float) -> discounted term
         iteration (int) -> current iteration
@@ -496,8 +499,12 @@ class ILQSolver(BaseSolver):
         self._alpha_scaling = alpha
         return alpha
 
-    def _linesearch_trustregion_naive(self, beta = 0.9, iteration = None, visualize_hallucination = False):
-        """ Linesearch using trust region. """
+    def _trustregion_naive(self, beta = 0.9, iteration = None, visualize_hallucination = False):
+        """ 
+        Trust region method
+        This method of trust region uses the error from subtracting the estimated delta cost and actual delta cost.
+        Once the trajectory is within the trust region, we scale the trust region based on error value and ends the iteration.
+        """
         """
         beta (float) -> discounted term
         iteration (int) -> current iteration
@@ -543,6 +550,7 @@ class ILQSolver(BaseSolver):
             delta_cost_quadratic_actual = total_costs_new - self._total_costs[0]
             error = delta_cost_quadratic_approx - delta_cost_quadratic_actual
 
+            # TODO: CONFIRM WHICH METHOD TO USE
             """
             Old method
                 [-inf, 0.8]: maintain margin
@@ -574,8 +582,11 @@ class ILQSolver(BaseSolver):
         self._alpha_scaling = alpha
         return alpha
 
-    def _linesearch_trustregion_ratio(self, beta = 0.9, iteration = None, visualize_hallucination = False):
-        """ Linesearch using trust region. """
+    def _trustregion_ratio(self, beta = 0.9, iteration = None, visualize_hallucination = False):
+        """ 
+        Trust region method 
+        This method follows algorithm (4.1) in Nocedal Numerical Optimization: using rho as the ratio between the actual delta cost and estimated delta cost
+        """
         """
         beta (float) -> discounted term
         iteration (int) -> current iteration

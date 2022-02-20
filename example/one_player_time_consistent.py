@@ -12,7 +12,7 @@ cmd = "python3 run.py                                       \
                 2.5 50.0 2.0                                \
         --goal 6.0 40.0 2.0                                 \
         --time_consistency                                  \
-        --linesearch --linesearch_type trust_region         \
+        --alpha_scaling trust_region                        \
         --t_horizon 12.0                                    \
         --eps_control 0.1 --eps_state 0.1                   \
         --hallucinated                                      \

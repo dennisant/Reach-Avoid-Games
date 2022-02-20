@@ -56,8 +56,7 @@ class BaseSolver(ABC):
         self._visualizer = visualizer
         self._logger = logger
 
-        self.linesearch = config["args"].linesearch
-        self.linesearch_type = config["args"].linesearch_type
+        self.alpha_scaling_type = config["args"].alpha_scaling
 
         # Log some of the paramters.
         if self._logger is not None and self.log:
@@ -68,7 +67,7 @@ class BaseSolver(ABC):
             self._logger.log("l_params", self.l_params)
             self._logger.log("exp_info", self.exp_info)
 
-        if self.linesearch and self.linesearch_type == "trust_region":
+        if self.alpha_scaling_type == "trust_region":
             self.margin = 5.0
 
     @abstractmethod
@@ -195,10 +194,10 @@ class BaseSolver(ABC):
             self._alphas = alphas
             self._ns = ns
             
-            if self.linesearch:
-                if self.linesearch_type == "trust_region":
-                    self._alpha_scaling = self._linesearch_trustregion_ratio(iteration = self.iteration, visualize_hallucination=self.hallucinated)
-                elif self.linesearch_type == "armijo":
+            if self.alpha_scaling_type is not None:
+                if self.alpha_scaling_type == "trust_region":
+                    self._alpha_scaling = self._trustregion_ratio(iteration = self.iteration, visualize_hallucination=self.hallucinated)
+                elif self.alpha_scaling_type == "armijo":
                     self._alpha_scaling = self._linesearch_armijo(iteration = self.iteration)
                 else:
                     self._alpha_scaling = 0.05
@@ -254,11 +253,15 @@ class BaseSolver(ABC):
                 self._logger.dump()
 
     @abstractmethod
-    def _linesearch_trustregion(self, **kwargs):
+    def _trustregion_conservative(self, **kwargs):
         raise NotImplementedError
     
     @abstractmethod
-    def _linesearch_trustregion_naive(self, **kwargs):
+    def _trustregion_naive(self, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
+    def _trustregion_ratio(self, **kwargs):
         raise NotImplementedError
     
     @abstractmethod

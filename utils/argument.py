@@ -8,7 +8,6 @@ def get_argument():
     parser.add_argument("--no_players",         help="Number of players",       type=int,       default=1)
     parser.add_argument("--time_consistency",   help="Is the run time consistent",  action="store_true")
     parser.add_argument("--adversarial",        help="Is the run adversarial",      action="store_true")
-    parser.add_argument("--linesearch",         help="Is linesearch used",          action="store_true")
 
     parser.add_argument("--batch_run",          help="Experiment is running in batch",          action="store_true")
 
@@ -21,7 +20,7 @@ def get_argument():
     parser.add_argument("--init_states",        help="Init states for all players",     default=[0.0, 0.0, 0.0, 0.0, 0.0], type=float, nargs="*")
 
     parser.add_argument("--env_type",           help="Type of environment",             default=None,       choices=["goal_with_obs", "t_intersection"])
-    parser.add_argument("--linesearch_type",    help="Type of linesearch",              default=None,       choices=["armijo", "trust_region"])
+    parser.add_argument("--alpha_scaling",      help="Method to do alpha scaling",      default=None,       choices=["armijo", "trust_region"])
 
     parser.add_argument("--eps_state",          help="Epsilon state for Player Cost",           type=float,     default=0.1)    
     parser.add_argument("--eps_control",        help="Epsilon control for Player Cost",         type=float,     default=0.1)    
@@ -108,8 +107,7 @@ def check_argument(args):
     elif args.env_type == "t_intersection":
         print(" - Player types:\t\t\t {}".format(args.player_types))
         print(" - Init states:\t\t\t\t {}".format(args.init_states))
-    print(" - Linesearch:\t\t\t\t {}".format(args.linesearch))
-    print(" - Linesearch type:\t\t\t {}".format(args.linesearch_type))
+    print(" - Alpha scaling:\t\t\t {}".format(args.alpha_scaling))
     print("\nVisualization")
     print(" - Run with plots?:\t\t\t {}".format(args.plot))
     print(" - Run with control plot?:\t\t {}".format(args.ctl_plot))

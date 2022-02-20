@@ -11,7 +11,7 @@ cmd = "python3 run.py                                       \
             -2.0 30.0 0.0 2.0                               \
         --time_consistency                                  \
         --draw_roads                                        \
-        --linesearch --linesearch_type trust_region         \
+        --alpha_scaling trust_region                        \
         --boundary_only                                     \
         --hallucinated                                      \
         ".format(np.pi/2.01, -np.pi/2.01)
