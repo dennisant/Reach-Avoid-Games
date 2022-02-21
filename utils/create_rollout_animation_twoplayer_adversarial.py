@@ -15,60 +15,9 @@ import math
 import pandas as pd
 import imageio
 
+from utils.utils import draw_crosswalk, draw_real_car
+
 #! NEED TO MERGE WITH evaluate.py
-
-def draw_real_car(player_id, car_states, path=None):
-    # TODO: change all the constants in the function to car_params
-    car_params = {
-        "wheelbase": 2.413, 
-        "length": 4.267,
-        "width": 1.988
-    }
-    
-    for i in range(len(car_states)):
-        if player_id == 0:
-            state = car_states[i][:5].flatten()
-            color = "r"
-            path = "visual_components/delorean.png" if path is None else path
-        else:
-            state = car_states[i][5:].flatten()
-            color = "g"
-            path = "visual_components/car_robot_r.png" if path is None else path
-
-        transform_data = Affine2D().rotate_deg_around(*(state[0], state[1]), state[2]/np.pi * 180) + plt.gca().transData
-        # plt.plot(state[0], state[1], color=color, marker='o', markersize=5, alpha = 0.4)
-        if i % 5 == 0:
-            plt.imshow(
-                plt.imread(path, format="png"), 
-                transform = transform_data, 
-                interpolation='none',
-                origin='lower',
-                extent=[state[0] - 0.927, state[0] + 3.34, state[1] - 0.944, state[1] + 1.044],
-                alpha = 1.0, 
-                # alpha=(1.0/len(car_states))*i,
-                zorder = 10.0,
-                clip_on=True)
-
-def draw_real_human(states, variation=0):
-    for i in range(len(states)):
-        state = states[i][10:]
-        transform_data = Affine2D().rotate_deg_around(*(state[0], state[1]), (state[2] + np.pi * 0.5)/np.pi * 180) + plt.gca().transData
-        plt.imshow(
-            plt.imread("visual_components/human-walking-topdown-step{}.png".format(variation), format="png"), 
-            transform = transform_data, 
-            interpolation='none',
-            origin='lower',
-            extent=[state[0] - 1.2, state[0] + 1.2, state[1] + 1.2, state[1] - 1.2],
-            zorder = 10.0,
-            clip_on=True
-        )
-
-def draw_crosswalk(x, y, width, length, number_of_dashes = 5):
-    per_length = length * 0.5 / number_of_dashes
-    for i in range(number_of_dashes):
-        crosswalk = plt.Rectangle(
-            [x + (2*i + 0.5)*per_length, y], width = per_length, height = width, color = "white", lw = 0, zorder = 0)
-        plt.gca().add_patch(crosswalk)
 
 # Read log
 dir = "logs"
