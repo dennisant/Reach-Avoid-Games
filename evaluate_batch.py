@@ -6,22 +6,29 @@ from cost.obstacle_penalty import ObstacleDistCost
 from cost.proximity_cost import ProximityCost
 import matplotlib.pyplot as plt
 from utils.visualizer import Visualizer
+import argparse
 
-batch_name = "batch-2022-02-15-time-consistent-1"
-exp_suffix = "exp_time_inconsistent"
+parser = argparse.ArgumentParser()
+parser.add_argument("--loadpath",       help="Path of batch",       required=True)
+parser.add_argument("--exp_suffix",     help="Suffix of exp name",  required=True)
+
+args = parser.parse_args()
+
+loadpath = args.loadpath
+exp_suffix = args.exp_suffix
 is_converged = []
 xs = []
 
-if not os.path.exists("result/" + batch_name):
-    raise ValueError("Batch does not exist: " + batch_name)
+if not os.path.exists(loadpath):
+    raise ValueError("Batch does not exist: " + loadpath)
 
 print("Collecting all experiments in batch")
-list_of_experiments = sorted([dir for dir in os.listdir("result/" + batch_name) if exp_suffix in dir])
+list_of_experiments = sorted([dir for dir in os.listdir(loadpath) if exp_suffix in dir])
 print("\t>> Found {} experiments".format(len(list_of_experiments)))
 print("Collecting status and final trajectory of each experiment")
 for exp in list_of_experiments:
     print("\t\t>> Loading experiment: {}".format(exp))
-    log_path = os.path.join("result", batch_name, exp, "logs", "{}.pkl".format(exp_suffix))
+    log_path = os.path.join(loadpath, exp, "logs", "{}.pkl".format(exp_suffix))
     
     try:
         with open(log_path, "rb") as log:
@@ -64,7 +71,7 @@ for i in range(len(xs)):
     # visualizer.draw_real_car(0, np.array(xs[i][-1])[[0]])
     visualizer.plot(alpha = 0.4, base_size = 20.0)
 
-summary_dir = os.path.join(os.getcwd(), "result", batch_name, "summary")
+summary_dir = os.path.join(os.getcwd(), loadpath, "summary")
 if not os.path.exists(summary_dir):
     os.makedirs(summary_dir)
 
