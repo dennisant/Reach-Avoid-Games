@@ -1,4 +1,6 @@
 """
+Range of data to run for batch run
+
 x: [-20, 30]
 y: [-2, 60]
 theta: [0, 2*pi]

@@ -5,14 +5,17 @@ import matplotlib.patches as patches
 from matplotlib import animation, markers
 import os
 from matplotlib.transforms import Affine2D
-from player.car_5d import Car5D
-from proximity_cost_reach_avoid_twoplayer import PedestrianProximityToBlockCost, ProximityToBlockCost
-from player_cost_reachavoid_timeconsistent import PlayerCost
-from player.unicycle_4d import Unicycle4D
+from resource.car_5d import Car5D
+from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
+from cost.proximity_cost import ProximityToBlockCost
+from player_cost.player_cost import PlayerCost
+from resource.unicycle_4d import Unicycle4D
 
 import math
 import pandas as pd
 import imageio
+
+#! NEED TO MERGE WITH evaluate.py
 
 def draw_real_car(player_id, car_states, path=None):
     # TODO: change all the constants in the function to car_params

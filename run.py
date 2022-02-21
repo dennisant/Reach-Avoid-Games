@@ -9,13 +9,13 @@ try:
     if args.no_players == 1 and args.env_type == "goal_with_obs":
         one_player(args)
     elif args.no_players == 2 and not args.time_consistency and args.env_type == "t_intersection":
-        pass
+        raise NotImplementedError("two-player case not yet refactored")
     elif args.no_players == 2 and args.time_consistency and args.env_type == "t_intersection":
-        pass
+        raise NotImplementedError("two-player case not yet refactored")
     elif args.no_players == 2 and not args.time_consistency and args.env_type == "t_intersection" and args.adversarial:
-        pass
+        raise NotImplementedError("two-player case not yet refactored")
     elif args.no_players == 2 and args.time_consistency and args.env_type == "t_intersection" and args.adversarial:
-        pass
+        raise NotImplementedError("two-player case not yet refactored")
     elif args.no_players == 3 and args.env_type == "t_intersection":
         three_player(args)
     else:
