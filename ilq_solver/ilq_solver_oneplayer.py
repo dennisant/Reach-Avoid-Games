@@ -653,7 +653,7 @@ class ILQSolver(BaseSolver):
         self._alpha_scaling = alpha
         return alpha
 
-    def _linesearch_armijo(self, beta=0.9, iteration = None):
+    def _linesearch_armijo(self, beta=0.9, iteration = None, visualize_hallucination = False):
         """ Linesearch using armijo condition. """
         """
         beta (float) -> discounted term
@@ -687,6 +687,19 @@ class ILQSolver(BaseSolver):
                 alpha = beta * alpha
                 if alpha < 1e-10:
                     raise ValueError("alpha too small")
+            
+            # Visualize hallucinated traj
+            if visualize_hallucination:
+                plt.figure(1)
+                self._visualizer.plot()
+                plt.plot([x[0, 0] for x in xs], [x[1, 0] for x in xs],
+                    "-r",
+                    alpha = 0.4,
+                    linewidth = 2,
+                    zorder=10
+                )
+                plt.pause(0.001)
+                plt.clf()
         
         self._alpha_scaling = alpha
         return alpha

@@ -21,6 +21,7 @@ def get_argument():
 
     parser.add_argument("--env_type",           help="Type of environment",             default=None,       choices=["goal_with_obs", "t_intersection"])
     parser.add_argument("--alpha_scaling",      help="Method to do alpha scaling",      default=None,       choices=["armijo", "trust_region"])
+    parser.add_argument("--initial_margin",     help="Initial margin for trust region",         type=float,     default=5.0)
 
     parser.add_argument("--eps_state",          help="Epsilon state for Player Cost",           type=float,     default=0.1)    
     parser.add_argument("--eps_control",        help="Epsilon control for Player Cost",         type=float,     default=0.1)    
@@ -35,6 +36,7 @@ def get_argument():
 
     # solver params
     parser.add_argument("--log",                help="Turn on log for exp",             action="store_true")
+    parser.add_argument("--store_freq",         help="Logging frequency",               type=int,               default=5)
     parser.add_argument("--plot",               help="Turn on plot for exp",            action="store_true")
     parser.add_argument("--vel_plot",           help="Turn on vel plot for exp",        action="store_true")
     parser.add_argument("--ctl_plot",           help="Turn on ctl plot for exp",        action="store_true")

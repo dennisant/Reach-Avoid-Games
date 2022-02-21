@@ -55,6 +55,7 @@ class BaseSolver(ABC):
         # Set up visualizer.
         self._visualizer = visualizer
         self._logger = logger
+        self._store_freq = config["args"].store_freq
 
         self.alpha_scaling_type = config["args"].alpha_scaling
 
@@ -68,7 +69,7 @@ class BaseSolver(ABC):
             self._logger.log("exp_info", self.exp_info)
 
         if self.alpha_scaling_type == "trust_region":
-            self.margin = 5.0
+            self.margin = config["args"].initial_margin
 
     @abstractmethod
     def _TimeStar(self, xs, us, player_index, **kwargs):
@@ -97,7 +98,7 @@ class BaseSolver(ABC):
         # Trying to store stuff in order to plot cost
         store_total_cost = []
         iteration_store = []
-        store_freq = 5
+        store_freq = self._store_freq
         
         while not self._is_converged() and (self.max_steps is not None and self.iteration < self.max_steps):
             # # (1) Compute current operating point and update last one.
@@ -196,12 +197,13 @@ class BaseSolver(ABC):
             
             if self.alpha_scaling_type is not None:
                 if self.alpha_scaling_type == "trust_region":
-                    self._alpha_scaling = self._trustregion_ratio(iteration = self.iteration, visualize_hallucination=self.hallucinated)
+                    self._alpha_scaling = self._trustregion_constant_radius(iteration = self.iteration, visualize_hallucination=self.hallucinated)
                 elif self.alpha_scaling_type == "armijo":
-                    self._alpha_scaling = self._linesearch_armijo(iteration = self.iteration)
+                    self._alpha_scaling = self._linesearch_armijo(iteration = self.iteration, visualize_hallucination=self.hallucinated)
                 else:
                     self._alpha_scaling = 0.05
             else:
+                # self._alpha_scaling = 0.1
                 self._alpha_scaling = 1.0 / ((self.iteration + 1) * 0.5) ** 0.3
                 if self._alpha_scaling < .2:
                     self._alpha_scaling = .2
@@ -254,6 +256,10 @@ class BaseSolver(ABC):
 
     @abstractmethod
     def _trustregion_conservative(self, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
+    def _trustregion_constant_radius(self, **kwargs):
         raise NotImplementedError
     
     @abstractmethod

@@ -41,6 +41,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from cost.road_rules_penalty import RoadRulesPenalty
 
 from resource.car_5d import Car5D
 from resource.product_multiplayer_dynamical_system import \
@@ -66,7 +67,12 @@ def three_player(args):
     HORIZON_STEPS = int(TIME_HORIZON / TIME_RESOLUTION)
 
     EXP_NAME = args.exp_name
-    LOG_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
+    if args.batch_run:
+        RESULT_DIRECTORY = "./result/batch-" + datestr + "/" + EXP_NAME + "_" + timestr + "/"
+    else:
+        RESULT_DIRECTORY = "./result/" + EXP_NAME + "_" + timestr + "/"
+    LOG_DIRECTORY = RESULT_DIRECTORY + "logs/"
+    FIGURE_DIRECTORY = RESULT_DIRECTORY + "figures/"
 
     # Create dynamics.
     car1 = Car5D(2.413)
@@ -142,7 +148,9 @@ def three_player(args):
         "l_params": None,
         "experiment": {
             "name": EXP_NAME,
-            "log_dir": LOG_DIRECTORY
+            "result_dir": RESULT_DIRECTORY,
+            "log_dir": LOG_DIRECTORY,
+            "figure_dir": FIGURE_DIRECTORY
         }
     }
     ###################
@@ -187,7 +195,7 @@ def three_player(args):
     visualizer = Visualizer(
         [car1_position_indices_in_product_state, car2_position_indices_in_product_state, ped_position_indices_in_product_state],
         [car1_goal_cost, car2_goal_cost, ped_goal_cost
-        # RoadRulesPenalty(g_params["car1"])
+        # RoadRulesPenalty(g_params["car2"])
         ],
         [".-g", ".-r", ".-b"],
         1,
@@ -198,8 +206,12 @@ def three_player(args):
 
     # Logger.
     if args.log or args.plot:
-        if not os.path.exists(LOG_DIRECTORY):
+        if not os.path.exists(RESULT_DIRECTORY):
+            os.makedirs(RESULT_DIRECTORY)
+        if args.log and not os.path.exists(LOG_DIRECTORY):
             os.makedirs(LOG_DIRECTORY)
+        if args.plot and not os.path.exists(FIGURE_DIRECTORY):
+            os.makedirs(FIGURE_DIRECTORY)
 
     if args.log:
         logger = Logger(os.path.join(LOG_DIRECTORY, EXP_NAME + '.pkl'))
