@@ -197,16 +197,15 @@ class BaseSolver(ABC):
             
             if self.alpha_scaling_type is not None:
                 if self.alpha_scaling_type == "trust_region":
-                    self._alpha_scaling = self._trustregion_constant_radius(iteration = self.iteration, visualize_hallucination=self.hallucinated)
+                    self._alpha_scaling = self._trustregion_ratio(iteration = self.iteration, visualize_hallucination=self.hallucinated)
                 elif self.alpha_scaling_type == "armijo":
                     self._alpha_scaling = self._linesearch_armijo(iteration = self.iteration, visualize_hallucination=self.hallucinated)
                 else:
-                    self._alpha_scaling = 0.05
+                    self._alpha_scaling = 0.01
             else:
-                # self._alpha_scaling = 0.1
                 self._alpha_scaling = 1.0 / ((self.iteration + 1) * 0.5) ** 0.3
-                if self._alpha_scaling < .2:
-                    self._alpha_scaling = .2
+                if self._alpha_scaling < .01:
+                    self._alpha_scaling = .01
 
             # Log everything.
             if self._logger is not None and self.log and self.iteration%store_freq == 0:

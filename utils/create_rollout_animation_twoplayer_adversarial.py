@@ -7,7 +7,7 @@ import os
 from matplotlib.transforms import Affine2D
 from resource.car_5d import Car5D
 from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
-from cost.proximity_cost import ProximityToBlockCost
+from cost.proximity_to_block_cost import ProximityToDownBlockCost, ProximityToUpBlockCost
 from player_cost.player_cost import PlayerCost
 from resource.unicycle_4d import Unicycle4D
 
@@ -108,8 +108,8 @@ g_params = {
 }
 ###################
 # Create environment:
-car1_goal_cost = ProximityToBlockCost(g_params["car1"])
-car2_goal_cost = ProximityToBlockCost(g_params["car2"])
+car1_goal_cost = ProximityToUpBlockCost(g_params["car1"])
+car2_goal_cost = ProximityToDownBlockCost(g_params["car2"])
 
 # Player ids
 car1_player_id = 0

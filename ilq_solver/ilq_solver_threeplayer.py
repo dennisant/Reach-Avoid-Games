@@ -47,7 +47,7 @@ from collections import deque
 from cost.maneuver_penalty import ManeuverPenalty
 from ilq_solver.base_solver import BaseSolver
 from player_cost.player_cost import PlayerCost
-from cost.proximity_cost import ProximityToBlockCost
+from cost.proximity_to_block_cost import ProximityToLeftBlockCost, ProximityToUpBlockCost
 from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
 from cost.collision_penalty import CollisionPenalty
 from cost.pedestrian_collision_penalty import PedestrianToCarCollisionPenalty
@@ -223,8 +223,8 @@ class ILQSolver(BaseSolver):
         }
 
         l_functions = {
-            0: ProximityToBlockCost(g_params["car1"]),
-            1: ProximityToBlockCost(g_params["car2"]),
+            0: ProximityToUpBlockCost(g_params["car1"]),
+            1: ProximityToLeftBlockCost(g_params["car2"]),
             2: PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
         }
 
@@ -454,8 +454,8 @@ class ILQSolver(BaseSolver):
         }
 
         l_functions = {
-            0: ProximityToBlockCost(g_params["car1"]),
-            1: ProximityToBlockCost(g_params["car2"]),
+            0: ProximityToUpBlockCost(g_params["car1"]),
+            1: ProximityToLeftBlockCost(g_params["car2"]),
             2: PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
         }
 
@@ -652,14 +652,14 @@ class ILQSolver(BaseSolver):
             traj_diff = max([np.linalg.norm(np.array(x_new) - np.array(x_old)) for x_new, x_old in zip(np.array(xs)[:,[0, 1, 5, 6, 10, 11],:], np.array(self._current_operating_point[0])[:,[0, 1, 5, 6, 10, 11],:])])
 
             delta_cost_quadratic_actual = total_costs_new - self._total_costs
-            error = np.array(delta_cost_quadratic_approx - delta_cost_quadratic_actual).astype(np.float16)
+            error = np.array(delta_costs_quadratic_approx - delta_cost_quadratic_actual).astype(np.float16)
 
             if traj_diff < self.margin:
                 if np.array_equal(old_error, error):
                     alpha_converged = True
                 else:
                     old_error = error
-                    if (abs(error[0,0]) < 1.2 and abs(error[0,0]) > 0.8) and (abs(error[0,1]) < 1.2 and abs(error[0,1]) > 0.8) and (abs(error[0,2]) < 1.2 and abs(error[0,2]) > 0.8):
+                    if (abs(error[0]) < 1.2 and abs(error[0]) > 0.8) and (abs(error[1]) < 1.2 and abs(error[1]) > 0.8) and (abs(error[2]) < 1.2 and abs(error[2]) > 0.8):
                         self.margin = self.margin * 1.5
                         alpha = 1.0
                         alpha_converged = False

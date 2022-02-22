@@ -31,8 +31,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Author(s): 
     David Fridovich-Keil (dfk@eecs.berkeley.edu)
-    Dennis Anthony (dennisra@princeton.edu)
-    Duy Phuong Nguyen (duyn@princeton.edu)
 """
 ################################################################################
 #
@@ -581,6 +579,9 @@ class ILQSolver(BaseSolver):
 
         self._alpha_scaling = alpha
         return alpha
+
+    def _trustregion_constant_radius(self, **kwargs):
+        return super()._trustregion_constant_radius(**kwargs)
 
     def _trustregion_ratio(self, beta = 0.9, iteration = None, visualize_hallucination = False):
         """ 

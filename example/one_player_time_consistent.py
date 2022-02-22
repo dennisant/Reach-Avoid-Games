@@ -53,4 +53,4 @@ sample_run_3 = "python3 run.py                                      \
                 --hallucinated                                      \
                 ".format(np.pi/2.0)
 
-os.system(sample_run_3)
+os.system(sample_run_2)

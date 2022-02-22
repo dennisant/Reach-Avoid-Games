@@ -7,8 +7,8 @@ import matplotlib.patches as patches
 from matplotlib import animation, markers
 import os
 from matplotlib.transforms import Affine2D
+from cost.proximity_to_block_cost import ProximityToLeftBlockCost, ProximityToUpBlockCost
 from resource.car_5d import Car5D
-from cost.proximity_cost import ProximityToBlockCost
 from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
 from player_cost.player_cost import PlayerCost
 from resource.unicycle_4d import Unicycle4D
@@ -145,8 +145,8 @@ def final_rollout():
     }
     ###################
     # Create environment:
-    car1_goal_cost = ProximityToBlockCost(g_params["car1"])
-    car2_goal_cost = ProximityToBlockCost(g_params["car2"])
+    car1_goal_cost = ProximityToUpBlockCost(g_params["car1"])
+    car2_goal_cost = ProximityToLeftBlockCost(g_params["car2"])
     ped_goal_cost = PedestrianProximityToBlockCost(g_params["ped1"])
 
     # Player ids

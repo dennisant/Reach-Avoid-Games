@@ -47,9 +47,9 @@ from collections import deque
 import os
 
 from player_cost.player_cost import PlayerCost
-from cost.proximity_cost import ProximityToBlockCost
-from cost.distance_twoplayer_cost import CollisionPenalty
-from cost.semiquadratic_polyline_cost_any import RoadRulesPenalty
+from cost.proximity_to_block_cost import ProximityToUpBlockCost
+from cost.collision_penalty import CollisionPenalty
+from cost.road_rules_penalty import RoadRulesPenalty
 from solve_lq_game.solve_lq_game_reachavoid_twoplayer_timeconsistent_adversarial import solve_lq_game
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")
@@ -599,7 +599,7 @@ class ILQSolver(object):
             for k in range(self._horizon, -1, -1): # T to 0
                 self._player_costs[ii] = PlayerCost()
                 
-                hold_new = ProximityToBlockCost(g_params["car1"])(xs[k])
+                hold_new = ProximityToUpBlockCost(g_params["car1"])(xs[k])
                 target_margin_func[k] = hold_new
 
                 max_g_func = self._CheckMultipleFunctionsP1_refactored(g_params, xs, k)
@@ -628,7 +628,7 @@ class ILQSolver(object):
                     func_key = max(value_function_compare, key = value_function_compare.get)
                     
                 if func_key == "l_x":
-                    c1gc = ProximityToBlockCost(g_params["car1"], "car1_goal")
+                    c1gc = ProximityToUpBlockCost(g_params["car1"], "car1_goal")
                     self._player_costs[ii].add_cost(c1gc, "x", 1.0)
                     calc_deriv_cost.appendleft("True")
                     self._calc_deriv_true_P1 = True
@@ -699,7 +699,6 @@ class ILQSolver(object):
                     func_key = max(value_function_compare, key = value_function_compare.get)
                     
                 if func_key == "l_x":
-                    # c1gc = ProximityToBlockCost(g_params["car2"], "car2_goal")
                     c1gc = max_l_func
                     self._player_costs[ii].add_cost(c1gc, "x", -1.0)
                     calc_deriv_cost.appendleft("True")

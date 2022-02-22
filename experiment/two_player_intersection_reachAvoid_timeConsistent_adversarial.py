@@ -46,7 +46,7 @@ from resource.car_10d import Car10D
 from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
 from ilq_solver.ilq_solver_twoplayer_time_consistent_adversarial import ILQSolver
-from cost.proximity_cost import ProximityToBlockCost
+from cost.proximity_to_block_cost import ProximityToLeftBlockCost, ProximityToUpBlockCost
 from player_cost.player_cost import PlayerCost
 
 from utils.visualizer import Visualizer
@@ -140,11 +140,11 @@ car2_alphas = [np.zeros((car2._u_dim, 1))] * HORIZON_STEPS
 
 # Create environment:
 car1_position_indices_in_product_state = (0, 1)
-car1_goal_cost = ProximityToBlockCost(g_params["car1"])
+car1_goal_cost = ProximityToUpBlockCost(g_params["car1"])
 
 # Environment for Car 2
 car2_position_indices_in_product_state = (5, 6)
-car2_goal_cost = ProximityToBlockCost(g_params["car2"])
+car2_goal_cost = ProximityToLeftBlockCost(g_params["car2"])
 
 # Player ids
 car1_player_id = 0

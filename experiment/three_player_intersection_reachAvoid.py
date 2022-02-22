@@ -47,7 +47,7 @@ from resource.car_5d import Car5D
 from resource.product_multiplayer_dynamical_system import \
     ProductMultiPlayerDynamicalSystem
 from ilq_solver.ilq_solver_threeplayer import ILQSolver
-from cost.proximity_cost import ProximityToBlockCost
+from cost.proximity_to_block_cost import ProximityToLeftBlockCost, ProximityToUpBlockCost
 from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
 from player_cost.player_cost import PlayerCost
 from resource.unicycle_4d import Unicycle4D
@@ -167,11 +167,11 @@ def three_player(args):
 
     # Create environment:
     car1_position_indices_in_product_state = (0, 1)
-    car1_goal_cost = ProximityToBlockCost(g_params["car1"])
+    car1_goal_cost = ProximityToUpBlockCost(g_params["car1"])
 
     # Environment for Car 2
     car2_position_indices_in_product_state = (5, 6)
-    car2_goal_cost = ProximityToBlockCost(g_params["car2"])
+    car2_goal_cost = ProximityToLeftBlockCost(g_params["car2"])
 
     # Environment for Pedestrian
     ped_position_indices_in_product_state = (10, 11)

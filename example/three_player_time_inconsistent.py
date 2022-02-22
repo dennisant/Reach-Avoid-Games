@@ -12,11 +12,9 @@ cmd = "python3 run.py                                       \
         --draw_roads                                        \
         --alpha_scaling trust_region                        \
         --boundary_only                                     \
-        --eps_state 0.1 --eps_control 0.1                   \
+        --eps_state 0.3 --eps_control 0.1                   \
         --hallucinated                                      \
-        --initial_margin 1.0                                \
-        --plot --log                                        \
-        --store_freq 1                                      \
+        --initial_margin 5.0                                \
         ".format(np.pi/2.01, -np.pi/2.01)
 
 # --draw_roads --draw_human --draw_cars
