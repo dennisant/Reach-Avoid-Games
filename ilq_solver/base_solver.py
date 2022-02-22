@@ -58,6 +58,7 @@ class BaseSolver(ABC):
         self._store_freq = config["args"].store_freq
 
         self.alpha_scaling_type = config["args"].alpha_scaling
+        self.trust_region_type = config["args"].trust_region_type
 
         # Log some of the paramters.
         if self._logger is not None and self.log:
@@ -194,10 +195,17 @@ class BaseSolver(ABC):
             self._Ps = Ps
             self._alphas = alphas
             self._ns = ns
+
+            trust_region_methods = {
+                "conservative": self._trustregion_conservative,
+                "naive": self._trustregion_naive,
+                "ratio": self._trustregion_ratio,
+                "constant_radius": self._trustregion_constant_radius
+            }
             
             if self.alpha_scaling_type is not None:
                 if self.alpha_scaling_type == "trust_region":
-                    self._alpha_scaling = self._trustregion_ratio(iteration = self.iteration, visualize_hallucination=self.hallucinated)
+                    self._alpha_scaling = trust_region_methods[self.trust_region_type](iteration = self.iteration, visualize_hallucination=self.hallucinated)
                 elif self.alpha_scaling_type == "armijo":
                     self._alpha_scaling = self._linesearch_armijo(iteration = self.iteration, visualize_hallucination=self.hallucinated)
                 else:

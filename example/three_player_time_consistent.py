@@ -13,7 +13,8 @@ cmd = "python3 run.py                                       \
         --draw_roads                                        \
         --boundary_only                                     \
         --eps_state 0.5 --eps_control 0.3                   \
-        --alpha_scaling armijo                              \
+        --alpha_scaling trust_region                        \
+        --trust_region_type naive                           \
         --hallucinated                                      \
         ".format(np.pi/1.99, -np.pi/2.01)
 

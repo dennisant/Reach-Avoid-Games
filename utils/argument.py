@@ -21,6 +21,7 @@ def get_argument():
 
     parser.add_argument("--env_type",           help="Type of environment",             default=None,       choices=["goal_with_obs", "t_intersection"])
     parser.add_argument("--alpha_scaling",      help="Method to do alpha scaling",      default=None,       choices=["armijo", "trust_region", "iterative"])
+    parser.add_argument("--trust_region_type",  help="Type of trust region to run",    default="naive",   choices=["naive", "conservative", "ratio", "constant_radius"])
     parser.add_argument("--initial_margin",     help="Initial margin for trust region",         type=float,     default=5.0)
 
     parser.add_argument("--eps_state",          help="Epsilon state for Player Cost",           type=float,     default=0.1)    
