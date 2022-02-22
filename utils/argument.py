@@ -15,13 +15,15 @@ def get_argument():
     parser.add_argument("--t_horizon",          help="Time horizon for the traj",           type=float,     default=3.0)
     parser.add_argument("--t_resolution",       help="Time react",       type=float,     default=0.1)    
 
+    parser.add_argument("--cost_converge",      help="Cost threshold to be considered as converged",           type=float,     default=0.0)
+
     parser.add_argument("--exp_name",           help="Name of experiment",              default="experiment")
     parser.add_argument("--player_types",       help="List of player types car/ped",    default=["car"],    nargs="*")
     parser.add_argument("--init_states",        help="Init states for all players",     default=[0.0, 0.0, 0.0, 0.0, 0.0], type=float, nargs="*")
 
     parser.add_argument("--env_type",           help="Type of environment",             default=None,       choices=["goal_with_obs", "t_intersection"])
     parser.add_argument("--alpha_scaling",      help="Method to do alpha scaling",      default=None,       choices=["armijo", "trust_region", "iterative"])
-    parser.add_argument("--trust_region_type",  help="Type of trust region to run",    default="naive",   choices=["naive", "conservative", "ratio", "constant_radius"])
+    parser.add_argument("--trust_region_type",  help="Type of trust region to run",    default="naive",   choices=["naive", "conservative", "ratio", "constant_margin"])
     parser.add_argument("--initial_margin",     help="Initial margin for trust region",         type=float,     default=5.0)
 
     parser.add_argument("--eps_state",          help="Epsilon state for Player Cost",           type=float,     default=0.1)    

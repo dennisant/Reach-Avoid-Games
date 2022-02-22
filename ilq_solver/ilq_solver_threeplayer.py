@@ -135,17 +135,6 @@ class ILQSolver(BaseSolver):
         """
         kwargs: if "first_t_star" is True, regardless of time consistency, pass back the total_cost = cost of first t_star
         """
-        car1_position_indices = (0, 1)
-        car2_position_indices = (5, 6)
-        ped1_position_indices = (10, 11)
-        car1_theta_index = 2
-        car2_theta_index = 7
-        ped1_theta_index = 12
-        
-        car1_player_id = 0
-        car2_player_id = 1
-        ped1_player_id = 2
-
         Qs = [deque() for i in range(self._num_players)]
         ls = [deque() for i in range(self._num_players)]
         rs = [deque() for i in range(self._num_players)]
@@ -161,71 +150,10 @@ class ILQSolver(BaseSolver):
         g_func_list = deque()
         value_func_plus = np.zeros((self._horizon+1, 1))
 
-        car_params = {
-            "wheelbase": 2.413, 
-            "length": 4.267,
-            "width": 1.988
-        }
-
-        road_rules = {
-            "x_min": 2,
-            "x_max": 9.4,
-            "y_max": 27.4,
-            "y_min": 20,
-            "width": 3.7
-        }
-
-        ped_road_rules = {
-            "x_min": 2,
-            "x_max": 9.4,
-            "y_max": 31,
-            "y_min": 29
-        }
-
-        collision_r = m.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
-
-        # order of road_logic: left, right, up, down, left_turn: [0, 1]
-        g_params = {
-            "car1": {
-                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
-                "player_id": car1_player_id, 
-                "road_rules": road_rules,
-                "collision_r": collision_r,
-                "car_params": car_params,
-                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
-                "road_logic": [0, 1, 0, 1, 0],
-                "goals": [20, 35],
-                "phi_index": 3, 
-                "vel_index": 4
-            },
-            "car2": {
-                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
-                "player_id": car2_player_id, 
-                "road_rules": road_rules,
-                "collision_r": collision_r,
-                "car_params": car_params,
-                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
-                "road_logic": [1, 0, 0, 1, 0],
-                "goals": [20, 0],
-                "phi_index": 8,
-                "vel_index": 9
-            },
-            "ped1": {
-                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
-                "player_id": ped1_player_id, 
-                "road_logic": [1, 1, 1, 1, 0],
-                "road_rules": ped_road_rules,
-                "goals": [15, 30],
-                "car_params": car_params,
-                "collision_r": collision_r,
-                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
-            }
-        }
-
         l_functions = {
-            0: ProximityToUpBlockCost(g_params["car1"]),
-            1: ProximityToLeftBlockCost(g_params["car2"]),
-            2: PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
+            0: ProximityToUpBlockCost(self.g_params["car1"]),
+            1: ProximityToLeftBlockCost(self.g_params["car2"]),
+            2: PedestrianProximityToBlockCost(self.g_params["ped1"], name="ped_goal")
         }
 
         g_functions = {
@@ -242,7 +170,7 @@ class ILQSolver(BaseSolver):
             )
             l_value_list[k] = l_func_list[0](xs[k])
 
-            max_g_func = g_functions[player_index](g_params, xs, k)
+            max_g_func = g_functions[player_index](self.g_params, xs, k)
             g_func_list.appendleft(max_g_func)
             g_value_list[k] = g_func_list[0](xs[k])
             
@@ -372,18 +300,7 @@ class ILQSolver(BaseSolver):
     def _rollout(self, xs, us, player_index, **kwargs):
         """
         kwargs: if "first_t_star" is True, regardless of time consistency, pass back the total_cost = cost of first t_star
-        """
-        car1_position_indices = (0, 1)
-        car2_position_indices = (5, 6)
-        ped1_position_indices = (10, 11)
-        car1_theta_index = 2
-        car2_theta_index = 7
-        ped1_theta_index = 12
-        
-        car1_player_id = 0
-        car2_player_id = 1
-        ped1_player_id = 2
-        
+        """        
         costs = []
         
         l_value_list = np.zeros((self._horizon+1, 1))
@@ -392,71 +309,10 @@ class ILQSolver(BaseSolver):
         g_func_list = deque()
         value_func_plus = np.zeros((self._horizon+1, 1))
 
-        car_params = {
-            "wheelbase": 2.413, 
-            "length": 4.267,
-            "width": 1.988
-        }
-
-        road_rules = {
-            "x_min": 2,
-            "x_max": 9.4,
-            "y_max": 27.4,
-            "y_min": 20,
-            "width": 3.7
-        }
-
-        ped_road_rules = {
-            "x_min": 2,
-            "x_max": 9.4,
-            "y_max": 31,
-            "y_min": 29
-        }
-
-        collision_r = m.sqrt((0.5 * (car_params["length"] - car_params["wheelbase"])) ** 2 + (0.5 * car_params["width"]) ** 2)
-
-        # order of road_logic: left, right, up, down, left_turn: [0, 1]
-        g_params = {
-            "car1": {
-                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
-                "player_id": car1_player_id, 
-                "road_rules": road_rules,
-                "collision_r": collision_r,
-                "car_params": car_params,
-                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
-                "road_logic": [0, 1, 0, 1, 0],
-                "goals": [20, 35],
-                "phi_index": 3, 
-                "vel_index": 4
-            },
-            "car2": {
-                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
-                "player_id": car2_player_id, 
-                "road_rules": road_rules,
-                "collision_r": collision_r,
-                "car_params": car_params,
-                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
-                "road_logic": [1, 0, 0, 1, 0],
-                "goals": [20, 0],
-                "phi_index": 8,
-                "vel_index": 9
-            },
-            "ped1": {
-                "position_indices": [car1_position_indices, car2_position_indices, ped1_position_indices],
-                "player_id": ped1_player_id, 
-                "road_logic": [1, 1, 1, 1, 0],
-                "road_rules": ped_road_rules,
-                "goals": [15, 30],
-                "car_params": car_params,
-                "collision_r": collision_r,
-                "theta_indices": [car1_theta_index, car2_theta_index, ped1_theta_index],
-            }
-        }
-
         l_functions = {
-            0: ProximityToUpBlockCost(g_params["car1"]),
-            1: ProximityToLeftBlockCost(g_params["car2"]),
-            2: PedestrianProximityToBlockCost(g_params["ped1"], name="ped_goal")
+            0: ProximityToUpBlockCost(self.g_params["car1"]),
+            1: ProximityToLeftBlockCost(self.g_params["car2"]),
+            2: PedestrianProximityToBlockCost(self.g_params["ped1"], name="ped_goal")
         }
 
         g_functions = {
@@ -473,7 +329,7 @@ class ILQSolver(BaseSolver):
             )
             l_value_list[k] = l_func_list[0](xs[k])
 
-            max_g_func = g_functions[player_index](g_params, xs, k)
+            max_g_func = g_functions[player_index](self.g_params, xs, k)
             g_func_list.appendleft(max_g_func)
             g_value_list[k] = g_func_list[0](xs[k])
             
@@ -762,7 +618,7 @@ class ILQSolver(BaseSolver):
         self._alpha_scaling = alpha
         return alpha
     
-    def _trustregion_constant_radius(self, beta = 0.9, iteration = None, visualize_hallucination = False):
+    def _trustregion_constant_margin(self, beta = 0.9, iteration = None, visualize_hallucination = False):
         """ 
         Trust region method 
         Keep a constant trust region redius and stop scaling alpha when all players are within the radius

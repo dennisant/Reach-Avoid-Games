@@ -6,16 +6,19 @@ cmd = "python3 run.py                                       \
         --no_players 3                                      \
         --player_types car car ped                          \
         --init_states                                       \
-            7.5 0.0 {} 0.0 7.0                              \
-            3.75 40.0 {} 0.0 5.0                            \
+            7.5 0.0 {} 0.0 9.0                              \
+            3.75 40.0 {} 0.0 7.0                            \
             -2.0 30.0 0.0 2.0                               \
         --draw_roads                                        \
         --alpha_scaling trust_region                        \
+        --trust_region_type constant_margin                 \
         --boundary_only                                     \
-        --eps_state 0.3 --eps_control 0.1                   \
+        --eps_state 0.5 --eps_control 0.3                   \
         --hallucinated                                      \
-        --initial_margin 5.0                                \
-        ".format(np.pi/2.01, -np.pi/2.01)
+        --initial_margin 1.0                                \
+        --cost_converge 0.8                                 \
+        --plot --log --store_freq 1                         \
+        ".format(np.pi/1.99, -np.pi/2.01)
 
 # --draw_roads --draw_human --draw_cars
 

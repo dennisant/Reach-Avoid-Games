@@ -71,6 +71,8 @@ class BaseSolver(ABC):
 
         if self.alpha_scaling_type == "trust_region":
             self.margin = config["args"].initial_margin
+        
+        self.cost_converge = config["args"].cost_converge
 
     @abstractmethod
     def _TimeStar(self, xs, us, player_index, **kwargs):
@@ -85,10 +87,10 @@ class BaseSolver(ABC):
             return False
 
         if not self.time_consistency:
-            if np.any(np.array(self._total_costs) > 0.0):
+            if np.any(np.array(self._total_costs) > self.cost_converge):
                 return False
         else:
-            if max([max(c).detach().numpy().flatten()[0] for c in self._costs]) > 0.0:
+            if max([max(c).detach().numpy().flatten()[0] for c in self._costs]) > self.cost_converge:
                 return False
 
         return True
@@ -200,7 +202,7 @@ class BaseSolver(ABC):
                 "conservative": self._trustregion_conservative,
                 "naive": self._trustregion_naive,
                 "ratio": self._trustregion_ratio,
-                "constant_radius": self._trustregion_constant_radius
+                "constant_margin": self._trustregion_constant_margin
             }
             
             if self.alpha_scaling_type is not None:
@@ -266,7 +268,7 @@ class BaseSolver(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def _trustregion_constant_radius(self, **kwargs):
+    def _trustregion_constant_margin(self, **kwargs):
         raise NotImplementedError
     
     @abstractmethod

@@ -163,16 +163,16 @@ def final_rollout():
 
     ped_cost = PlayerCost()
     ped_cost.add_cost(ped_goal_cost, "x", 1.0)
-
-    if not os.path.exists("animation_tmp"):
-        os.makedirs("animation_tmp")
         
     _renderable_costs = [car1_goal_cost, car2_goal_cost, ped_goal_cost]
 
     for i in range(len(data)):
         state = data.iloc[i].to_numpy()
-        plt.figure(0, figsize=(12, 20))
-        _plot_lims = [-5, 25, 0,  40]
+        plt.figure(0)
+        _plot_lims = [-5, 25, 0, 40]
+
+        ratio = (_plot_lims[1] - _plot_lims[0])/(_plot_lims[3] - _plot_lims[2])
+        plt.gcf().set_size_inches(ratio*8, 8)
 
         ax = plt.gca()
         plt.axis("off")
