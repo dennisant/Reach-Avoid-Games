@@ -1,0 +1,600 @@
+2022-02-23 01:23:34,077 root                 INFO     Running test#0 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 29.89975309772919 32.397381196450844 -3.0414121587899103 0.0 6.3282104884994546 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 01:23:39,287 root                 INFO     Running test#0 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 29.89975309772919 32.397381196450844 -3.0414121587899103 0.0 6.3282104884994546 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 01:23:42,519 root                 INFO     Running test#1 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -19.317385005290138 6.677430099227795 1.350741035174547 0.0 6.0219192679909455 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 01:23:49,467 root                 INFO     Running test#1 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -19.317385005290138 6.677430099227795 1.350741035174547 0.0 6.0219192679909455 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 01:23:54,559 root                 INFO     Running test#2 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 26.622750282357202 6.794350167881095 2.3641044332069048 0.0 4.2393433431094145 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 01:24:08,163 root                 INFO     Running test#2 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 26.622750282357202 6.794350167881095 2.3641044332069048 0.0 4.2393433431094145 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 01:24:14,039 root                 INFO     Running test#3 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -0.4713650139021972 -1.9545021297474114 1.2554026074764089 0.0 7.271481850372465 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 01:34:18,042 root                 INFO     Running test#3 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -0.4713650139021972 -1.9545021297474114 1.2554026074764089 0.0 7.271481850372465 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 01:34:24,479 root                 INFO     Running test#4 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 5.316085881055894 13.528918060873224 2.0270871283036813 0.0 9.617216027126293 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 01:47:58,423 root                 INFO     Running test#4 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 5.316085881055894 13.528918060873224 2.0270871283036813 0.0 9.617216027126293 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 01:48:11,819 root                 INFO     Running test#5 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -1.1908611186982974 39.24684119054142 0.44989036672773497 0.0 9.864376029987927 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 01:56:19,143 root                 INFO     Running test#5 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -1.1908611186982974 39.24684119054142 0.44989036672773497 0.0 9.864376029987927 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 01:56:20,563 root                 INFO     Running test#6 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -2.4582873816389395 13.67231510061378 1.1222647839905409 0.0 5.4151682452536685 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:07:45,315 root                 INFO     Running test#6 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -2.4582873816389395 13.67231510061378 1.1222647839905409 0.0 5.4151682452536685 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:07:49,871 root                 INFO     Running test#7 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 28.948981153761657 19.873263146643666 2.0287535468594036 0.0 9.020985133272113 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:09:55,451 root                 INFO     Running test#7 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 28.948981153761657 19.873263146643666 2.0287535468594036 0.0 9.020985133272113 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:10:24,879 root                 INFO     Running test#8 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 29.063543762072158 15.681058593399495 2.2571584577048016 0.0 3.985323189445878 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:10:27,531 root                 INFO     Running test#8 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 29.063543762072158 15.681058593399495 2.2571584577048016 0.0 3.985323189445878 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:10:30,171 root                 INFO     Running test#9 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 25.144980809102513 -1.303625240956295 2.274162872950152 0.0 6.947792230491289 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:10:36,979 root                 INFO     Running test#9 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 25.144980809102513 -1.303625240956295 2.274162872950152 0.0 6.947792230491289 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:11:39,803 root                 INFO     Running test#10 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 13.297157300680666 44.34164936990592 -2.2694328369534955 0.0 6.655449835218113 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:24:20,951 root                 INFO     Running test#10 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 13.297157300680666 44.34164936990592 -2.2694328369534955 0.0 6.655449835218113 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:24:22,967 root                 INFO     Running test#11 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -2.115226557580982 12.967350351608124 0.9825578094590264 0.0 6.889733209652309 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:24:27,679 root                 INFO     Running test#11 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -2.115226557580982 12.967350351608124 0.9825578094590264 0.0 6.889733209652309 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:24:31,011 root                 INFO     Running test#12 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 9.500763425920297 57.76281572166554 -2.4833065101090774 0.0 7.67239338141312 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:32:00,991 root                 INFO     Running test#12 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 9.500763425920297 57.76281572166554 -2.4833065101090774 0.0 7.67239338141312 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:35:04,923 root                 INFO     Running test#13 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 22.833638810495614 23.03200570137276 1.6925827541927863 0.0 4.328933138855228 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:35:53,351 root                 INFO     Running test#13 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 22.833638810495614 23.03200570137276 1.6925827541927863 0.0 4.328933138855228 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:36:31,999 root                 INFO     Running test#14 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -13.811976034732547 47.35577229472582 0.2590279880608056 0.0 8.773677486947408 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:37:53,999 root                 INFO     Running test#14 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -13.811976034732547 47.35577229472582 0.2590279880608056 0.0 8.773677486947408 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:38:34,083 root                 INFO     Running test#15 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -15.750611484266567 26.804095041074795 1.290134164762576 0.0 7.70965024244453 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:40:31,687 root                 INFO     Running test#15 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -15.750611484266567 26.804095041074795 1.290134164762576 0.0 7.70965024244453 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:41:09,863 root                 INFO     Running test#16 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -13.153294598500768 6.573262293849995 0.3528427409625421 0.0 5.516277216534544 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:41:43,579 root                 INFO     Running test#16 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -13.153294598500768 6.573262293849995 0.3528427409625421 0.0 5.516277216534544 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:43:14,735 root                 INFO     Running test#17 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -16.03192433500125 33.561998367352764 -0.10555799447212189 0.0 8.80056575012862 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:44:26,911 root                 INFO     Running test#17 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -16.03192433500125 33.561998367352764 -0.10555799447212189 0.0 8.80056575012862 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:44:32,751 root                 INFO     Running test#18 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 22.514533692609398 16.467647762752694 1.520513986783143 0.0 5.6369865864861985 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:51:26,339 root                 INFO     Running test#18 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 22.514533692609398 16.467647762752694 1.520513986783143 0.0 5.6369865864861985 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:51:31,415 root                 INFO     Running test#19 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 9.822816741081109 8.088697219784558 1.0261878264749584 0.0 9.655049894117711 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:54:08,375 root                 INFO     Running test#19 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 9.822816741081109 8.088697219784558 1.0261878264749584 0.0 9.655049894117711 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:57:36,351 root                 INFO     Running test#20 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -15.44609863357767 15.235144523271739 1.5031764937637462 0.0 3.1079533947609814 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 02:57:45,087 root                 INFO     Running test#20 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -15.44609863357767 15.235144523271739 1.5031764937637462 0.0 3.1079533947609814 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 02:57:51,123 root                 INFO     Running test#21 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 26.354082051302143 31.57324362170793 2.6855625339024263 0.0 8.668062088343806 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:05:53,247 root                 INFO     Running test#21 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 26.354082051302143 31.57324362170793 2.6855625339024263 0.0 8.668062088343806 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:07:27,799 root                 INFO     Running test#22 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 25.148987766523682 50.5596920789825 -2.321447993026953 0.0 9.059890268523295 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:15:11,075 root                 INFO     Running test#22 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 25.148987766523682 50.5596920789825 -2.321447993026953 0.0 9.059890268523295 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:15:14,331 root                 INFO     Running test#23 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -13.532794688261095 12.887739825154345 1.1499691219124415 0.0 5.495649537564381 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:15:20,799 root                 INFO     Running test#23 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -13.532794688261095 12.887739825154345 1.1499691219124415 0.0 5.495649537564381 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:15:25,892 root                 INFO     Running test#24 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 21.77923618601718 54.1132726477706 -1.7640195263671616 0.0 5.441057660928385 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:16:23,119 root                 INFO     Running test#24 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 21.77923618601718 54.1132726477706 -1.7640195263671616 0.0 5.441057660928385 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:16:45,587 root                 INFO     Running test#25 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 19.689397018640307 45.69294456490437 -2.884915158996244 0.0 5.577182049455285 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:25:36,971 root                 INFO     Running test#25 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 19.689397018640307 45.69294456490437 -2.884915158996244 0.0 5.577182049455285 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:25:38,527 root                 INFO     Running test#26 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -10.363166526632849 11.704278348871092 0.608290330522926 0.0 3.6939844680837566 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:25:44,091 root                 INFO     Running test#26 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -10.363166526632849 11.704278348871092 0.608290330522926 0.0 3.6939844680837566 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:25:48,911 root                 INFO     Running test#27 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 14.347766181657683 5.51115460637199 2.5256351555586436 0.0 6.110005578683111 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:26:18,511 root                 INFO     Running test#27 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 14.347766181657683 5.51115460637199 2.5256351555586436 0.0 6.110005578683111 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:27:31,063 root                 INFO     Running test#28 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -17.742930185374316 15.463064591568362 1.5777174511235135 0.0 6.488693721341436 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:27:40,919 root                 INFO     Running test#28 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -17.742930185374316 15.463064591568362 1.5777174511235135 0.0 6.488693721341436 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:29:01,391 root                 INFO     Running test#29 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -11.825014650665143 9.18129235577935 1.5289331048330534 0.0 7.029418373749581 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:29:13,783 root                 INFO     Running test#29 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -11.825014650665143 9.18129235577935 1.5289331048330534 0.0 7.029418373749581 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:31:54,651 root                 INFO     Running test#30 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -14.44487617641159 8.951612285902534 0.899170016013497 0.0 6.543888892715465 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:31:56,387 root                 INFO     Running test#30 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -14.44487617641159 8.951612285902534 0.899170016013497 0.0 6.543888892715465 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:31:58,175 root                 INFO     Running test#31 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 21.930288512855874 11.138081937892466 2.30243995360431 0.0 7.514916411552925 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:44:16,007 root                 INFO     Running test#31 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 21.930288512855874 11.138081937892466 2.30243995360431 0.0 7.514916411552925 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:44:23,711 root                 INFO     Running test#32 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 15.108873224485727 5.180121888506012 1.4391113499186332 0.0 3.31783267432358 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:44:29,143 root                 INFO     Running test#32 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 15.108873224485727 5.180121888506012 1.4391113499186332 0.0 3.31783267432358 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:44:34,347 root                 INFO     Running test#33 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -1.9812022826627924 22.77262189175237 1.7104411080733901 0.0 9.44877808012457 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:58:28,043 root                 INFO     Running test#33 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -1.9812022826627924 22.77262189175237 1.7104411080733901 0.0 9.44877808012457 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:58:39,191 root                 INFO     Running test#34 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 16.772582454468264 -1.129339485565618 2.5127759393659193 0.0 3.4440428558101477 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:58:51,027 root                 INFO     Running test#34 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 16.772582454468264 -1.129339485565618 2.5127759393659193 0.0 3.4440428558101477 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 03:58:58,220 root                 INFO     Running test#35 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -3.863142624665066 -0.5500112820582681 0.9786964132672535 0.0 5.922375878401781 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 03:59:21,007 root                 INFO     Running test#35 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -3.863142624665066 -0.5500112820582681 0.9786964132672535 0.0 5.922375878401781 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:02:14,847 root                 INFO     Running test#36 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -9.342375030097415 38.76742222891642 -0.5908090807837902 0.0 8.395283621436068 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:04:18,119 root                 INFO     Running test#36 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -9.342375030097415 38.76742222891642 -0.5908090807837902 0.0 8.395283621436068 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:04:29,123 root                 INFO     Running test#37 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -9.441837865447976 59.454439509271985 -1.5761575257725968 0.0 7.938586977112259 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:06:51,731 root                 INFO     Running test#37 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -9.441837865447976 59.454439509271985 -1.5761575257725968 0.0 7.938586977112259 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:07:18,867 root                 INFO     Running test#38 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 26.873991167332626 49.773246610911265 -3.0732046353901765 0.0 7.594932138209048 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:07:21,267 root                 INFO     Running test#38 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 26.873991167332626 49.773246610911265 -3.0732046353901765 0.0 7.594932138209048 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:07:23,387 root                 INFO     Running test#39 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 2.845274764638795 33.41676546731518 1.458009249338537 0.0 5.32849210715559 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:13:56,655 root                 INFO     Running test#39 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 2.845274764638795 33.41676546731518 1.458009249338537 0.0 5.32849210715559 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:13:58,079 root                 INFO     Running test#40 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 11.301794557801944 5.476981241663066 1.0630144827459436 0.0 5.751921064747938 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:14:02,667 root                 INFO     Running test#40 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 11.301794557801944 5.476981241663066 1.0630144827459436 0.0 5.751921064747938 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:14:07,483 root                 INFO     Running test#41 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -9.453476890567323 19.28926476189559 0.14996032372928936 0.0 5.456441030169632 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:14:16,275 root                 INFO     Running test#41 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -9.453476890567323 19.28926476189559 0.14996032372928936 0.0 5.456441030169632 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:14:45,475 root                 INFO     Running test#42 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 24.286072639518117 11.762714476505488 2.5622148923895196 0.0 5.469269342571648 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:27:35,930 root                 INFO     Running test#42 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 24.286072639518117 11.762714476505488 2.5622148923895196 0.0 5.469269342571648 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:30:18,339 root                 INFO     Running test#43 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.462820044096837 -1.8994177900908913 1.8750774651038453 0.0 6.040466406650776 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:30:26,415 root                 INFO     Running test#43 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.462820044096837 -1.8994177900908913 1.8750774651038453 0.0 6.040466406650776 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:30:32,683 root                 INFO     Running test#44 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 22.118113841286814 -1.3293695065884363 2.3995124156783767 0.0 4.991852728678662 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:30:39,907 root                 INFO     Running test#44 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 22.118113841286814 -1.3293695065884363 2.3995124156783767 0.0 4.991852728678662 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:30:45,851 root                 INFO     Running test#45 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -14.278983406704576 2.4899285349738562 1.70837718579703 0.0 7.012423387711168 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:32:10,227 root                 INFO     Running test#45 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -14.278983406704576 2.4899285349738562 1.70837718579703 0.0 7.012423387711168 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:35:20,603 root                 INFO     Running test#46 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 24.21374535977452 56.16120879978156 -1.6508688237805074 0.0 7.454219804744507 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:35:35,999 root                 INFO     Running test#46 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 24.21374535977452 56.16120879978156 -1.6508688237805074 0.0 7.454219804744507 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:35:56,155 root                 INFO     Running test#47 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 5.796273197670683 10.08865096199166 1.7851884202495754 0.0 9.200639904787518 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:49:10,431 root                 INFO     Running test#47 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 5.796273197670683 10.08865096199166 1.7851884202495754 0.0 9.200639904787518 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:49:15,327 root                 INFO     Running test#48 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -14.54269891276373 52.06190008757164 -0.029806444453529424 0.0 7.816672254046272 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 04:50:04,875 root                 INFO     Running test#48 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -14.54269891276373 52.06190008757164 -0.029806444453529424 0.0 7.816672254046272 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 04:50:15,735 root                 INFO     Running test#49 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 0.043139157674293216 58.58920961790129 -1.140093609652334 0.0 5.764389605729779 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:04:10,811 root                 INFO     Running test#49 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 0.043139157674293216 58.58920961790129 -1.140093609652334 0.0 5.764389605729779 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:08:17,119 root                 INFO     Running test#50 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -14.001014949888468 1.01098652759908 1.5303082666036116 0.0 3.9337616254679326 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:08:25,183 root                 INFO     Running test#50 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -14.001014949888468 1.01098652759908 1.5303082666036116 0.0 3.9337616254679326 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:08:31,763 root                 INFO     Running test#51 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -18.587714458321813 30.581890737819364 -0.1857640503672089 0.0 4.58108698354828 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:08:50,203 root                 INFO     Running test#51 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -18.587714458321813 30.581890737819364 -0.1857640503672089 0.0 4.58108698354828 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:10:13,527 root                 INFO     Running test#52 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -0.9972172053244002 16.362352532410178 1.7440484266482612 0.0 7.967712828014439 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:22:21,643 root                 INFO     Running test#52 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -0.9972172053244002 16.362352532410178 1.7440484266482612 0.0 7.967712828014439 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:22:32,231 root                 INFO     Running test#53 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 22.95728386265128 53.138261228058866 -1.9411116886619846 0.0 5.471234483959318 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:22:34,903 root                 INFO     Running test#53 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 22.95728386265128 53.138261228058866 -1.9411116886619846 0.0 5.471234483959318 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:22:44,963 root                 INFO     Running test#54 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -4.4776358078748615 22.78774324321084 1.7059705497942257 0.0 5.50706594958973 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:23:09,383 root                 INFO     Running test#54 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -4.4776358078748615 22.78774324321084 1.7059705497942257 0.0 5.50706594958973 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:23:28,431 root                 INFO     Running test#55 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 26.334170713721328 45.66471257443808 3.086082248123499 0.0 4.924555198996833 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:23:37,283 root                 INFO     Running test#55 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 26.334170713721328 45.66471257443808 3.086082248123499 0.0 4.924555198996833 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:23:42,751 root                 INFO     Running test#56 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 18.020933717761125 25.74492932900057 1.6721639476561325 0.0 9.44366896612858 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:29:39,387 root                 INFO     Running test#56 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 18.020933717761125 25.74492932900057 1.6721639476561325 0.0 9.44366896612858 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:29:45,311 root                 INFO     Running test#57 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 11.506501043624052 44.93944406416737 -1.649567230468658 0.0 9.900916335111958 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:41:51,735 root                 INFO     Running test#57 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 11.506501043624052 44.93944406416737 -1.649567230468658 0.0 9.900916335111958 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:43:49,935 root                 INFO     Running test#58 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -19.13931517492304 2.183154881817379 0.8505964639157055 0.0 8.838829870372976 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:46:55,971 root                 INFO     Running test#58 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -19.13931517492304 2.183154881817379 0.8505964639157055 0.0 8.838829870372976 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:47:00,287 root                 INFO     Running test#59 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.637939666204886 49.48388764972899 -1.9325120038861785 0.0 7.7499431144672215 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 05:47:03,831 root                 INFO     Running test#59 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.637939666204886 49.48388764972899 -1.9325120038861785 0.0 7.7499431144672215 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 05:47:14,655 root                 INFO     Running test#60 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 19.48099082257508 19.604743615700507 1.8380766172420475 0.0 8.071194723130922 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:00:11,523 root                 INFO     Running test#60 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 19.48099082257508 19.604743615700507 1.8380766172420475 0.0 8.071194723130922 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:00:17,979 root                 INFO     Running test#61 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.784267358190007 1.1897373173518533 1.2626206334204164 0.0 7.814852240484497 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:00:39,807 root                 INFO     Running test#61 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.784267358190007 1.1897373173518533 1.2626206334204164 0.0 7.814852240484497 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:01:56,611 root                 INFO     Running test#62 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 14.160139703664974 57.558840917214916 -2.5089447590483696 0.0 9.737921734859027 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:15:03,203 root                 INFO     Running test#62 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 14.160139703664974 57.558840917214916 -2.5089447590483696 0.0 9.737921734859027 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:15:17,139 root                 INFO     Running test#63 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 26.125788164156447 45.475816459676 -2.529550846946913 0.0 7.872611372240189 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:15:19,203 root                 INFO     Running test#63 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 26.125788164156447 45.475816459676 -2.529550846946913 0.0 7.872611372240189 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:15:22,519 root                 INFO     Running test#64 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 19.415292778609576 6.722083694087738 2.2186907004252276 0.0 4.069554105340233 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:15:29,435 root                 INFO     Running test#64 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 19.415292778609576 6.722083694087738 2.2186907004252276 0.0 4.069554105340233 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:16:34,051 root                 INFO     Running test#65 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 5.334410254623712 8.426262327011104 1.0902911932686008 0.0 3.665511817780616 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:16:46,939 root                 INFO     Running test#65 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 5.334410254623712 8.426262327011104 1.0902911932686008 0.0 3.665511817780616 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:16:55,227 root                 INFO     Running test#66 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 11.498703644110648 -1.4242189109877923 1.3575960116638366 0.0 9.28483992844852 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:31:40,363 root                 INFO     Running test#66 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 11.498703644110648 -1.4242189109877923 1.3575960116638366 0.0 9.28483992844852 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:32:01,759 root                 INFO     Running test#67 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -11.460205697838088 1.2109183434446393 1.6510206189177727 0.0 7.837344410127959 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:32:09,351 root                 INFO     Running test#67 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -11.460205697838088 1.2109183434446393 1.6510206189177727 0.0 7.837344410127959 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:32:16,451 root                 INFO     Running test#68 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 13.68497545986395 57.92060169759132 -2.6338905197355906 0.0 5.159619251269213 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:40:35,359 root                 INFO     Running test#68 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 13.68497545986395 57.92060169759132 -2.6338905197355906 0.0 5.159619251269213 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:41:44,075 root                 INFO     Running test#69 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 2.505736975254514 10.420389165579873 0.9833508113744848 0.0 9.503716163698158 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:50:22,643 root                 INFO     Running test#69 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 2.505736975254514 10.420389165579873 0.9833508113744848 0.0 9.503716163698158 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:52:33,391 root                 INFO     Running test#70 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 28.04510276130965 20.631205187210387 1.8086771511089856 0.0 3.6439303322074896 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:52:42,043 root                 INFO     Running test#70 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 28.04510276130965 20.631205187210387 1.8086771511089856 0.0 3.6439303322074896 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:52:47,867 root                 INFO     Running test#71 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -11.207858435125278 4.516051601744877 0.4778954164178668 0.0 5.682363868912221 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:52:55,423 root                 INFO     Running test#71 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -11.207858435125278 4.516051601744877 0.4778954164178668 0.0 5.682363868912221 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:53:02,263 root                 INFO     Running test#72 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -8.326717231031292 9.785750148996202 1.8586534851681202 0.0 5.476936631131478 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:53:10,095 root                 INFO     Running test#72 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -8.326717231031292 9.785750148996202 1.8586534851681202 0.0 5.476936631131478 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:54:00,399 root                 INFO     Running test#73 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 9.918404115367675 4.608157611335869 2.052239322962966 0.0 4.794490865666026 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:54:12,459 root                 INFO     Running test#73 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 9.918404115367675 4.608157611335869 2.052239322962966 0.0 4.794490865666026 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:54:36,323 root                 INFO     Running test#74 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 21.363512059823265 56.445844734050524 -2.9616999700632682 0.0 8.6434686852655 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:57:44,855 root                 INFO     Running test#74 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 21.363512059823265 56.445844734050524 -2.9616999700632682 0.0 8.6434686852655 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:58:02,735 root                 INFO     Running test#75 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 27.030483281094632 21.9113924209093 1.8992821000233835 0.0 6.347405330211508 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:58:09,623 root                 INFO     Running test#75 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 27.030483281094632 21.9113924209093 1.8992821000233835 0.0 6.347405330211508 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:58:16,427 root                 INFO     Running test#76 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -5.890671816649933 14.280829898688847 1.5644799201140314 0.0 6.82823432150313 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:58:23,499 root                 INFO     Running test#76 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -5.890671816649933 14.280829898688847 1.5644799201140314 0.0 6.82823432150313 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:58:34,331 root                 INFO     Running test#77 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -15.21056319650697 11.187771760358405 1.2072871560800693 0.0 9.085648481073122 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:58:43,063 root                 INFO     Running test#77 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -15.21056319650697 11.187771760358405 1.2072871560800693 0.0 9.085648481073122 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:58:47,375 root                 INFO     Running test#78 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 3.1270891695244067 11.22429201160476 1.4104713955133343 0.0 5.247483948438835 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:58:51,831 root                 INFO     Running test#78 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 3.1270891695244067 11.22429201160476 1.4104713955133343 0.0 5.247483948438835 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:58:54,679 root                 INFO     Running test#79 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -16.095235919146454 42.94689933115763 0.6153590644850373 0.0 4.505715013677778 --t_horizon 3 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:59:01,259 root                 INFO     Running test#79 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -16.095235919146454 42.94689933115763 0.6153590644850373 0.0 4.505715013677778 --t_horizon 3 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 06:59:05,647 root                 INFO     Running test#80 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -2.0395275043282517 2.4365143375389087 1.0678318123174755 0.0 6.645703820106901 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 06:59:22,675 root                 INFO     Running test#80 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -2.0395275043282517 2.4365143375389087 1.0678318123174755 0.0 6.645703820106901 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 07:01:35,347 root                 INFO     Running test#81 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -12.671275742279956 23.59114378527207 -0.057518380166809324 0.0 6.895025470580065 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 07:01:43,623 root                 INFO     Running test#81 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -12.671275742279956 23.59114378527207 -0.057518380166809324 0.0 6.895025470580065 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 07:02:03,391 root                 INFO     Running test#82 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 29.265776373700604 29.25337254743119 2.147661449545846 0.0 4.418435590728096 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 07:16:39,659 root                 INFO     Running test#82 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 29.265776373700604 29.25337254743119 2.147661449545846 0.0 4.418435590728096 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 07:17:48,787 root                 INFO     Running test#83 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.257501963706623 24.737701754470855 2.137919262981372 0.0 9.22180217344372 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 07:27:22,195 root                 INFO     Running test#83 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.257501963706623 24.737701754470855 2.137919262981372 0.0 9.22180217344372 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 07:27:26,876 root                 INFO     Running test#84 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.277377921382744 24.2429249958994 2.233815214637769 0.0 6.590669913281896 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 07:27:31,743 root                 INFO     Running test#84 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.277377921382744 24.2429249958994 2.233815214637769 0.0 6.590669913281896 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 07:27:34,415 root                 INFO     Running test#85 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 25.763856891772143 44.0874304156727 -2.6311084968809366 0.0 8.990145309022623 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 07:42:46,819 root                 INFO     Running test#85 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 25.763856891772143 44.0874304156727 -2.6311084968809366 0.0 8.990145309022623 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 07:42:51,363 root                 INFO     Running test#86 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 0.0007512250492851535 38.799028349694524 -0.2949652923082863 0.0 5.598029132504486 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 07:56:26,215 root                 INFO     Running test#86 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 0.0007512250492851535 38.799028349694524 -0.2949652923082863 0.0 5.598029132504486 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 07:56:30,939 root                 INFO     Running test#87 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -6.622417432366717 11.313973666762108 1.835667883596502 0.0 7.195809700182312 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 07:56:38,287 root                 INFO     Running test#87 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -6.622417432366717 11.313973666762108 1.835667883596502 0.0 7.195809700182312 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 07:57:04,191 root                 INFO     Running test#88 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -16.099039980890126 50.52483962531297 0.09142270430586552 0.0 9.87929118442969 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 08:08:25,159 root                 INFO     Running test#88 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -16.099039980890126 50.52483962531297 0.09142270430586552 0.0 9.87929118442969 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 08:08:40,239 root                 INFO     Running test#89 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -0.10326159179432892 21.149063797467704 1.3589881265505863 0.0 9.183864977458107 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 08:19:36,943 root                 INFO     Running test#89 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -0.10326159179432892 21.149063797467704 1.3589881265505863 0.0 9.183864977458107 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 08:19:38,615 root                 INFO     Running test#90 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.25473363305393 14.787353518319367 1.887695370390694 0.0 7.048996028205613 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 08:31:27,407 root                 INFO     Running test#90 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 23.25473363305393 14.787353518319367 1.887695370390694 0.0 7.048996028205613 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 08:31:34,715 root                 INFO     Running test#91 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 19.216835682442706 -0.4577383069589416 2.5797232356274638 0.0 6.794912926745623 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 08:32:06,599 root                 INFO     Running test#91 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 19.216835682442706 -0.4577383069589416 2.5797232356274638 0.0 6.794912926745623 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 08:33:25,991 root                 INFO     Running test#92 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 25.350515469307325 49.05252700218926 3.12297053014789 0.0 7.7750153660740615 --t_horizon 9 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 08:36:22,703 root                 INFO     Running test#92 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 25.350515469307325 49.05252700218926 3.12297053014789 0.0 7.7750153660740615 --t_horizon 9 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 08:36:31,395 root                 INFO     Running test#93 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -16.545810925588093 41.12901947976018 0.06600127804346946 0.0 7.0633152747097885 --t_horizon 5 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 08:44:48,283 root                 INFO     Running test#93 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -16.545810925588093 41.12901947976018 0.06600127804346946 0.0 7.0633152747097885 --t_horizon 5 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 08:44:50,319 root                 INFO     Running test#94 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -5.875757631246424 18.128078474551028 1.4482974125361474 0.0 7.497243408294119 --t_horizon 6 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 08:54:36,071 root                 INFO     Running test#94 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -5.875757631246424 18.128078474551028 1.4482974125361474 0.0 7.497243408294119 --t_horizon 6 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 08:54:43,675 root                 INFO     Running test#95 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 19.953702726923908 23.68035561722033 2.808865121572612 0.0 9.707372754785744 --t_horizon 8 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 09:05:39,387 root                 INFO     Running test#95 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 19.953702726923908 23.68035561722033 2.808865121572612 0.0 9.707372754785744 --t_horizon 8 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 09:05:50,011 root                 INFO     Running test#96 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -10.615197263908781 54.97586491239318 -0.03775948155890552 0.0 6.24853893058201 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 09:06:16,707 root                 INFO     Running test#96 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -10.615197263908781 54.97586491239318 -0.03775948155890552 0.0 6.24853893058201 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 09:06:38,823 root                 INFO     Running test#97 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -10.712780938167631 5.482491120875522 0.6302929368334378 0.0 4.7727846842930095 --t_horizon 7 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 09:06:53,859 root                 INFO     Running test#97 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -10.712780938167631 5.482491120875522 0.6302929368334378 0.0 4.7727846842930095 --t_horizon 7 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 09:07:01,331 root                 INFO     Running test#98 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -4.968470643552568 16.959379756132194 1.000887778687533 0.0 7.040457269447846 --t_horizon 4 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 09:07:03,003 root                 INFO     Running test#98 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states -4.968470643552568 16.959379756132194 1.000887778687533 0.0 7.040457269447846 --t_horizon 4 --max_steps 150 --exp_name exp_time_inconsistent
+2022-02-23 09:07:04,687 root                 INFO     Running test#99 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 17.255306730658 52.2556727635401 -1.5730445229684829 0.0 6.9380099629275325 --t_horizon 10 --max_steps 150 --time_consistency --exp_name exp_time_consistent
+2022-02-23 09:20:41,615 root                 INFO     Running test#99 with data: 
+	
+python3 run.py --no_players 1 --env_type goal_with_obs --eps_control 0.1 --eps_state 0.1 --alpha_scaling trust_region --trust_region_type ratio --batch_run --initial_margin 5.0 --plot --log --store_freq 1 --hallucinated --obstacles 9.0 25.0 4.5 20.0 35.0 3.0 6.5 50.0 3.0 -4.0 33.0 2.0 -5.0 44.0 2.0 2.5 50.0 2.0 --goal 6.0 40.0 2.0 --init_states 17.255306730658 52.2556727635401 -1.5730445229684829 0.0 6.9380099629275325 --t_horizon 10 --max_steps 150 --exp_name exp_time_inconsistent

@@ -53,11 +53,13 @@ base_flag = "   python3 run.py                      \
                 --no_players 1                      \
                 --env_type goal_with_obs            \
                 --eps_control 0.1 --eps_state 0.1   \
-                --linesearch                        \
                 --alpha_scaling trust_region        \
+                --trust_region_type ratio           \
                 --batch_run                         \
+                --initial_margin 5.0                \
                 --plot                              \
                 --log                               \
+                --store_freq 1                      \
                 --hallucinated                      \
             "
 
