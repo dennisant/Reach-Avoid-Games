@@ -173,7 +173,13 @@ def spectrum():
     concave_hull, edge_points = alpha_shape(points_3, 0.4)
     plt.gca().add_patch(PolygonPatch(concave_hull, fc='blue', ec='blue', fill=True, zorder=5, alpha=0.25))
 
-    plt.show()
+    # create output folder
+    output = os.path.join(loadpath, "evaluate")
+    if not os.path.exists(output):
+        os.makedirs(output)
+    print("\t>> Output folder: " + output)
+
+    plt.savefig(os.path.join(output, "spectrum.png"))
 
 def train_process():
     folder_path = os.path.join(loadpath, "figures")
