@@ -95,3 +95,7 @@ Once finish running, you can analyze the data in the batch by either running ```
 ```
 python3 evaluate_batch.py --loadpath result/batch-2022-02-19/ --exp_suffix exp_time_consistent
 ```
+
+Output:
+
+![image info](./result/batch-2022-02-19/summary/exp_time_consistent_summary.png)
