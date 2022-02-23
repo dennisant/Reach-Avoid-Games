@@ -1,3 +1,13 @@
+Main repository of **Back to the Future: Efficient, Time-Consistent Solutions in Reach-Avoid Games** accepted to ICRA 2022. (https://arxiv.org/pdf/2109.07673.pdf)
+
+The following runs are fully supported:
+* One player case, single goal with multiple obstacles in free space (pinch-point and time consistent).
+* Three players case, t-intersection environment (pinch-point and time consistent).
+
+The following runs are currently being reviewed:
+* Two players case, t-intersection environment (pinch-point and time consistent, cooperative and adversarial).
+Check back and fetch the latest update before running.
+
 # How to run
 Run ```run.py``` directly with flags to change the env configs
 ```
