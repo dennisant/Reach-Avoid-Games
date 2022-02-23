@@ -18,8 +18,14 @@ python3 example/one_player_time_consistent.py
 
 Evaluate GIF file can be created using ```evaluate.py```
 ```
-python3 evaluate.py --loadpath result/experiment_2022-02-20-11_58_33/
+python3 evaluate.py --loadpath result/experiment_2022-02-20-11_58_33/ --evaluate rollout
 ```
+You can specify which iteration you want to create GIF image by adding in ```--iteration <iteration>``` to the command.
+
+```evaluate.py``` supports three different runs:
+* Evaluate the training process (for all cases), ```--evaluate train```
+* Evaluate the rollout (for three-player case), ```--evaluate rollout```
+* Evaluate the concave hull of all the trajectories created during the training process (for three-player case) ```--evaluate spectrum```
 
 # Batch run
 There is a ```run_batch.py``` file to help automatically generate randomized initialization data for multiple runs for one-player case. Change the initialization range in the script before running to match your targeted test cases. You can either choose to run only **time_consistent**, **time_inconsistent** or **both**. If **both** is chosen, the test cases across time consistetn and inconsistent will be the same. Each experiment in the batch will have its own log file and figures, there will also be a common batch log to record all commands used to run the experiments in the batch.
