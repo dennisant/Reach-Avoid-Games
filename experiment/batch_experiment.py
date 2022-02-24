@@ -56,7 +56,8 @@ class Batch(object):
         return convergence_rate
     
     def get_statistical_dataframe(self):
-        is_converged, start_traj, end_traj, terminal_cost, iteration, exp_list \
+        is_converged, start_traj, end_traj, terminal_cost, \
+        iteration, exp_list, first_negative_cost, value_func, func_key_list, first_t_star \
             = self.get_experiment_statistics()
         
         df = pd.DataFrame(
@@ -66,7 +67,11 @@ class Batch(object):
                 "end_traj": end_traj,
                 "terminal_cost": terminal_cost, 
                 "iteration": iteration,
-                "experiment": exp_list
+                "experiment": exp_list,
+                "first_negative_cost": first_negative_cost,
+                "value_func": value_func,
+                "func_key_list": func_key_list,
+                "first_t_star": first_t_star
             }
         )
         
@@ -102,6 +107,9 @@ class Batch(object):
         plt.show()
     
     def get_experiment_statistics(self):
+        """
+        Get necessary data from log file, clean data and return
+        """        
         if not os.path.exists("result/" + self.batch_name):
             raise ValueError("Batch does not exist: " + self.batch_name)
 
@@ -115,6 +123,10 @@ class Batch(object):
         terminal_cost = []
         iteration = []
         experiment_list = []
+        first_negative_cost = []
+        value_func = []
+        func_key_list = []
+        first_t_star = []
 
         for exp in list_of_experiments:
             log_path = os.path.join("result", self.batch_name, exp, "logs", "{}.pkl".format(self.exp_suffix))
@@ -147,8 +159,31 @@ class Batch(object):
             # get terminal cost
             if "total_costs" in data.keys():
                 terminal_cost.append(min(data["total_costs"]))
+                negative_cost_indices = np.array(np.where(np.array(data["total_costs"]) < 0)).flatten()
+                try:
+                    first_negative_cost.append(negative_cost_indices[0])
+                except IndexError:
+                    first_negative_cost.append(-1)
             else:
                 raise ValueError("Cannot find total costs")
+            
+            # get value func
+            if "value_func_plus" in data.keys():
+                value_func.append(data["value_func_plus"][-1])
+            else:
+                raise ValueError("Cannot find value function")
+
+            # get func_key_list
+            if "func_array" in data.keys():
+                func_key_list.append(data["func_array"][-1])
+            else:
+                raise ValueError("Cannot find func_array")
+
+            # get first_t_star
+            if "first_t_star" in data.keys():
+                first_t_star.append(data["first_t_star"][-1])
+            else:
+                raise ValueError("Cannot find first t star")
 
             # get iteration information
             if "iteration" in data.keys():
@@ -156,4 +191,4 @@ class Batch(object):
             else:
                 raise ValueError("Cannot find iteration information")
 
-        return is_converged, start_traj, end_traj, terminal_cost, iteration, experiment_list
+        return is_converged, start_traj, end_traj, terminal_cost, iteration, experiment_list, first_negative_cost, value_func, func_key_list, first_t_star
