@@ -98,4 +98,4 @@ python3 evaluate_batch.py --loadpath result/batch-2022-02-19/ --exp_suffix exp_t
 
 Output:
 
-![image info](./result/batch-2022-02-19/summary/exp_time_consistent_summary.png)
+![image info](./result/batch-2022-02-23/summary/exp_time_consistent_summary.png)
