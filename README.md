@@ -93,7 +93,7 @@ base_flag = "   python3 run.py                      \
 
 Once finish running, you can analyze the data in the batch by either running ```analyze.ipynb```. Each batch can be imported as a ```Batch``` object with certain functions. You can also quickly check on the convergence rate of the batch run and see the resulting plots by running ```evaluate_batch.py```.
 ```
-python3 evaluate_batch.py --loadpath result/batch-2022-02-19/ --exp_suffix exp_time_consistent
+python3 evaluate_batch.py --loadpath result/batch-2022-02-23/ --exp_suffix exp_time_consistent
 ```
 
 Output:
