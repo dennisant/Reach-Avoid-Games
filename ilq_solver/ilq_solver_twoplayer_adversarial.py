@@ -156,7 +156,7 @@ class ILQSolver(BaseSolver):
 
         g_functions = {
             0: self._CheckMultipleGFunctions_P1,
-            1: RoadRulesPenalty(self.g_params["car2"])
+            1: self._CheckMultipleGFunctions_P2
         }
         
         func_key_list = [""] * (self._horizon + 1)
@@ -187,10 +187,10 @@ class ILQSolver(BaseSolver):
                 max_l_func = l_functions[player_index](self.g_params, xs, k)
                 l_func_list.appendleft(max_l_func)
                 l_value_list[k] = -1.0 * l_func_list[0](xs[k])
-                
-                max_val, max_g_func = g_functions[player_index](xs[k])
-                g_value_list[k] = max_val
+
+                max_g_func = g_functions[player_index](self.g_params, xs, k)
                 g_func_list.appendleft(max_g_func)
+                g_value_list[k] = g_func_list[0](xs[k])
             
             value_function_compare = dict()
 
@@ -293,6 +293,17 @@ class ILQSolver(BaseSolver):
 
         return max(max_func, key=max_func.get)
 
+    def _CheckMultipleGFunctions_P2(self, g_params, xs, k):
+        max_func = dict()
+        
+        # max_val, func_of_max_val = ManeuverPenalty(g_params["car2"])(xs[k])
+        # max_func[func_of_max_val] = max_val
+        
+        max_val, func_of_max_val = RoadRulesPenalty(g_params["car2"])(xs[k])
+        max_func[func_of_max_val] = max_val
+
+        return max(max_func, key=max_func.get)
+
     def _CheckMultipleLFunctions_P2(self, g_params, xs, k):
         max_func = dict()
         
@@ -326,7 +337,7 @@ class ILQSolver(BaseSolver):
 
         g_functions = {
             0: self._CheckMultipleGFunctions_P1,
-            1: RoadRulesPenalty(self.g_params["car2"])
+            1: self._CheckMultipleGFunctions_P2
         }
         
         func_key_list = [""] * (self._horizon + 1)
@@ -335,7 +346,7 @@ class ILQSolver(BaseSolver):
         if player_index == 1:
             weight = {
                 "l_x": -1.0,
-                "g_x": -1.0
+                "g_x": 1.0
             }
         else:
             weight = {
@@ -357,10 +368,10 @@ class ILQSolver(BaseSolver):
                 max_l_func = l_functions[player_index](self.g_params, xs, k)
                 l_func_list.appendleft(max_l_func)
                 l_value_list[k] = -1.0 * l_func_list[0](xs[k])
-                
-                max_val, max_g_func = g_functions[player_index](xs[k])
-                g_value_list[k] = -1.0 * max_val
+
+                max_g_func = g_functions[player_index](self.g_params, xs, k)
                 g_func_list.appendleft(max_g_func)
+                g_value_list[k] = g_func_list[0](xs[k])
             
             value_function_compare = dict()
 

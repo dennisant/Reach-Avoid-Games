@@ -111,7 +111,9 @@ def two_player_adversarial(args):
             "collision_r": collision_r,
             "goals": [20, 35],
             "car_params": car_params,
-            "theta_indices": [2, 7]
+            "theta_indices": [2, 7],
+            "phi_index": 3,
+            "vel_index": 4
         },
         "car2": {
             "position_indices": [(0,1), (5, 6)],
@@ -121,7 +123,9 @@ def two_player_adversarial(args):
             "collision_r": collision_r,
             "goals": [20, 0],
             "car_params": car_params,
-            "theta_indices": [2, 7]
+            "theta_indices": [2, 7],
+            "phi_index": 8,
+            "vel_index": 9
         }
     }
 

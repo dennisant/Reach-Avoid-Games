@@ -6,8 +6,8 @@ cmd = "python3 run.py                                       \
         --no_players 2                                      \
         --player_types car car                              \
         --init_states                                       \
-            7.5 5.0 {} 0.0 5.0                              \
-            3.75 35.0 {} 0.0 5.0                            \
+            7.5 15.0 {} 0.0 5.0                             \
+            3.75 32.0 {} 0.0 7.0                            \
         --draw_roads                                        \
         --alpha_scaling trust_region                        \
         --trust_region_type constant_margin                 \
@@ -17,7 +17,7 @@ cmd = "python3 run.py                                       \
         --initial_margin 1.0                                \
         --t_horizon 3                                       \
         --time_consistency                                  \
-        --t_react 15                                        \
+        --t_react 10                                        \
         --plot --log --store_freq 1                         \
         ".format(np.pi/2.0, -np.pi/2.0)
 
