@@ -43,7 +43,7 @@ python3 evaluate.py --loadpath result/experiment_2022-02-19-20_48_36 --evaluate 
 ```
 Output:
 
-![image info](./result/experiment_2022-02-19-20_48_36/figures/evaluate_training.gif)
+<p style="text-align:center;"><img src="./result/experiment_2022-02-19-20_48_36/figures/evaluate_training.gif" alt="drawing" width="500"/>
 
 **Note**: This works for all run cases, provided that all figures of training process is stored in folder structure ```result/<experiment>/figures/```.
 
@@ -54,7 +54,7 @@ python3 evaluate.py --loadpath result/experiment_2022-02-21-20_51_25 --evaluate 
 ```
 Output:
 
-![image info](./result/experiment_2022-02-21-20_51_25/evaluate/evaluate_rollout.gif)
+<p style="text-align:center;"><img src="./result/experiment_2022-02-21-20_51_25/evaluate/evaluate_rollout.gif" alt="drawing" width="500"/>
 
 **Note**: This only works for three-player case as of now.
 
@@ -66,7 +66,7 @@ python3 evaluate.py --loadpath result/experiment_2022-02-21-21_46_25 --evaluate 
 You can also specify which iteration to plot on top of the concave hull by passing ```--iteration <number>```. If no iteration flag is passed, last iteration will be used.
 Output:
 
-![image info](./result/experiment_2022-02-21-21_46_25/evaluate/spectrum.png)
+<p style="text-align:center;"><img src="./result/experiment_2022-02-21-21_46_25/evaluate/spectrum.png" alt="drawing" width="500"/>
 
 **Note**: This only works for three-player case as of now.
 
@@ -94,7 +94,7 @@ python3 evaluate_batch.py --loadpath result/batch-2022-02-19/ --exp_suffix exp_t
 
 Output:
 
-![image info](./result/batch-2022-02-19/summary/exp_time_consistent_summary.png)
+<p style="text-align:center;"><img src="./result/batch-2022-02-19/summary/exp_time_consistent_summary.png" alt="drawing" width="500"/>
 
 # Adversarial
 Adversarial run is currently only for 2-player, and player 2 is the adversarial agent.
@@ -103,8 +103,8 @@ With adversarial run, determine the time step that player 2 switches from advers
 
 Sample run for adversarial is shown below, with **red** means adversarial phase and **yellow** means cooperative phase:
 
-![image info](./result/experiment_2022-02-26-02_19_22/evaluate/evaluate_rollout.gif)
+<p style="text-align:center;"><img src="./result/experiment_2022-02-26-02_19_22/evaluate/evaluate_rollout.gif" alt="drawing" width="500"/>
 
 Spectrum analysis of adversarial
 
-![image info](./result/experiment_2022-02-26-02_19_22/evaluate/spectrum.png)
+<p style="text-align:center;"><img src="./result/experiment_2022-02-26-02_19_22/evaluate/spectrum.png" alt="drawing" width="500"/>
