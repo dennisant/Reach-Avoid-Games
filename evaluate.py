@@ -18,7 +18,7 @@ from shapely.ops import cascaded_union, polygonize
 from descartes import PolygonPatch
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--evaluate",       help="Things to evaluate",       choices=["train", "rollout", "spectrum"],        required=True)
+parser.add_argument("--evaluate",       help="Things to evaluate",       choices=["train", "rollout", "spectrum", "info"],        required=True)
 parser.add_argument("--loadpath",       help="Path of experiment",       required=True)
 parser.add_argument("--iteration",      help="Iteration of experiment to evaluate",     type=int)
 args = parser.parse_args()
@@ -197,6 +197,29 @@ def train_process():
             image = imageio.imread(os.path.join(folder_path, filename))
             writer.append_data(image)
 
+def info():
+    # check to see if there is logs folder:
+    if not ("logs" in os.listdir(loadpath)):
+        raise ValueError("There is no log folder in this experiment")
+
+    # get experiment file:
+    file_list = os.listdir(os.path.join(loadpath, "logs"))
+    print("\t>> Found {} file(s)".format(len(file_list)))
+
+    if len(file_list) > 1:
+        index = input("Please choose which log file to use: ")
+    else: 
+        index = 0
+
+    # Read log
+    file_path = os.path.join(loadpath, "logs", file_list[index])
+    with open(file_path, "rb") as log:
+        raw_data = pickle.load(log)
+    
+    print("Experiment information:")
+    for item in vars(raw_data["config"][0]).items():
+        print("{}:\t{}".format(item[0].rjust(20), item[1]))
+
 def final_rollout():
     # check to see if there is logs folder:
     if not ("logs" in os.listdir(loadpath)):
@@ -293,5 +316,8 @@ elif args.evaluate == "rollout":
 elif args.evaluate == "spectrum":
     print("\t>> Generate spectrum graph")
     spectrum()
+elif args.evaluate == "info":
+    print("\t>> Read experiment info")
+    info()
 else:
     raise NotImplementedError("Choose another evaluation run, current choice not supported")
