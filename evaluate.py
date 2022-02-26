@@ -18,9 +18,10 @@ from shapely.ops import cascaded_union, polygonize
 from descartes import PolygonPatch
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--evaluate",       help="Things to evaluate",       choices=["train", "rollout", "spectrum", "info"],        required=True)
-parser.add_argument("--loadpath",       help="Path of experiment",       required=True)
-parser.add_argument("--iteration",      help="Iteration of experiment to evaluate",     type=int)
+parser.add_argument("--evaluate",           help="Things to evaluate",       choices=["train", "rollout", "spectrum", "info"],        required=True)
+parser.add_argument("--loadpath",           help="Path of experiment",       required=True)
+parser.add_argument("--iteration",          help="Iteration of experiment to evaluate",     type=int)
+parser.add_argument("--with_trajectory",    help="Plot trajectory of the chosen iteration out, used with evaluate=rollout",     action="store_true")
 args = parser.parse_args()
 
 loadpath = args.loadpath
@@ -136,6 +137,22 @@ def spectrum():
             ]
     else:
         raise NotImplementedError("Unknown game")
+
+    # add in this to work with old data. Old arguments format have "adversarial" boolean flag. New arguments consider the value of t_react only
+    if "adversarial" in vars(raw_data["config"][0]):
+        if raw_data["config"][0].adversarial:
+            print("\t>> Adversarial run found!")
+            adversarial = True
+        else:
+            adversarial = False
+    elif raw_data["config"][0].t_react is not None:
+        print("\t>> Adversarial run found!")
+        adversarial = True
+    else:
+        adversarial = False
+
+    if adversarial:
+        t_react = raw_data["config"][0].t_react
     
     # create output folder
     output = os.path.join(loadpath, "evaluate")
@@ -143,7 +160,7 @@ def spectrum():
         os.makedirs(output)
     print("\t>> Output folder: " + output)
 
-    plot_road_game(ped=has_ped)
+    plot_road_game(ped=has_ped, adversarial=adversarial)
 
     trajectory_spectrum = dict()
     for player in range(no_of_players):
@@ -252,6 +269,8 @@ def final_rollout():
     no_of_players = len(list_of_players)
 
     has_ped = "ped" in list_of_players
+
+    color_code = ["green", "red", "blue"]
     
     if no_of_players == 1:
         raise NotImplementedError("Spectrum analysis is not currently available for one-player game")
@@ -269,6 +288,22 @@ def final_rollout():
     else:
         raise NotImplementedError("Unknown game")
 
+    # add in this to work with old data. Old arguments format have "adversarial" boolean flag. New arguments consider the value of t_react only
+    if "adversarial" in vars(raw_data["config"][0]):
+        if raw_data["config"][0].adversarial:
+            print("\t>> Adversarial run found!")
+            adversarial = True
+        else:
+            adversarial = False
+    elif raw_data["config"][0].t_react is not None:
+        print("\t>> Adversarial run found!")
+        adversarial = True
+    else:
+        adversarial = False
+
+    if adversarial:
+        t_react = raw_data["config"][0].t_react
+
     # create output folder
     output = os.path.join(loadpath, "evaluate")
     if not os.path.exists(output):
@@ -284,13 +319,26 @@ def final_rollout():
     for i in range(len(data)):
         state = data.iloc[i].to_numpy()
 
-        plot_road_game(ped=has_ped)
+        plot_road_game(ped=has_ped, adversarial=adversarial)
 
         for index, player in enumerate(list_of_players):
             if "car" in player:
-                draw_real_car(index, [state])
+                if not adversarial:
+                    draw_real_car(index, [state])
+                else:
+                    if i > t_react and index == 1:
+                        draw_real_car(index, [state], path="visual_components/car_robot_y.png")
+                    else:
+                        draw_real_car(index, [state])
+
             elif "ped" in player:
                 draw_real_human([state])
+            
+            if args.with_trajectory:
+                plt.plot(data["x0"], data["y0"], 'g', linewidth=2.0, zorder=10)
+                plt.plot(data["x1"], data["y1"], 'r', linewidth=2.0, zorder=10)
+                if no_of_players == 3:
+                    plt.plot(data["x2"], data["y2"], 'b', linewidth=2.0, zorder=10)
         
         plt.pause(0.001)
         plt.savefig(os.path.join(output, 'step-{}.jpg'.format(i))) # Trying to save these plots

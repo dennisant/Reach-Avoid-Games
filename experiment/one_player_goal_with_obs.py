@@ -165,6 +165,8 @@ def one_player(args):
         logger = None
 
     if args.note != "":
+        if not os.path.exists(RESULT_DIRECTORY):
+            os.makedirs(RESULT_DIRECTORY)
         with open(os.path.join(RESULT_DIRECTORY, "note.txt"), 'w') as file:
             file.write(args.note)
 
