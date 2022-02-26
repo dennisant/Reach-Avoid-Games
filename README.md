@@ -5,11 +5,7 @@ Code is tested on M1 Mac and Ubuntu 20.04 using Conda environment (4.10.3). Chec
 The following runs are fully supported:
 * One player case, single goal with multiple obstacles in free space (pinch-point and time consistent).
 * Three players case, t-intersection environment (pinch-point and time consistent).
-
-The following runs are currently being reviewed:
 * Two players case, t-intersection environment (pinch-point and time consistent, cooperative and adversarial).
-
-Check back and fetch the latest update before running.
 
 # How to run
 Run ```run.py``` directly with flags to change the env configs
@@ -98,4 +94,17 @@ python3 evaluate_batch.py --loadpath result/batch-2022-02-23/ --exp_suffix exp_t
 
 Output:
 
-![image info](./result/batch-2022-02-23/summary/exp_time_consistent_summary.png)
+![image info](./result/batch-2022-02-19/summary/exp_time_consistent_summary.png)
+
+# Adversarial
+Adversarial run is currently only for 2-player, and player 2 is the adversarial agent.
+
+With adversarial run, determine the time step that player 2 switches from adversarial to cooperative with ```--t_react```.
+
+Sample run for adversarial is shown below, with **red** means adversarial phase and **yellow** means cooperative phase:
+
+![image info](./result/experiment_2022-02-26-02_19_22/evaluate/evaluate_rollout.gif)
+
+Spectrum analysis of adversarial
+
+![image info](./result/experiment_2022-02-26-02_19_22/evaluate/spectrum.png)
