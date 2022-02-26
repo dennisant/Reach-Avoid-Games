@@ -195,7 +195,7 @@ class Visualizer(object):
             if player_id == 0:
                 state = car_states[i][:5].flatten()
                 color = "r"
-                path = "visual_components/delorean.png" if path is None else path
+                path = "visual_components/delorean-flux-white.png" if path is None else path
             else:
                 state = car_states[i][5:].flatten()
                 color = "g"
