@@ -537,12 +537,12 @@ class ILQSolver(object):
         target2_position = (16.0, 12.0)
         target_position = [target1_position, target2_position]
         
-        # Radius of target for both players
+        # Radius of target for both players (here, the targets are circles)
         target1_radius = 1
         target2_radius = 1
         target_radius = [target1_radius, target2_radius]
         
-        #
+        # Player id's
         car1_player_id = 0
         car2_player_id = 1
         
@@ -551,7 +551,7 @@ class ILQSolver(object):
         car2_desired_sep = 3
         desired_sep = [car1_desired_sep, car2_desired_sep]
         
-        # Defining the polylines for player 1 and 2
+        # Defining the polylines for player 1 and 2 (this is the centerline for each player's lane)
         car1_polyline = Polyline([Point(6.0, -100.0), Point(6.0, 100.0)])
         car2_polyline = Polyline([Point(2.0, 100.0),
                           Point(2.0, 18.0),
@@ -619,12 +619,12 @@ class ILQSolver(object):
                 target_margin_func[k] = hold_new
                 
                 
-                # Here, I am going through all the functions at time-step k and picking out which one is the max and at what time-step does the max occur
+                # Here, I am going through all the g functions at time-step k and picking out which one is the max and at what time-step does the max occur
                 # check_funcs[0] tells us which function it is (function 1, 2 or 3), and check_funcs[1] tells us at which time-step this occurs
                 check_funcs = self._CheckMultipleFunctionsP1(xs, num_func_P1, ii, k, car1_position_indices, car2_position_indices, car1_desired_sep, car1_polyline, lane_width)
                 
                 
-                # 1. If the max between all g functions g_0 is the ProximityDistance from P1 to P2:
+                # 1. If the max between all g functions is g_0, then this is the ProximityDistance from P1 to P2:
                 if check_funcs[0] == 0:
                     # Calculate Proximity Distance at time-step k+1
                     print("ProxDist for P1 came out")
@@ -726,7 +726,6 @@ class ILQSolver(object):
                
                 # Calculating hessians and gradients w.r.t. x at time-step k+1
                 # Calculate hessian and gradient w.r.t. u at time-step k
-                #for ii in range(self._num_players):
                 _, r, l, Q, R = self._player_costs[ii].quadraticize(
                     xs[k+1], [uis[k] for uis in us], k, self._calc_deriv_true_P1, ii)
     
@@ -803,7 +802,7 @@ class ILQSolver(object):
             
                 
                 # Here, I am going through all the functions at time-step k and picking out which one is the max and at what time-step does the max occur
-                # check_funcs[0] tells us which function it is (function 1, 2 or 3), and check_funcs[1] tells us at which time-step this occurs
+                # check_funcs[0] tells us which function it is (function 1, 2, 3, etc), and check_funcs[1] tells us at which time-step this occurs
                 check_funcs = self._CheckMultipleFunctionsP2(xs, num_func_P2, ii, k, car1_position_indices, car2_position_indices, car2_desired_sep, car2_polyline, lane_width)
                 
                 
