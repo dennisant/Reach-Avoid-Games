@@ -93,10 +93,10 @@ class Visualizer(object):
             self._draw_roads = kwargs["draw_roads"]
         if "draw_cars" in kwargs.keys():
             self._draw_cars = kwargs["draw_cars"]
-        if "adversarial" in kwargs.keys():
-            self._adversarial = kwargs["adversarial"]
         if "t_react" in kwargs.keys():
             self._t_react = kwargs["t_react"]
+            if self._t_react is not None:
+                self._adversarial = True
         if "draw_human" in kwargs.keys():
             self._draw_human = kwargs["draw_human"]
         if "boundary_only" in kwargs.keys():

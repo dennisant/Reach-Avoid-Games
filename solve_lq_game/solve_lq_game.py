@@ -42,7 +42,7 @@ Author(s): David Fridovich-Keil ( dfk@eecs.berkeley.edu )
 import numpy as np
 from collections import deque
 
-def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, time_consistency=True):
+def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, time_consistency=True, t_react=None):
     """
     Solve a time-varying, finite horizon LQ game (finds closed-loop Nash
     feedback strategies for both players).
@@ -111,6 +111,14 @@ def solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, time_consistency=True
         Z = [Zis[0] for Zis in Zs]
         zeta = [zetais[0] for zetais in zetas]
         n = [nis[0] for nis in ns]
+
+        if t_react is not None:
+            if k >= t_react:  # Change back to 9
+                num_players = 1
+                u_dims = [4]
+            else:
+                num_players = 2
+                u_dims = [2, 2]
         
         S_rows = []
         for ii in range(num_players):

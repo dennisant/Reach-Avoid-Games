@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
+from scipy.linalg import block_diag
 from solve_lq_game.solve_lq_game import solve_lq_game
 import matplotlib.pyplot as plt
 
@@ -15,8 +16,10 @@ class BaseSolver(ABC):
                  logger=None,
                  visualizer=None,
                  u_constraints=None,
-                 config=None):
+                 config=None,
+                 dynamics_adversarial=None):
         self._dynamics = dynamics
+        self._dynamics_adversarial = dynamics_adversarial
         #self._player_costs = player_costs
         self._x0 = x0
         self._Ps = Ps
@@ -31,6 +34,8 @@ class BaseSolver(ABC):
         self.time_consistency = config["args"].time_consistency
         self.max_steps = config["args"].max_steps
         self.is_batch_run = config["args"].batch_run
+
+        self._t_react = config["args"].t_react
 
         self.plot = config["args"].plot
         self.log = config["args"].log
@@ -86,6 +91,9 @@ class BaseSolver(ABC):
         if self._last_operating_point is None:
             return False
 
+        if self._t_react is not None:
+            return False
+
         if not self.time_consistency:
             if np.any(np.array(self._total_costs) > self.cost_converge):
                 return False
@@ -105,9 +113,19 @@ class BaseSolver(ABC):
         
         while not self._is_converged() and (self.max_steps is not None and self.iteration < self.max_steps):
             # # (1) Compute current operating point and update last one.
-            xs, us = self._compute_operating_point()
-            self._last_operating_point = self._current_operating_point
-            self._current_operating_point = (xs, us)
+            if (self._t_react is not None) and self.iteration > 0:  # we are running adversarial
+                xs, us = self._compute_operating_point_adversarial()
+                self._last_operating_point = self._current_operating_point
+                self._current_operating_point = (xs, us)
+
+                for ii in range(self._t_react, self._horizon):
+                    a = np.vsplit(us[0][ii], 2)
+                    us[1].append(a[1])
+                    us[0][ii] = a[0]
+            else:
+                xs, us = self._compute_operating_point()
+                self._last_operating_point = self._current_operating_point
+                self._current_operating_point = (xs, us)
             
             # (2) Linearize about this operating point. Make sure to
             # stack appropriately since we will concatenate state vectors
@@ -155,6 +173,31 @@ class BaseSolver(ABC):
                 first_t_stars.append(first_t_star_)
                 
                 Rs.append(R[ii])
+            
+            if self._t_react is not None:
+                # Combine B's for 2nd phase for P1
+                for ii in range(self._t_react, self._horizon, 1):
+                    Bs[0][ii] = np.hstack((Bs[0][ii], Bs[1][ii]))
+                    Bs[1][ii] = []
+                            
+                # Trying to put some things on P1 and empty set on P2 for times
+                # t_react to T
+                for ii in range(self._t_react, self._horizon, 1):
+                    rs[0][ii] = np.hstack((rs[0][ii], rs[1][ii]))  # For grad of cost w.r.t. u (change back to hstack)
+                    rs[1][ii] = []
+                    
+                    Rs[0][0][ii] = block_diag(Rs[0][0][ii], Rs[1][0][ii])
+                    Rs[0][1][ii] = block_diag(Rs[0][1][ii], Rs[1][1][ii])
+                    Rs[1][0][ii] = []
+                    Rs[1][1][ii] = []                
+                                    
+                # Need to stack 'us' for compute_operating_point_other for 2nd phase. 
+                # By the time we use it, the Ps and alphas are already stadcked.
+                # This really only needs to be done at iteration 0
+                self._us_other = us
+                for ii in range(self._t_react, self._horizon):
+                    self._us_other[0][ii] = np.vstack((self._us_other[0][ii], self._us_other[1][ii]))
+                    self._us_other[1][ii] = []
 
             self._first_t_stars = first_t_stars
             self._Qs = Qs
@@ -175,7 +218,8 @@ class BaseSolver(ABC):
             # for the next trajectory
             # print(np.array(Qs).shape)
             # input()
-            Ps, alphas, ns = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, self.time_consistency)
+
+            Ps, alphas, ns = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, self.time_consistency, self._t_react)
 
             # (7) Accumulate total costs for all players.
             # This is the total cost for the trajectory we are on now
@@ -324,6 +368,55 @@ class BaseSolver(ABC):
             xs.append(self._dynamics.integrate(xs[k], u))
             
         #print("self._aplha_scaling in compute_operating_point is: ", self._alpha_scaling)
+        return xs, us
+
+    def _compute_operating_point_adversarial(self):
+        """
+        Compute current operating point by propagating through dynamics.
+
+        :return: states, controls for all players (list of lists), and
+            costs over time (list of lists), i.e. (xs, us, costs)
+        :rtype: [np.array], [[np.array]], [[torch.Tensor(1, 1)]]
+        """
+        xs = [self._x0]
+        us = [[] for ii in range(self._num_players)]
+        #costs = [[] for ii in range(self._num_players)]
+        
+        for k in range(self._horizon):
+            # If this is our fist time through, we don't have a trajectory, so
+            # set the state and controls at each time-step k to 0. Else, use state and
+            # controls
+            if k <= self._t_react - 1:
+                num_players = 2
+            else:
+                num_players = 1
+            
+            current_x = self._current_operating_point[0][k]
+            if self.iteration != 0:
+                current_u = [self._current_operating_point[1][ii][k]
+                                  for ii in range(num_players)]
+            else:
+                current_u = [self._us_other[ii][k]
+                                  for ii in range(num_players)]
+
+            # This is Eqn. 7 in the ILQGames paper
+            # This gets us the control at time-step k for the updated trajectory
+            feedback = lambda x, u_ref, x_ref, P, alpha, alpha_scaling : \
+                       u_ref - P @ (x - x_ref) - alpha_scaling * alpha
+            u = [feedback(xs[k], current_u[ii], current_x,
+                      self._Ps[ii][k], self._alphas[ii][k], self._alpha_scaling)   # Adding self._alpha_scaling to this (since now we have 2 players with 2 different alpha_scaling)
+                 for ii in range(num_players)]       
+
+            # Append computed control (u) for the trajectory we're calculating to "us"
+            for ii in range(num_players):
+                us[ii].append(u[ii])
+
+            # Use 4th order Runge-Kutta to propogate system to next time-step k+1
+            if k <= self._t_react - 1:
+                xs.append(self._dynamics.integrate(xs[k], u))
+            else:
+                xs.append(self._dynamics_adversarial.integrate(xs[k], u))
+
         return xs, us
 
     def visualize(self, **kwargs):

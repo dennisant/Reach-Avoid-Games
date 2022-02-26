@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
 
-from cost.proximity_to_block_cost import ProximityToLeftBlockCost, ProximityToUpBlockCost
+from cost.proximity_to_block_cost import ProximityToDownBlockCost, ProximityToLeftBlockCost, ProximityToUpBlockCost
 from player_cost.player_cost import PlayerCost
 
 class MaxFuncMux(object):
@@ -54,7 +54,7 @@ class MinFuncMux(object):
         else:
             return min(self.io, key = self.io.get), min(self.io.values())
 
-def draw_real_car(player_id, car_states):
+def draw_real_car(player_id, car_states, path=None):
     # TODO: change all the constants in the function to car_params
     car_params = {
         "wheelbase": 2.413, 
@@ -66,11 +66,11 @@ def draw_real_car(player_id, car_states):
         if player_id == 0:
             state = car_states[i][:5].flatten()
             color = "r"
-            path = "visual_components/delorean-flux-white.png"
+            path = "visual_components/delorean-flux-white.png" if path is None else path
         else:
             state = car_states[i][5:].flatten()
             color = "g"
-            path = "visual_components/car_robot_r.png"
+            path = "visual_components/car_robot_r.png" if path is None else path
 
         transform_data = Affine2D().rotate_deg_around(*(state[0], state[1]), state[2]/np.pi * 180) + plt.gca().transData
         # plt.plot(state[0], state[1], color=color, marker='o', markersize=5, alpha = 0.4)
@@ -107,7 +107,7 @@ def draw_crosswalk(x, y, width, length, number_of_dashes = 5):
             [x + (2*i + 0.5)*per_length, y], width = per_length, height = width, color = "white", lw = 0, zorder = 0)
         plt.gca().add_patch(crosswalk)
 
-def plot_road_game():
+def plot_road_game(ped=False, adversarial=False):
         # Create game env
     ###################
     road_rules = {
@@ -153,8 +153,10 @@ def plot_road_game():
             "goals": [20, 0],
             "car_params": car_params,
             "theta_indices": [2, 7, 12]
-        },
-        "ped1": {
+        }
+    }
+    if ped:
+        g_params["ped1"] = {
             "position_indices": [(0,1), (5, 6), (10, 11)],
             "player_id": 2, 
             "road_logic": [1, 1, 1, 1, 0],
@@ -163,12 +165,15 @@ def plot_road_game():
             "car_params": car_params,
             "theta_indices": [2, 7, 12]
         }
-    }
     ###################
     # Create environment:
     car1_goal_cost = ProximityToUpBlockCost(g_params["car1"])
-    car2_goal_cost = ProximityToLeftBlockCost(g_params["car2"])
-    ped_goal_cost = PedestrianProximityToBlockCost(g_params["ped1"])
+    if not adversarial:
+        car2_goal_cost = ProximityToLeftBlockCost(g_params["car2"])
+    else:
+        car2_goal_cost = ProximityToDownBlockCost(g_params["car2"])
+    if ped:
+        ped_goal_cost = PedestrianProximityToBlockCost(g_params["ped1"])
 
     # Build up total costs for both players. This is basically a zero-sum game.
     car1_cost = PlayerCost()
@@ -177,10 +182,13 @@ def plot_road_game():
     car2_cost = PlayerCost()
     car2_cost.add_cost(car2_goal_cost, "x", 1.0)
 
-    ped_cost = PlayerCost()
-    ped_cost.add_cost(ped_goal_cost, "x", 1.0)
+    if ped:
+        ped_cost = PlayerCost()
+        ped_cost.add_cost(ped_goal_cost, "x", 1.0)
         
-    _renderable_costs = [car1_goal_cost, car2_goal_cost, ped_goal_cost]
+    _renderable_costs = [car1_goal_cost, car2_goal_cost]
+    if ped:
+        _renderable_costs.append(ped_goal_cost)
 
     plt.figure(0)
     _plot_lims = [-5, 25, 0, 40]

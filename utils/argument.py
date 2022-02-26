@@ -7,11 +7,11 @@ def get_argument():
     # experiment params
     parser.add_argument("--no_players",         help="Number of players",       type=int,       default=1)
     parser.add_argument("--time_consistency",   help="Is the run time consistent",  action="store_true")
-    parser.add_argument("--adversarial",        help="Is the run adversarial",      action="store_true")
+    # parser.add_argument("--adversarial",        help="Is the run adversarial",      action="store_true")
 
     parser.add_argument("--batch_run",          help="Experiment is running in batch",          action="store_true")
 
-    parser.add_argument("--t_react",            help="T reaction for adversarial case",     type=int,       default=10)
+    parser.add_argument("--t_react",            help="T reaction for adversarial case",     type=int)
     parser.add_argument("--t_horizon",          help="Time horizon for the traj",           type=float,     default=3.0)
     parser.add_argument("--t_resolution",       help="Time react",       type=float,     default=0.1)    
 
@@ -59,7 +59,7 @@ def check_argument(args):
         "ped": 4
     }
     # Some logistic checking on the available experiments
-    if args.no_players != 2 and args.adversarial:
+    if args.no_players != 2 and args.t_react is not None:
         raise NotImplementedError("Experiment is not available, please choose another run.")
 
     # check information of env_type
@@ -97,28 +97,5 @@ def check_argument(args):
 
     print("EXPERIMENT INFORMATION")
     print("\nGeneral information")
-    print(" - Experiment name:\t\t\t {}".format(args.exp_name))
-    print(" - Env type:\t\t\t\t {}".format(args.env_type))
-    print(" - Horizon:\t\t\t\t {}".format(args.t_horizon))
-    print(" - T resolution:\t\t\t {}".format(args.t_resolution))
-    print(" - No. of players:\t\t\t {}".format(args.no_players))
-    print(" - Time consistency:\t\t\t {}".format(args.time_consistency))
-    print(" - Eps state:\t\t\t\t {}".format(args.eps_state))
-    print(" - Eps control:\t\t\t\t {}".format(args.eps_control))
-    if args.env_type == "goal_with_obs":
-        print(" - Obstacles:\t\t\t\t {}".format(args.obstacles))
-        print(" - Goal:\t\t\t\t {}".format(args.goal))
-        print(" - Init states:\t\t\t\t {}".format(args.init_states))
-    elif args.env_type == "t_intersection":
-        print(" - Player types:\t\t\t {}".format(args.player_types))
-        print(" - Init states:\t\t\t\t {}".format(args.init_states))
-    print(" - Alpha scaling:\t\t\t {}".format(args.alpha_scaling))
-    print("\nVisualization")
-    print(" - Run with plots?:\t\t\t {}".format(args.plot))
-    print(" - Run with control plot?:\t\t {}".format(args.ctl_plot))
-    print(" - Run with velocity plot?:\t\t {}".format(args.vel_plot))
-    print(" - Run with car figures?:\t\t {}".format(args.draw_cars))
-    print(" - Run with human figure?:\t\t {}".format(args.draw_human))
-    print(" - Run with graphical roads?:\t\t {}".format(args.draw_roads))
-    print("\nLogging")
-    print(" - Run with logs?:\t\t\t {}".format(args.log))
+    for item in vars(args).items():
+        print("{}:\t{}".format(item[0].rjust(20), item[1]))

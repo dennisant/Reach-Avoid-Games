@@ -18,9 +18,10 @@ from shapely.ops import cascaded_union, polygonize
 from descartes import PolygonPatch
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--evaluate",       help="Things to evaluate",       choices=["train", "rollout", "spectrum"],        required=True)
-parser.add_argument("--loadpath",       help="Path of experiment",       required=True)
-parser.add_argument("--iteration",      help="Iteration of experiment to evaluate",     type=int)
+parser.add_argument("--evaluate",           help="Things to evaluate",       choices=["train", "rollout", "spectrum", "info"],        required=True)
+parser.add_argument("--loadpath",           help="Path of experiment",       required=True)
+parser.add_argument("--iteration",          help="Iteration of experiment to evaluate",     type=int)
+parser.add_argument("--with_trajectory",    help="Plot trajectory of the chosen iteration out, used with evaluate=rollout",     action="store_true")
 args = parser.parse_args()
 
 loadpath = args.loadpath
@@ -113,6 +114,45 @@ def spectrum():
     print("\t>> Iteration to render on top: {}".format(iteration))
 
     max_iteration = np.array(raw_data["xs"]).shape[0]
+
+    # check game specs
+    list_of_players = list(raw_data["g_params"][0].keys())
+    no_of_players = len(list_of_players)
+    has_ped = "ped" in list_of_players
+
+    color_code = ["green", "red", "blue"]
+
+    if no_of_players == 1:
+        raise NotImplementedError("Spectrum analysis is not currently available for one-player game")
+    elif no_of_players == 2:
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0",
+                "x1", "y1", "theta1", "phi1", "vel1"
+            ]
+    elif no_of_players == 3:
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0",
+                "x1", "y1", "theta1", "phi1", "vel1",
+                "x2", "y2", "theta2", "vel2"
+            ]
+    else:
+        raise NotImplementedError("Unknown game")
+
+    # add in this to work with old data. Old arguments format have "adversarial" boolean flag. New arguments consider the value of t_react only
+    if "adversarial" in vars(raw_data["config"][0]):
+        if raw_data["config"][0].adversarial:
+            print("\t>> Adversarial run found!")
+            adversarial = True
+        else:
+            adversarial = False
+    elif raw_data["config"][0].t_react is not None:
+        print("\t>> Adversarial run found!")
+        adversarial = True
+    else:
+        adversarial = False
+
+    if adversarial:
+        t_react = raw_data["config"][0].t_react
     
     # create output folder
     output = os.path.join(loadpath, "evaluate")
@@ -120,58 +160,42 @@ def spectrum():
         os.makedirs(output)
     print("\t>> Output folder: " + output)
 
-    plot_road_game()
+    plot_road_game(ped=has_ped, adversarial=adversarial)
 
-    trajectory_spectrum_1 = None
-    trajectory_spectrum_2 = None
-    trajectory_spectrum_3 = None
+    trajectory_spectrum = dict()
+    for player in range(no_of_players):
+        trajectory_spectrum[player] = None
 
     for i in range(max_iteration):
         data = pd.DataFrame(
             np.array(raw_data["xs"][i]).reshape((
-                len(raw_data["xs"][i]), 14
-            )), columns = [
-                "x0", "y0", "theta0", "phi0", "vel0",
-                "x1", "y1", "theta1", "phi1", "vel1",
-                "x2", "y2", "theta2", "vel2"
-            ]
+                len(raw_data["xs"][i]), len(data_columns)
+            )), columns = data_columns
         )
 
         if i == iteration:
             plt.plot(data["x0"], data["y0"], 'g', linewidth=2.0, zorder=10)
             plt.plot(data["x1"], data["y1"], 'r', linewidth=2.0, zorder=10)
-            plt.plot(data["x2"], data["y2"], 'b', linewidth=2.0, zorder=10)
+            if no_of_players == 3:
+                plt.plot(data["x2"], data["y2"], 'b', linewidth=2.0, zorder=10)
 
-        if trajectory_spectrum_1 is None:
-            trajectory_spectrum_1 = data[["x0", "y0"]]
-        else:
-            trajectory_spectrum_1 = pd.concat([trajectory_spectrum_1, data[["x0", "y0"]]])
-
-        if trajectory_spectrum_2 is None:
-            trajectory_spectrum_2 = data[["x1", "y1"]]
-        else:
-            trajectory_spectrum_2 = pd.concat([trajectory_spectrum_2, data[["x1", "y1"]]])
-        
-        if trajectory_spectrum_3 is None:
-            trajectory_spectrum_3 = data[["x2", "y2"]]
-        else:
-            trajectory_spectrum_3 = pd.concat([trajectory_spectrum_3, data[["x2", "y2"]]])
+        for player in range(no_of_players):
+            if trajectory_spectrum[player] is None:
+                trajectory_spectrum[player] = data[["x{}".format(player), "y{}".format(player)]]
+            else:
+                trajectory_spectrum[player] = pd.concat([trajectory_spectrum[player], data[["x{}".format(player), "y{}".format(player)]]])                
     
     initial_state = data.iloc[0].to_numpy()
-    draw_real_car(0, [initial_state])
-    draw_real_car(1, [initial_state])
-    draw_real_human([initial_state])
 
-    points_1 = trajectory_spectrum_1.values
-    points_2 = trajectory_spectrum_2.values
-    points_3 = trajectory_spectrum_3.values
-
-    concave_hull, edge_points = alpha_shape(points_1, 0.4)
-    plt.gca().add_patch(PolygonPatch(concave_hull, fc='green', ec='green', fill=True, zorder=5, alpha=0.25))
-    concave_hull, edge_points = alpha_shape(points_2, 0.4)
-    plt.gca().add_patch(PolygonPatch(concave_hull, fc='red', ec='red', fill=True, zorder=5, alpha=0.25))
-    concave_hull, edge_points = alpha_shape(points_3, 0.4)
-    plt.gca().add_patch(PolygonPatch(concave_hull, fc='blue', ec='blue', fill=True, zorder=5, alpha=0.25))
+    for i, player in enumerate(list_of_players):
+        if "car" in player:
+            draw_real_car(i, [initial_state])
+        elif "ped" in player:
+            draw_real_human([initial_state])
+        
+        points = trajectory_spectrum[i].values
+        concave_hull, edge_points = alpha_shape(points, 0.4)
+        plt.gca().add_patch(PolygonPatch(concave_hull, fc=color_code[i], ec=color_code[i], fill=True, zorder=5, alpha=0.25))
     
     plt.savefig(os.path.join(output, "spectrum.png"))
     plt.show()
@@ -189,6 +213,29 @@ def train_process():
             filename = "plot-{}.jpg".format(i)
             image = imageio.imread(os.path.join(folder_path, filename))
             writer.append_data(image)
+
+def info():
+    # check to see if there is logs folder:
+    if not ("logs" in os.listdir(loadpath)):
+        raise ValueError("There is no log folder in this experiment")
+
+    # get experiment file:
+    file_list = os.listdir(os.path.join(loadpath, "logs"))
+    print("\t>> Found {} file(s)".format(len(file_list)))
+
+    if len(file_list) > 1:
+        index = input("Please choose which log file to use: ")
+    else: 
+        index = 0
+
+    # Read log
+    file_path = os.path.join(loadpath, "logs", file_list[index])
+    with open(file_path, "rb") as log:
+        raw_data = pickle.load(log)
+    
+    print("Experiment information:")
+    for item in vars(raw_data["config"][0]).items():
+        print("{}:\t{}".format(item[0].rjust(20), item[1]))
 
 def final_rollout():
     # check to see if there is logs folder:
@@ -217,6 +264,46 @@ def final_rollout():
 
     print("\t>> Iteration to render: {}".format(iteration))
 
+    # check game specs
+    list_of_players = list(raw_data["g_params"][0].keys())
+    no_of_players = len(list_of_players)
+
+    has_ped = "ped" in list_of_players
+
+    color_code = ["green", "red", "blue"]
+    
+    if no_of_players == 1:
+        raise NotImplementedError("Spectrum analysis is not currently available for one-player game")
+    elif no_of_players == 2:
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0",
+                "x1", "y1", "theta1", "phi1", "vel1"
+            ]
+    elif no_of_players == 3:
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0",
+                "x1", "y1", "theta1", "phi1", "vel1",
+                "x2", "y2", "theta2", "vel2"
+            ]
+    else:
+        raise NotImplementedError("Unknown game")
+
+    # add in this to work with old data. Old arguments format have "adversarial" boolean flag. New arguments consider the value of t_react only
+    if "adversarial" in vars(raw_data["config"][0]):
+        if raw_data["config"][0].adversarial:
+            print("\t>> Adversarial run found!")
+            adversarial = True
+        else:
+            adversarial = False
+    elif raw_data["config"][0].t_react is not None:
+        print("\t>> Adversarial run found!")
+        adversarial = True
+    else:
+        adversarial = False
+
+    if adversarial:
+        t_react = raw_data["config"][0].t_react
+
     # create output folder
     output = os.path.join(loadpath, "evaluate")
     if not os.path.exists(output):
@@ -225,21 +312,34 @@ def final_rollout():
 
     data = pd.DataFrame(
         np.array(raw_data["xs"][iteration]).reshape((
-            len(raw_data["xs"][iteration]), 14
-        )), columns = [
-            "x0", "y0", "theta0", "phi0", "vel0",
-            "x1", "y1", "theta1", "phi1", "vel1",
-            "x2", "y2", "theta2", "vel2"
-        ]
+            len(raw_data["xs"][iteration]), len(data_columns)
+        )), columns = data_columns
     )
 
     for i in range(len(data)):
         state = data.iloc[i].to_numpy()
+
+        plot_road_game(ped=has_ped, adversarial=adversarial)
+
+        for index, player in enumerate(list_of_players):
+            if "car" in player:
+                if not adversarial:
+                    draw_real_car(index, [state])
+                else:
+                    if i > t_react and index == 1:
+                        draw_real_car(index, [state], path="visual_components/car_robot_y.png")
+                    else:
+                        draw_real_car(index, [state])
+
+            elif "ped" in player:
+                draw_real_human([state])
+            
+            if args.with_trajectory:
+                plt.plot(data["x0"], data["y0"], 'g', linewidth=2.0, zorder=10)
+                plt.plot(data["x1"], data["y1"], 'r', linewidth=2.0, zorder=10)
+                if no_of_players == 3:
+                    plt.plot(data["x2"], data["y2"], 'b', linewidth=2.0, zorder=10)
         
-        plot_road_game()
-        draw_real_car(0, [state])
-        draw_real_car(1, [state])
-        draw_real_human([state], i%2)
         plt.pause(0.001)
         plt.savefig(os.path.join(output, 'step-{}.jpg'.format(i))) # Trying to save these plots
         plt.clf()
@@ -264,5 +364,8 @@ elif args.evaluate == "rollout":
 elif args.evaluate == "spectrum":
     print("\t>> Generate spectrum graph")
     spectrum()
+elif args.evaluate == "info":
+    print("\t>> Read experiment info")
+    info()
 else:
     raise NotImplementedError("Choose another evaluation run, current choice not supported")
