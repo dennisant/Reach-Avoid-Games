@@ -113,6 +113,29 @@ def spectrum():
     print("\t>> Iteration to render on top: {}".format(iteration))
 
     max_iteration = np.array(raw_data["xs"]).shape[0]
+
+    # check game specs
+    list_of_players = list(raw_data["g_params"][0].keys())
+    no_of_players = len(list_of_players)
+    has_ped = "ped" in list_of_players
+
+    color_code = ["green", "red", "blue"]
+
+    if no_of_players == 1:
+        raise NotImplementedError("Spectrum analysis is not currently available for one-player game")
+    elif no_of_players == 2:
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0",
+                "x1", "y1", "theta1", "phi1", "vel1"
+            ]
+    elif no_of_players == 3:
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0",
+                "x1", "y1", "theta1", "phi1", "vel1",
+                "x2", "y2", "theta2", "vel2"
+            ]
+    else:
+        raise NotImplementedError("Unknown game")
     
     # create output folder
     output = os.path.join(loadpath, "evaluate")
@@ -120,58 +143,42 @@ def spectrum():
         os.makedirs(output)
     print("\t>> Output folder: " + output)
 
-    plot_road_game()
+    plot_road_game(ped=has_ped)
 
-    trajectory_spectrum_1 = None
-    trajectory_spectrum_2 = None
-    trajectory_spectrum_3 = None
+    trajectory_spectrum = dict()
+    for player in range(no_of_players):
+        trajectory_spectrum[player] = None
 
     for i in range(max_iteration):
         data = pd.DataFrame(
             np.array(raw_data["xs"][i]).reshape((
-                len(raw_data["xs"][i]), 14
-            )), columns = [
-                "x0", "y0", "theta0", "phi0", "vel0",
-                "x1", "y1", "theta1", "phi1", "vel1",
-                "x2", "y2", "theta2", "vel2"
-            ]
+                len(raw_data["xs"][i]), len(data_columns)
+            )), columns = data_columns
         )
 
         if i == iteration:
             plt.plot(data["x0"], data["y0"], 'g', linewidth=2.0, zorder=10)
             plt.plot(data["x1"], data["y1"], 'r', linewidth=2.0, zorder=10)
-            plt.plot(data["x2"], data["y2"], 'b', linewidth=2.0, zorder=10)
+            if no_of_players == 3:
+                plt.plot(data["x2"], data["y2"], 'b', linewidth=2.0, zorder=10)
 
-        if trajectory_spectrum_1 is None:
-            trajectory_spectrum_1 = data[["x0", "y0"]]
-        else:
-            trajectory_spectrum_1 = pd.concat([trajectory_spectrum_1, data[["x0", "y0"]]])
-
-        if trajectory_spectrum_2 is None:
-            trajectory_spectrum_2 = data[["x1", "y1"]]
-        else:
-            trajectory_spectrum_2 = pd.concat([trajectory_spectrum_2, data[["x1", "y1"]]])
-        
-        if trajectory_spectrum_3 is None:
-            trajectory_spectrum_3 = data[["x2", "y2"]]
-        else:
-            trajectory_spectrum_3 = pd.concat([trajectory_spectrum_3, data[["x2", "y2"]]])
+        for player in range(no_of_players):
+            if trajectory_spectrum[player] is None:
+                trajectory_spectrum[player] = data[["x{}".format(player), "y{}".format(player)]]
+            else:
+                trajectory_spectrum[player] = pd.concat([trajectory_spectrum[player], data[["x{}".format(player), "y{}".format(player)]]])                
     
     initial_state = data.iloc[0].to_numpy()
-    draw_real_car(0, [initial_state])
-    draw_real_car(1, [initial_state])
-    draw_real_human([initial_state])
 
-    points_1 = trajectory_spectrum_1.values
-    points_2 = trajectory_spectrum_2.values
-    points_3 = trajectory_spectrum_3.values
-
-    concave_hull, edge_points = alpha_shape(points_1, 0.4)
-    plt.gca().add_patch(PolygonPatch(concave_hull, fc='green', ec='green', fill=True, zorder=5, alpha=0.25))
-    concave_hull, edge_points = alpha_shape(points_2, 0.4)
-    plt.gca().add_patch(PolygonPatch(concave_hull, fc='red', ec='red', fill=True, zorder=5, alpha=0.25))
-    concave_hull, edge_points = alpha_shape(points_3, 0.4)
-    plt.gca().add_patch(PolygonPatch(concave_hull, fc='blue', ec='blue', fill=True, zorder=5, alpha=0.25))
+    for i, player in enumerate(list_of_players):
+        if "car" in player:
+            draw_real_car(i, [initial_state])
+        elif "ped" in player:
+            draw_real_human([initial_state])
+        
+        points = trajectory_spectrum[i].values
+        concave_hull, edge_points = alpha_shape(points, 0.4)
+        plt.gca().add_patch(PolygonPatch(concave_hull, fc=color_code[i], ec=color_code[i], fill=True, zorder=5, alpha=0.25))
     
     plt.savefig(os.path.join(output, "spectrum.png"))
     plt.show()
@@ -217,6 +224,28 @@ def final_rollout():
 
     print("\t>> Iteration to render: {}".format(iteration))
 
+    # check game specs
+    list_of_players = list(raw_data["g_params"][0].keys())
+    no_of_players = len(list_of_players)
+
+    has_ped = "ped" in list_of_players
+    
+    if no_of_players == 1:
+        raise NotImplementedError("Spectrum analysis is not currently available for one-player game")
+    elif no_of_players == 2:
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0",
+                "x1", "y1", "theta1", "phi1", "vel1"
+            ]
+    elif no_of_players == 3:
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0",
+                "x1", "y1", "theta1", "phi1", "vel1",
+                "x2", "y2", "theta2", "vel2"
+            ]
+    else:
+        raise NotImplementedError("Unknown game")
+
     # create output folder
     output = os.path.join(loadpath, "evaluate")
     if not os.path.exists(output):
@@ -225,21 +254,21 @@ def final_rollout():
 
     data = pd.DataFrame(
         np.array(raw_data["xs"][iteration]).reshape((
-            len(raw_data["xs"][iteration]), 14
-        )), columns = [
-            "x0", "y0", "theta0", "phi0", "vel0",
-            "x1", "y1", "theta1", "phi1", "vel1",
-            "x2", "y2", "theta2", "vel2"
-        ]
+            len(raw_data["xs"][iteration]), len(data_columns)
+        )), columns = data_columns
     )
 
     for i in range(len(data)):
         state = data.iloc[i].to_numpy()
+
+        plot_road_game(ped=has_ped)
+
+        for index, player in enumerate(list_of_players):
+            if "car" in player:
+                draw_real_car(index, [state])
+            elif "ped" in player:
+                draw_real_human([state])
         
-        plot_road_game()
-        draw_real_car(0, [state])
-        draw_real_car(1, [state])
-        draw_real_human([state], i%2)
         plt.pause(0.001)
         plt.savefig(os.path.join(output, 'step-{}.jpg'.format(i))) # Trying to save these plots
         plt.clf()
