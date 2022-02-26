@@ -42,13 +42,12 @@ import math as m
 from numpy.lib.function_base import gradient
 import torch
 import matplotlib.pyplot as plt
-import os
 from scipy.linalg import block_diag
 from collections import deque
-from cost.maneuver_penalty import ManeuverPenalty
+import os
 
 from player_cost.player_cost import PlayerCost
-from cost.proximity_to_block_cost import ProximityToUpBlockCost, ProximityToDownBlockCost
+from cost.proximity_to_block_cost import ProximityToUpBlockCost
 from cost.collision_penalty import CollisionPenalty
 from cost.road_rules_penalty import RoadRulesPenalty
 from solve_lq_game.solve_lq_game import solve_lq_game
@@ -58,6 +57,7 @@ timestr = time.strftime("%Y-%m-%d-%H_%M")
 class ILQSolver(object):
     def __init__(self,
                  dynamics,
+                 dynamics_10D,
                  player_costs,
                  x0,
                  Ps,
@@ -66,7 +66,8 @@ class ILQSolver(object):
                  reference_deviation_weight=None,
                  logger=None,
                  visualizer=None,
-                 u_constraints=None):
+                 u_constraints=None,
+                 t_react=None):
         """
         Initialize from dynamics, player costs, current state, and initial
         guesses for control strategies for both players.
@@ -93,6 +94,7 @@ class ILQSolver(object):
         :type u_constraints: [Constraint]
         """
         self._dynamics = dynamics
+        self._dynamics_10d = dynamics_10D
         #self._player_costs = player_costs
         self._x0 = x0
         self._Ps = Ps
@@ -118,6 +120,9 @@ class ILQSolver(object):
         self._visualizer = visualizer
         self._logger = logger
 
+        # adversarial
+        self._t_react = t_react if t_react is not None else 10
+
         # Log some of the paramters.
         if self._logger is not None:
             self._logger.log("alpha_scaling", self._alpha_scaling)
@@ -134,16 +139,21 @@ class ILQSolver(object):
         
         while not self._is_converged():
             # # (1) Compute current operating point and update last one.
-            xs, us = self._compute_operating_point()
-            self._last_operating_point = self._current_operating_point
-            self._current_operating_point = (xs, us)
+            if iteration == 0:
+                xs, us = self._compute_operating_point()
+                self._last_operating_point = self._current_operating_point
+                self._current_operating_point = (xs, us)
+            else:
+                xs, us = self._compute_operating_point_other(iteration)
+                self._last_operating_point = self._current_operating_point
+                self._current_operating_point = (xs, us)
             
-            # if iteration%store_freq == 0:
-            #     xs_store = [xs_i.flatten() for xs_i in xs]
-            #     #print(xs_store[0])
-            #     #print(len(xs_store))
-            #     #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
-            #     np.savetxt('logs/two_player_time_consistent/twoplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
+            if iteration%store_freq == 0:
+                xs_store = [xs_i.flatten() for xs_i in xs]
+                #print(xs_store[0])
+                #print(len(xs_store))
+                #np.savetxt('horizontal_treact20_'+str(iteration)+'.out', np.array(xs_store), delimiter = ',')
+                np.savetxt('logs/two_player_time_consistent_adversarial/twoplayer_intersection_'+str(iteration)+'.txt', np.array(xs_store), delimiter = ',')
             
 
             # Visualization.
@@ -161,13 +171,25 @@ class ILQSolver(object):
                 # plt.clf()
                 self._visualizer.plot()
                 plt.pause(0.001)
-                # if not os.path.exists("image_outputs_{}".format(timestr)):
-                #     os.makedirs("image_outputs_{}".format(timestr))
-                # plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
+                if not os.path.exists("image_outputs_{}".format(timestr)):
+                    os.makedirs("image_outputs_{}".format(timestr))
+                plt.savefig('image_outputs_{}/plot-{}.jpg'.format(timestr, iteration)) # Trying to save these plots
                 plt.clf()
             
             # print("plot is shown above")
             # print("self._num_players is: ", self._num_players)                
+
+            # NOTE: HERE WE NEED TO BREAK UP control 'us' into two players 
+            # for the linearization and quadratization parts. After this is done,
+            # then put control back as before (first half, both players are playing.
+            # Second half, only player 1 is playing. So each player has control
+            # size 2-by-1 for first half, then P1 has control size 4-by-1 for second half)
+            # Write the code below:
+            if iteration != 0:
+                for ii in range(self._t_react, self._horizon):
+                    a = np.vsplit(us[0][ii], 2)
+                    us[1].append(a[1])
+                    us[0][ii] = a[0]
 
             # (2) Linearize about this operating point. Make sure to
             # stack appropriately since we will concatenate state vectors
@@ -198,7 +220,7 @@ class ILQSolver(object):
             func_return_array = []
             total_costs = []
                         
-            for ii in range(self._num_players):           
+            for ii in range(self._num_players):
                 Q, l, R, r, costs, total_costss, calc_deriv_cost_, func_array_, func_return_array_ = self._TimeStar(xs, us, ii)
 
                 Qs.append(Q[ii])
@@ -212,7 +234,31 @@ class ILQSolver(object):
                 total_costs.append(total_costss)
                 
                 Rs.append(R[ii])
-        
+            
+            # Combine B's for 2nd phase for P1
+            for ii in range(self._t_react, self._horizon, 1):
+                Bs[0][ii] = np.hstack((Bs[0][ii], Bs[1][ii]))
+                Bs[1][ii] = []
+                        
+            # Trying to put some things on P1 and empty set on P2 for times
+            # t_react to T
+            for ii in range(self._t_react, self._horizon, 1):
+                rs[0][ii] = np.hstack((rs[0][ii], rs[1][ii]))  # For grad of cost w.r.t. u (change back to hstack)
+                rs[1][ii] = []
+                
+                Rs[0][0][ii] = block_diag(Rs[0][0][ii], Rs[1][0][ii])
+                Rs[0][1][ii] = block_diag(Rs[0][1][ii], Rs[1][1][ii])
+                Rs[1][0][ii] = []
+                Rs[1][1][ii] = []                
+                                
+            # Need to stack 'us' for compute_operating_point_other for 2nd phase. 
+            # By the time we use it, the Ps and alphas are already stadcked.
+            # This really only needs to be done at iteration 0
+            self._us_other = us
+            for ii in range(self._t_react, self._horizon):
+                self._us_other[0][ii] = np.vstack((self._us_other[0][ii], self._us_other[1][ii]))
+                self._us_other[1][ii] = []
+
             self._rs = rs
             self._xs = xs
             self._us= us
@@ -251,7 +297,7 @@ class ILQSolver(object):
             # for the next trajectory
             # print(np.array(Qs).shape)
             # input()
-            Ps, alphas, ns = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost)
+            Ps, alphas = solve_lq_game(As, Bs, Qs, ls, Rs, rs, calc_deriv_cost, self._t_react)
 
             # (7) Accumulate total costs for all players.
             # This is the total cost for the trajectory we are on now
@@ -264,8 +310,8 @@ class ILQSolver(object):
             #     input()
             
             #Store total cost at each iteration and the iterations
-            store_total_cost.append(total_costs[0])
-            iteration_store.append(iteration)
+            # store_total_cost.append(total_costs[0])
+            # iteration_store.append(iteration)
             #print("store_total_cost is: ", store_total_cost)
             
             
@@ -302,7 +348,8 @@ class ILQSolver(object):
             # elif max(total_costs[:2]) < 0.7:
             #     self._alpha_scaling = 0.02
 
-            self._alpha_scaling = self._linesearch_naive(iteration=iteration)
+            # self._alpha_scaling = 1.0 / ((iteration + 1) * 0.5) ** 0.5
+            self._alpha_scaling = 0.1
             
             iteration += 1
 
@@ -349,8 +396,55 @@ class ILQSolver(object):
             
         #print("self._aplha_scaling in compute_operating_point is: ", self._alpha_scaling)
         return xs, us
-    
 
+    def _compute_operating_point_other(self, iteration):
+        """
+        Compute current operating point by propagating through dynamics.
+
+        :return: states, controls for all players (list of lists), and
+            costs over time (list of lists), i.e. (xs, us, costs)
+        :rtype: [np.array], [[np.array]], [[torch.Tensor(1, 1)]]
+        """
+        xs = [self._x0]
+        us = [[] for ii in range(self._num_players)]
+        #costs = [[] for ii in range(self._num_players)]
+        
+        for k in range(self._horizon):
+            # If this is our fist time through, we don't have a trajectory, so
+            # set the state and controls at each time-step k to 0. Else, use state and
+            # controls
+            if k <= self._t_react - 1:
+                num_players = 2
+            else:
+                num_players = 1
+            
+            current_x = self._current_operating_point[0][k]
+            if iteration != 0:
+                current_u = [self._current_operating_point[1][ii][k]
+                                  for ii in range(num_players)]
+            else:
+                current_u = [self._us_other[ii][k]
+                                  for ii in range(num_players)]
+
+            # This is Eqn. 7 in the ILQGames paper
+            # This gets us the control at time-step k for the updated trajectory
+            feedback = lambda x, u_ref, x_ref, P, alpha, alpha_scaling : \
+                       u_ref - P @ (x - x_ref) - alpha_scaling * alpha
+            u = [feedback(xs[k], current_u[ii], current_x,
+                      self._Ps[ii][k], self._alphas[ii][k], self._alpha_scaling)   # Adding self._alpha_scaling to this (since now we have 2 players with 2 different alpha_scaling)
+                 for ii in range(num_players)]       
+
+            # Append computed control (u) for the trajectory we're calculating to "us"
+            for ii in range(num_players):
+                us[ii].append(u[ii])
+
+            # Use 4th order Runge-Kutta to propogate system to next time-step k+1
+            if k <= self._t_react - 1:
+                xs.append(self._dynamics.integrate(xs[k], u))
+            else:
+                xs.append(self._dynamics_10d.integrate(xs[k], u))
+
+        return xs, us
 
     def _is_converged(self):
         """ Check if the last two operating points are close enough. """
@@ -508,7 +602,7 @@ class ILQSolver(object):
                 hold_new = ProximityToUpBlockCost(g_params["car1"])(xs[k])
                 target_margin_func[k] = hold_new
 
-                max_g_func = self._CheckMultipleFunctionsP1_refactored(g_params["car1"], xs, k)
+                max_g_func = self._CheckMultipleFunctionsP1_refactored(g_params, xs, k)
                 hold_prox = max_g_func(xs[k])
                 
                 value_function_compare = dict()
@@ -576,11 +670,11 @@ class ILQSolver(object):
         elif ii == 1:
             for k in range(self._horizon, -1, -1):
                 self._player_costs[ii] = PlayerCost()
-                hold_new = ProximityToDownBlockCost(g_params["car2"])(xs[k])
+                max_l_func = self._CheckMultipleFunctionsP2_refactored(g_params, xs, k)                
+                hold_new = -1.0 * max_l_func(xs[k])
                 target_margin_func[k] = hold_new
-            
-                max_g_func = self._CheckMultipleFunctionsP2_refactored(g_params["car2"], xs, k)                
-                hold_prox = max_g_func(xs[k])
+
+                hold_prox, max_g_func = RoadRulesPenalty(g_params["car2"])(xs[k])
                 
                 value_function_compare = dict()
                 func_key = ""
@@ -605,8 +699,8 @@ class ILQSolver(object):
                     func_key = max(value_function_compare, key = value_function_compare.get)
                     
                 if func_key == "l_x":
-                    c1gc = ProximityToDownBlockCost(g_params["car2"], "car2_goal")
-                    self._player_costs[ii].add_cost(c1gc, "x", 1.0)
+                    c1gc = max_l_func
+                    self._player_costs[ii].add_cost(c1gc, "x", -1.0)
                     calc_deriv_cost.appendleft("True")
                     self._calc_deriv_true_P2 = True
                 elif func_key == "g_x":
@@ -648,65 +742,24 @@ class ILQSolver(object):
     def _CheckMultipleFunctionsP1_refactored(self, g_params, xs, k):
         max_func = dict()
         
-        max_val, func_of_max_val = CollisionPenalty(g_params)(xs[k])
+        max_val, func_of_max_val = CollisionPenalty(g_params["car1"])(xs[k])
         max_func[func_of_max_val] = max_val
         
-        max_val, func_of_max_val = RoadRulesPenalty(g_params)(xs[k])
+        max_val, func_of_max_val = RoadRulesPenalty(g_params["car1"])(xs[k])
         max_func[func_of_max_val] = max_val
 
-        # max_val, func_of_max_val = ManeuverPenalty(g_params)(xs[k])
-        # max_func[func_of_max_val] = max_val
+        max_val, func_of_max_val = RoadRulesPenalty(g_params["car2"])(xs[k])
+        max_func[func_of_max_val] = max_val
 
         return max(max_func, key=max_func.get)
 
     def _CheckMultipleFunctionsP2_refactored(self, g_params, xs, k):
         max_func = dict()
         
-        max_val, func_of_max_val = CollisionPenalty(g_params)(xs[k])
+        max_val, func_of_max_val = CollisionPenalty(g_params["car1"])(xs[k])
         max_func[func_of_max_val] = max_val
         
-        max_val, func_of_max_val = RoadRulesPenalty(g_params)(xs[k])
+        max_val, func_of_max_val = RoadRulesPenalty(g_params["car1"])(xs[k])
         max_func[func_of_max_val] = max_val
-
-        # max_val, func_of_max_val = ManeuverPenalty(g_params)(xs[k])
-        # max_func[func_of_max_val] = max_val
 
         return max(max_func, key=max_func.get)
-
-    def _linesearch_naive(self, beta = 0.9, iteration = None):
-        """ Linesearch for both players separately. """
-        """
-        x -> us
-        p -> rs
-        may need xs to compute trajectory
-        Line search needs c and tau (c = tau = 0.5 default)
-        m -> local slope (calculate in function)
-        need compute_operating_point routine
-        """        
-        
-        alpha_converged = False
-        alpha = 1.0
-        
-        while not alpha_converged:
-            # Use this alpha in compute_operating_point
-            self._alpha_scaling = alpha
-            
-            # With this alpha, compute trajectory and controls from self._compute_operating_point
-            # For this trajectory, calculate t* and if L or g comes out of min-max
-            xs, us = self._compute_operating_point() # Get hallucinated trajectory and controls from here
-
-            traj_diff = max([np.linalg.norm(np.array(x_new) - np.array(x_old)) for x_old, x_new in zip(xs, self._current_operating_point[0])])
-
-            if traj_diff < 4.0:
-                alpha_converged = True
-                return alpha
-            else:
-                alpha = beta * alpha
-                # if iteration is not None:
-                #     if alpha < 1.0/(iteration+1) ** 0.5:
-                #         return alpha
-                if alpha < 1e-10:
-                    raise ValueError("alpha too small")
-        
-        self._alpha_scaling = alpha
-        return alpha

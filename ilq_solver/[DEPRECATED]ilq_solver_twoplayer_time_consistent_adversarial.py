@@ -50,7 +50,7 @@ from player_cost.player_cost import PlayerCost
 from cost.proximity_to_block_cost import ProximityToUpBlockCost
 from cost.collision_penalty import CollisionPenalty
 from cost.road_rules_penalty import RoadRulesPenalty
-from solve_lq_game.solve_lq_game_reachavoid_twoplayer_timeconsistent_adversarial import solve_lq_game
+from solve_lq_game.solve_lq_game import solve_lq_game
 import time
 timestr = time.strftime("%Y-%m-%d-%H_%M")
 

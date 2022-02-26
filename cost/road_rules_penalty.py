@@ -17,7 +17,7 @@ class RoadRulesPenalty(Cost):
         self._road_logic = self.get_road_logic_dict(g_params["road_logic"])
         self._road_rules = self.new_road_rules()
         self._collision_r = g_params["collision_r"]
-        # self._collision_r = 0
+        self._collision_r = 0
         self._player_id = g_params["player_id"]
         self._car_params = g_params["car_params"]
         self._theta_indices = g_params["theta_indices"]
