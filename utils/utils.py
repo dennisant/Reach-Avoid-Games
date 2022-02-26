@@ -66,7 +66,7 @@ def draw_real_car(player_id, car_states):
         if player_id == 0:
             state = car_states[i][:5].flatten()
             color = "r"
-            path = "visual_components/delorean.png"
+            path = "visual_components/delorean-flux-white.png"
         else:
             state = car_states[i][5:].flatten()
             color = "g"
