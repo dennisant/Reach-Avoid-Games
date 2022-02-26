@@ -7,6 +7,9 @@ from utils.argument import *
 args = get_argument()
 check_argument(args)
 
+note = input("Do you want to note something about this run?: ")
+args.note = note
+
 try:
     if args.no_players == 1 and args.env_type == "goal_with_obs":
         one_player(args)

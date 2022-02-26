@@ -116,6 +116,11 @@ def run_time_inconsistent(cmd):
     logging.info("Running test#{} with data: \n\r\t\n".format(i) + cmd.strip("\t"))
     os.system(cmd)
 
+note = input("Do you want to note something about this run?: ")
+if note != "":
+    with open("result/batch-{}/note.txt".format(datestr), 'w') as file:
+        file.write(note)
+
 for i in range(no_of_runs):
     found_good_initial_pos = False
 

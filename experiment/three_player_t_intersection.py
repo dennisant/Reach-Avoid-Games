@@ -218,6 +218,10 @@ def three_player(args):
     else:
         logger = None
 
+    if args.note != "":
+        with open(os.path.join(RESULT_DIRECTORY, "note.txt"), 'w') as file:
+            file.write(args.note)
+
     # Set up ILQSolver.
     solver = ILQSolver(dynamics,
                     [car1_cost, car2_cost, ped_cost],
