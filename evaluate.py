@@ -237,6 +237,13 @@ def info():
     for item in vars(raw_data["config"][0]).items():
         print("{}:\t{}".format(item[0].rjust(20), item[1]))
 
+    if os.path.exists(os.path.join(loadpath, "note.txt")):
+        print("\nExtra note:")
+        with open(os.path.join(loadpath, "note.txt"), 'rb') as file:
+            note = file.read().decode('UTF-8')
+        for line in note.split("\n"):
+            print("\t\t{}".format(line))
+
 def final_rollout():
     # check to see if there is logs folder:
     if not ("logs" in os.listdir(loadpath)):

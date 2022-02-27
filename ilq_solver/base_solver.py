@@ -91,9 +91,6 @@ class BaseSolver(ABC):
         if self._last_operating_point is None:
             return False
 
-        if self._t_react is not None:
-            return False
-
         if not self.time_consistency:
             if np.any(np.array(self._total_costs) > self.cost_converge):
                 return False
@@ -225,9 +222,14 @@ class BaseSolver(ABC):
             # This is the total cost for the trajectory we are on now
             #total_costs = [sum(costis).item() for costis in costs]
             
-            prompt = "\rTotal cost for player:"
-            for i in range(self._num_players):
-                prompt += "\t{:.3f}".format(total_costs[i])
+            if not self.time_consistency:
+                prompt = "\rTotal cost for player:"
+                for i in range(self._num_players):
+                    prompt += "\t{:.3f}".format(total_costs[i])
+            else:
+                prompt = "\rTotal cost for player:"
+                for i in range(self._num_players):
+                    prompt += "\t{:.3f}".format(max(costs[i]).detach().numpy().flatten()[0])
             print(prompt, end="")
             
             self._total_costs = total_costs

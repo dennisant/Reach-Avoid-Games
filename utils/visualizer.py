@@ -363,14 +363,14 @@ class Visualizer(object):
                     else:
                         if self._adversarial:
                             plt.plot(xs[:self._t_react], ys[:self._t_react],
-                                ".-y",
+                                self._player_linestyles[ii],
                                 label = "Player {}, iteration {}".format(ii, iteration),
                                 alpha = 0.4,
                                 linewidth = 2
                                 #  linewidth = self.linewidth_from_data_units(1.988, ax)
                             )
                             plt.plot(xs[self._t_react:], ys[self._t_react:],
-                                self._player_linestyles[ii],
+                                ".-y",
                                 label = "Player {}, iteration {}".format(ii, iteration),
                                 alpha = 0.4,
                                 linewidth = 2

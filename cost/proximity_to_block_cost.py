@@ -314,7 +314,7 @@ class ProximityToDownBlockCost(ProximityToBlockCost):
   def render(self, ax=None, contour = False, player=0):
     """ Render this obstacle on the given axes. """
     goal = plt.Rectangle(
-      [self._road_rules["x_min"], self._goal_y], width = self._road_rules["x_max"] - self._road_rules["x_min"], height = 10, color = "white", lw = 0, alpha = 0.4)
+      [self._road_rules["x_min"], self._goal_y - 10], width = self._road_rules["x_max"] - self._road_rules["x_min"], height = 10, color = "red", lw = 0, alpha = 0.4)
     ax.add_patch(goal)
 
     if contour and self._player_id == player:
