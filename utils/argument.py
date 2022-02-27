@@ -35,7 +35,7 @@ def get_argument():
     parser.add_argument("--obstacles",          help="List of obstacle in format [x, y, r]",    default=[6.0, 25.0, 4.0], type=float, nargs="*")
     parser.add_argument("--goal",               help="Goal information in format [x, y, r]",    default=[6.0, 40.0, 2.0], type=float, nargs="*")
     # if t_intersection is chosen for env_type
-    # TODO
+    parser.add_argument("--block_goal",         help="Block goal for players [goal_x_p1, goal_y_p1, goal_x_p2, goal_y_p2, ...]",    default=[20.0, 35.0, 20.0, 0.0], type=float, nargs="*")
 
     # solver params
     parser.add_argument("--log",                help="Turn on log for exp",             action="store_true")

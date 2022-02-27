@@ -150,7 +150,7 @@ class ILQSolver(BaseSolver):
         value_func_plus = np.zeros((self._horizon+1, 1))
 
         l_functions = {
-            0: ProximityToUpBlockCost(self.g_params["car1"]),
+            0: self._CheckMultipleLFunctions_P1,
             1: self._CheckMultipleLFunctions_P2
         }
 
@@ -174,23 +174,16 @@ class ILQSolver(BaseSolver):
             }
         
         for k in range(self._horizon, -1, -1): # T to 0                
+            max_l_func = l_functions[player_index](self.g_params, xs, k)
+            l_func_list.appendleft(max_l_func)
             if player_index == 0:
-                l_func_list.appendleft(
-                    l_functions[player_index]
-                )
                 l_value_list[k] = l_func_list[0](xs[k])
-                
-                max_g_func = g_functions[player_index](self.g_params, xs, k)
-                g_func_list.appendleft(max_g_func)
-                g_value_list[k] = g_func_list[0](xs[k])
             else:
-                max_l_func = l_functions[player_index](self.g_params, xs, k)
-                l_func_list.appendleft(max_l_func)
                 l_value_list[k] = -1.0 * l_func_list[0](xs[k])
 
-                max_g_func = g_functions[player_index](self.g_params, xs, k)
-                g_func_list.appendleft(max_g_func)
-                g_value_list[k] = g_func_list[0](xs[k])
+            max_g_func = g_functions[player_index](self.g_params, xs, k)
+            g_func_list.appendleft(max_g_func)
+            g_value_list[k] = g_func_list[0](xs[k])
             
             value_function_compare = dict()
 
@@ -304,6 +297,17 @@ class ILQSolver(BaseSolver):
 
         return max(max_func, key=max_func.get)
 
+    def _CheckMultipleLFunctions_P1(self, g_params, xs, k):
+        max_func = dict()
+
+        max_val = ProximityToDownBlockCost(g_params["car2"])(xs[k])
+        max_func[ProximityToDownBlockCost(g_params["car2"])] = max_val
+
+        max_val = ProximityToUpBlockCost(g_params["car1"])(xs[k])
+        max_func[ProximityToUpBlockCost(g_params["car1"])] = max_val
+
+        return max(max_func, key=max_func.get)
+
     def _CheckMultipleLFunctions_P2(self, g_params, xs, k):
         max_func = dict()
         
@@ -331,7 +335,7 @@ class ILQSolver(BaseSolver):
         value_func_plus = np.zeros((self._horizon+1, 1))
 
         l_functions = {
-            0: ProximityToUpBlockCost(self.g_params["car1"]),
+            0: self._CheckMultipleLFunctions_P1,
             1: self._CheckMultipleLFunctions_P2
         }
 
@@ -355,23 +359,16 @@ class ILQSolver(BaseSolver):
             }
         
         for k in range(self._horizon, -1, -1): # T to 0                
+            max_l_func = l_functions[player_index](self.g_params, xs, k)
+            l_func_list.appendleft(max_l_func)
             if player_index == 0:
-                l_func_list.appendleft(
-                    l_functions[player_index]
-                )
                 l_value_list[k] = l_func_list[0](xs[k])
-                
-                max_g_func = g_functions[player_index](self.g_params, xs, k)
-                g_func_list.appendleft(max_g_func)
-                g_value_list[k] = g_func_list[0](xs[k])
             else:
-                max_l_func = l_functions[player_index](self.g_params, xs, k)
-                l_func_list.appendleft(max_l_func)
                 l_value_list[k] = -1.0 * l_func_list[0](xs[k])
 
-                max_g_func = g_functions[player_index](self.g_params, xs, k)
-                g_func_list.appendleft(max_g_func)
-                g_value_list[k] = g_func_list[0](xs[k])
+            max_g_func = g_functions[player_index](self.g_params, xs, k)
+            g_func_list.appendleft(max_g_func)
+            g_value_list[k] = g_func_list[0](xs[k])
             
             value_function_compare = dict()
 

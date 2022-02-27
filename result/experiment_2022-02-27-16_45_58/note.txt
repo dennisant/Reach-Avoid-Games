@@ -1,0 +1,2 @@
+test adding proximity cost to player 2 in player 1's l function, t_react = 10
+Good, evaluated at last iteration
