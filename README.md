@@ -97,11 +97,11 @@ Output:
 <p style="text-align:center;"><img src="./result/batch-2022-02-19/summary/exp_time_consistent_summary.png" alt="drawing" width="500"/>
 
 # Adversarial
-Adversarial run is currently only for 2-player, and player 2 is the adversarial agent.
+Adversarial-Cooperative run is currently constructed only for two vehicles, and vehicle 2 is the one that is chosen to be temporarily adversarial.
 
-With adversarial run, determine the time step that player 2 switches from adversarial to cooperative with ```--t_react```.
+For this run, determine the time step that vehicle 2 switches from being adversarial to cooperative: ```--t_react```.
 
-Sample run for adversarial is shown below, with **red** means adversarial phase and **yellow** means cooperative phase:
+A sample run is shown below, with **red** meaning vehicle 2 is in the adversarial phase and **yellow** meaning vehicle 2 is in cooperative phase:
 
 <p style="text-align:center;"><img src="./result/experiment_2022-02-26-02_19_22/evaluate/evaluate_rollout.gif" alt="drawing" width="500"/>
 
