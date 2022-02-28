@@ -33,23 +33,45 @@ You can specify which iteration you want to create GIF image by adding in ```--i
 
 ```evaluate.py``` supports three different runs:
 * Evaluate the training process (for all cases), ```--evaluate train```
-* Evaluate the rollout (for three-player case), ```--evaluate rollout```
-* Evaluate the concave hull of all the trajectories created during the training process (for three-player case) ```--evaluate spectrum```
+* Evaluate the rollout (for all cases), ```--evaluate rollout```
+* Evaluate the concave hull of all the trajectories created during the training process (for two and three-player case) ```--evaluate spectrum```
 
 ## Run evaluate for train process
 When run evaluate for train process, all images generated throughout the run will be merged to a GIF file showing the training process. The following GIF is a sample output from this process. The flag ```--loadpath``` has to be an experiment directory with ```figures``` folder.
 ```
-python3 evaluate.py --loadpath result/experiment_2022-02-19-20_48_36 --evaluate train
+# Time consistent sample run
+python3 evaluate.py --loadpath result/experiment_2022-02-28-11_42_44 --evaluate train
+
+# Pinch-point sample run
+python3 evaluate.py --loadpath result/experiment_2022-02-28-11_46_04 --evaluate train
 ```
 Output:
 
-<p style="text-align:center;"><img src="./result/experiment_2022-02-19-20_48_36/figures/evaluate_training.gif" alt="drawing" width="500"/>
+<p float="left" style="text-align:center;">
+    <img src="result/experiment_2022-02-28-11_42_44/figures/evaluate_training.gif" width="250">
+    <img src="result/experiment_2022-02-28-11_46_04/figures/evaluate_training.gif" width="250">
+</p>
 
 **Note**: This works for all run cases, provided that all figures of training process is stored in folder structure ```result/<experiment>/figures/```.
 
 ## Run evalute rollout of chosen iteration
 When you want to deploy your trajectory, you can use ```--evaluate rollout```. It will get the trajectory of the chosen iteration via ```--iteration <number>``` or the last iteration if flag is not passed, and generate a GIF showing the deployment of players following the chosen trajectories:
+
 ```
+# Time consistent sample run
+python3 evaluate.py --loadpath result/experiment_2022-02-28-11_42_44 --evaluate rollout
+
+# Pinch-point sample run
+python3 evaluate.py --loadpath result/experiment_2022-02-28-11_46_04 --evaluate rollout
+```
+
+<p float="left" style="text-align:center;">
+    <img src="result/experiment_2022-02-28-11_42_44/evaluate/evaluate_rollout.gif" width="250">
+    <img src="result/experiment_2022-02-28-11_46_04/evaluate/evaluate_rollout.gif" width="250">
+</p>
+
+```
+# Three-player case sample run
 python3 evaluate.py --loadpath result/experiment_2022-02-21-20_51_25 --evaluate rollout
 ```
 Output:
