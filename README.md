@@ -65,6 +65,8 @@ python3 evaluate.py --loadpath result/experiment_2022-02-28-11_42_44 --evaluate 
 python3 evaluate.py --loadpath result/experiment_2022-02-28-11_46_04 --evaluate rollout
 ```
 
+Output:
+
 <p float="left" style="text-align:center;">
     <img src="result/experiment_2022-02-28-11_42_44/evaluate/evaluate_rollout.gif" width="250">
     <img src="result/experiment_2022-02-28-11_46_04/evaluate/evaluate_rollout.gif" width="250">
@@ -76,9 +78,7 @@ python3 evaluate.py --loadpath result/experiment_2022-02-21-20_51_25 --evaluate 
 ```
 Output:
 
-<p style="text-align:center;"><img src="./result/experiment_2022-02-21-20_51_25/evaluate/evaluate_rollout.gif" alt="drawing" width="500"/>
-
-**Note**: This only works for three-player case as of now.
+<p style="text-align:center;"><img src="./result/experiment_2022-02-21-20_51_25/evaluate/evaluate_rollout.gif" alt="drawing" width="300"/>
 
 ## Run evaluate the range of trajectories while training
 A concave hull will be created to bound all the generated trajectories throughout training to give you a visualization of the set of trajectories. Pass ```--evaluate spectrum``` to the command to run this function
@@ -116,7 +116,10 @@ python3 evaluate_batch.py --loadpath result/batch-2022-02-19/ --exp_suffix exp_t
 
 Output:
 
-<p style="text-align:center;"><img src="./result/batch-2022-02-19/summary/exp_time_consistent_summary.png" alt="drawing" width="500"/>
+<p float="left" style="text-align:center;">
+    <img src="./result/batch-2022-02-19/summary/exp_time_consistent_summary.png" width="300">
+    <img src="./result/batch-2022-02-19/summary/exp_time_inconsistent_summary.png" width="300">
+</p>
 
 # Adversarial
 Adversarial-Cooperative run is currently constructed only for two vehicles, and vehicle 2 is the one that is chosen to be temporarily adversarial.
