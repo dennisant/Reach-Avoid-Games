@@ -1,4 +1,4 @@
-Main repository of **Back to the Future: Efficient, Time-Consistent Solutions in Reach-Avoid Games** accepted to ICRA 2022. (https://arxiv.org/pdf/2109.07673.pdf)
+Main repository of **Back to the Future: Efficient, Time-Consistent Solutions in Reach-Avoid Games** accepted to [ICRA 2022](https://arxiv.org/pdf/2109.07673.pdf)
 
 Code is tested on M1 Mac and Ubuntu 20.04 using Conda environment (4.10.3). Check ```requirements.txt``` for required packages.
 
@@ -133,3 +133,13 @@ A sample run is shown below, with **red** meaning vehicle 2 is in the adversaria
 Spectrum analysis of adversarial
 
 <p style="text-align:center;"><img src="./result/experiment_2022-02-26-02_19_22/evaluate/spectrum.png" alt="drawing" width="500"/>
+
+# Paper Citation
+If you use this code or find this helpful, please consider citing the companion [ICRA 2022 paper](https://arxiv.org/pdf/2109.07673.pdf) as:
+```
+@INPROCEEDING{anthony2022future,
+      title={Back to the Future: Efficient, Time-Consistent Solutions in Reach-Avoid Games}, 
+      author={Dennis R. Anthony and Duy P. Nguyen and David Fridovich-Keil and Jaime F. Fisac},
+      year={2022}
+}
+```
