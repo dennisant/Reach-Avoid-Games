@@ -8,6 +8,9 @@ from matplotlib import animation, markers
 import os
 import pandas as pd
 import imageio
+from cost.obstacle_penalty import ObstacleDistCost
+from cost.proximity_cost import ProximityCost
+from player_cost.player_cost import PlayerCost
 
 from utils.utils import draw_real_car, draw_real_human, plot_road_game
 from scipy.spatial import Delaunay
@@ -214,6 +217,42 @@ def train_process():
             image = imageio.imread(os.path.join(folder_path, filename))
             writer.append_data(image)
 
+def plot_goal_with_obs_game(data):
+    """
+    Pass data from .pkl file here
+    """    
+    g_params = data["g_params"][0]
+    l_params = data["l_params"][0]
+
+    for i in range(len(l_params["car"]["goals"])):
+        car_goal_cost = ProximityCost(l_params["car"], g_params["car"])
+        
+    car_cost = PlayerCost()
+    car_cost.add_cost(car_goal_cost, "x", 1.0)
+
+    obstacle_costs = ObstacleDistCost(g_params["car"])
+
+    _renderable_costs = [car_goal_cost, obstacle_costs]
+
+    plt.figure(0)
+    _plot_lims = [-10, 60, 0, 75]
+
+    ratio = (_plot_lims[1] - _plot_lims[0])/(_plot_lims[3] - _plot_lims[2])
+    plt.gcf().set_size_inches(ratio*8, 8)
+
+    ax = plt.gca()
+    plt.axis("off")
+
+    if _plot_lims is not None:
+        ax.set_xlim(_plot_lims[0], _plot_lims[1])
+        ax.set_ylim(_plot_lims[2], _plot_lims[3])
+
+    ax.set_aspect("equal")
+
+    # Render all costs.
+    for cost in _renderable_costs:
+        cost.render(ax)
+        
 def info():
     # check to see if there is logs folder:
     if not ("logs" in os.listdir(loadpath)):
@@ -280,7 +319,10 @@ def final_rollout():
     color_code = ["green", "red", "blue"]
     
     if no_of_players == 1:
-        raise NotImplementedError("Spectrum analysis is not currently available for one-player game")
+        # raise NotImplementedError("Rollout is not currently available for one-player game")
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0"
+            ]
     elif no_of_players == 2:
         data_columns = [
                 "x0", "y0", "theta0", "phi0", "vel0",
@@ -326,7 +368,12 @@ def final_rollout():
     for i in range(len(data)):
         state = data.iloc[i].to_numpy()
 
-        plot_road_game(ped=has_ped, adversarial=adversarial)
+        if raw_data["config"][0].env_type == "t_intersection":
+            plot_road_game(ped=has_ped, adversarial=adversarial)
+        elif raw_data["config"][0].env_type == "goal_with_obs":
+            plot_goal_with_obs_game(raw_data)
+        else:
+            raise NotImplementedError("Type of environment not supported: {}".format(raw_data["config"].env_type))
 
         for index, player in enumerate(list_of_players):
             if "car" in player:

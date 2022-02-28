@@ -4,7 +4,6 @@ from matplotlib.transforms import Affine2D
 import numpy as np
 import torch
 from cost.pedestrian_proximity_to_block_cost import PedestrianProximityToBlockCost
-
 from cost.proximity_to_block_cost import ProximityToDownBlockCost, ProximityToLeftBlockCost, ProximityToUpBlockCost
 from player_cost.player_cost import PlayerCost
 
