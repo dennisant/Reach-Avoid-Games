@@ -13,9 +13,11 @@ sample_run_1 = "python3 run.py                                       \
                 --goal 6.0 40.0 2.0                                 \
                 --time_consistency                                  \
                 --alpha_scaling trust_region                        \
+                --trust_region_type ratio                           \
                 --t_horizon 12.0                                    \
                 --eps_control 0.1 --eps_state 0.1                   \
                 --hallucinated                                      \
+                --plot --log                                        \
                 ".format(np.pi/4.0)
 
 sample_run_2 = "python3 run.py                                      \
@@ -53,4 +55,4 @@ sample_run_3 = "python3 run.py                                      \
                 --hallucinated                                      \
                 ".format(np.pi/2.0)
 
-os.system(sample_run_2)
+os.system(sample_run_1)
