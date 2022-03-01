@@ -25,6 +25,7 @@ parser.add_argument("--evaluate",           help="Things to evaluate",       cho
 parser.add_argument("--loadpath",           help="Path of experiment",       required=True)
 parser.add_argument("--iteration",          help="Iteration of experiment to evaluate",     type=int)
 parser.add_argument("--with_trajectory",    help="Plot trajectory of the chosen iteration out, used with evaluate=rollout",     action="store_true")
+parser.add_argument("--svg",                help="Create svg image",         action="store_true")
 args = parser.parse_args()
 
 loadpath = args.loadpath
@@ -201,6 +202,8 @@ def spectrum():
         plt.gca().add_patch(PolygonPatch(concave_hull, fc=color_code[i], ec=color_code[i], fill=True, zorder=5, alpha=0.25))
     
     plt.savefig(os.path.join(output, "spectrum.png"))
+    if args.svg:
+        plt.savefig(os.path.join(output, "spectrum.svg"))
     plt.show()
 
 def train_process():
@@ -396,6 +399,8 @@ def final_rollout():
         
         plt.pause(0.001)
         plt.savefig(os.path.join(output, 'step-{}.jpg'.format(i))) # Trying to save these plots
+        if args.svg:
+            plt.savefig(os.path.join(output, 'step-{}.svg'.format(i)))
         plt.clf()
 
     # Build GIF
