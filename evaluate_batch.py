@@ -1,12 +1,11 @@
 import numpy as np
-import os
-import pickle
 import pandas as pd
-from cost.obstacle_penalty import ObstacleDistCost
-from cost.proximity_cost import ProximityCost
 import matplotlib.pyplot as plt
-from utils.visualizer import Visualizer
+import os
+import math
+import pickle
 import argparse
+from experiment.batch_experiment import Batch
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--loadpath",       help="Path of batch",       required=True)
@@ -16,65 +15,53 @@ args = parser.parse_args()
 
 loadpath = args.loadpath
 exp_suffix = args.exp_suffix
-is_converged = []
-xs = []
+batch_name = os.path.basename(os.path.abspath(loadpath))
 
-if not os.path.exists(loadpath):
-    raise ValueError("Batch does not exist: " + loadpath)
+batch = Batch(batch_name, exp_suffix)
+print("\t\t>> Plot all runs")
+batch.visualize_all_runs(savefig=True)
 
-print("Collecting all experiments in batch")
-list_of_experiments = sorted([dir for dir in os.listdir(loadpath) if exp_suffix in dir])
-print("\t>> Found {} experiments".format(len(list_of_experiments)))
-print("Collecting status and final trajectory of each experiment")
-for exp in list_of_experiments:
-    print("\t\t>> Loading experiment: {}".format(exp))
-    log_path = os.path.join(loadpath, exp, "logs", "{}.pkl".format(exp_suffix))
-    
-    try:
-        with open(log_path, "rb") as log:
-            data = pickle.load(log)
-    except EOFError:
-        print("\t\t\t>> Dropping exp {} due to EOFError, please manually check the file".format(exp))
+print("\t\t>> Plot success runs")
+batch.visualize_all_runs(data=batch.get_success_run(), savefig=True, suffix="converged")
+
+no_of_runs = batch.data.shape[0]
+# Blue trajectories for runs that are reach-avoid (max(J) < 0)
+reach_avoid_runs = []
+for i in range(no_of_runs):
+    run = batch.data.iloc[i]
+    value_func = run["value_func"]
+    if np.max(value_func) > 0:
         continue
-    
-    # get is_converged data
-    if "is_converged" in data.keys():
-        if data["is_converged"][0]:
-            is_converged.append(True)
-            # get state data
-            if "xs" in data.keys():
-                xs.append(data["xs"])
-            else:
-                raise ValueError("Cannot find state data")
-        else:
-            is_converged.append(False)
     else:
-        is_converged.append(False)
+        reach_avoid_runs.append(i)
 
-convergence_rate = len([i for i in is_converged if i is True])/len(is_converged)
-print("\t>> Convergence rate: {:.3f} ({} of {} runs)".format(convergence_rate, len([i for i in is_converged if i is True]), len(is_converged))) 
+# Orange trajectories for runs that reach but then violates
+# J-0 < 0, with k \in [t_star, T], exist g_k > 0
+runs_successful_with_j0 = (batch.data["first_negative_cost"][np.array(np.where(batch.data["first_negative_cost"] > 0)).flatten()]).index
+from cost.obstacle_penalty import ObstacleDistCost
 
-visualizer = Visualizer(
-    [(0, 1)],
-    [ProximityCost(data["l_params"][0]["car"], data["g_params"][0]["car"]), ObstacleDistCost(data["g_params"][0]["car"])],
-    ["-b", ".-r", ".-g"],
-    1,
-    False,
-    plot_lims=[-20, 75, -20,  100],
-    draw_cars = False
-)
+g_func = ObstacleDistCost(batch.info["g_params"][0]["car"])
+runs_successful_with_j0_with_violation = []
 
-for i in range(len(xs)):
-    visualizer.add_trajectory(None, {"xs": xs[i][-1]})
-    plt.scatter(np.array(xs[i][-1])[[0]][0][0], np.array(xs[i][-1])[[0]][0][1], color="firebrick", zorder=10)
-    plt.scatter(np.array(xs[i][-1])[[-1]][0][0], np.array(xs[i][-1])[[-1]][0][1], color="aqua", zorder=10, alpha = 0.4)
-    # visualizer.draw_real_car(0, np.array(xs[i][-1])[[0]])
-    visualizer.plot(alpha = 0.4, base_size = 20.0)
+for i in runs_successful_with_j0:
+    for j in range(batch.data.iloc[i]["first_t_star"][0], len(batch.data.iloc[i]["end_traj"])):
+        if g_func(batch.data.iloc[i]["end_traj"][j])[0] > 0:
+            runs_successful_with_j0_with_violation.append(i)
+            break
 
-summary_dir = os.path.join(os.getcwd(), loadpath, "summary")
-if not os.path.exists(summary_dir):
-    os.makedirs(summary_dir)
+# Red trajectories for runs that never satisfy J_0
+runs_not_successful_with_j0 = sorted(list(set(range(no_of_runs)) - set(runs_successful_with_j0)))
 
-plt.savefig(summary_dir + "/" + exp_suffix + "_summary.svg", format="svg")
-plt.savefig(summary_dir + "/" + exp_suffix + "_summary.png", format="png")
-plt.show()
+print("\t\t>> Check common set between blue and orange: {}".format(set(reach_avoid_runs) & set(runs_successful_with_j0_with_violation)))
+print("\t\t>> Check common set between red and orange: {}".format(set(runs_not_successful_with_j0) & set(runs_successful_with_j0_with_violation)))
+print("\t\t>> Check common set between blue and red: {}".format(set(reach_avoid_runs) & set(runs_not_successful_with_j0)))
+
+blue_data = batch.data.iloc[reach_avoid_runs]
+orange_data = batch.data.iloc[runs_successful_with_j0_with_violation]
+red_data = batch.data.iloc[runs_not_successful_with_j0]
+
+# Plot three types:
+batch.visualize_all_runs(data=blue_data, overlay=True, style="-b", alpha=0.6)
+batch.visualize_all_runs(data=orange_data, overlay=True, style="darkorange", alpha=0.5)
+batch.visualize_all_runs(data=red_data, overlay=True, style="-r", alpha=0.5)
+batch.savefig(suffix="three_color_plot")

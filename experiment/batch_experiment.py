@@ -17,6 +17,7 @@ class Batch(object):
         self.exp_suffix = exp_suffix
         self.data = self.get_statistical_dataframe()
         self.info = self.get_batch_information()
+        self.visualizer = None
     
     def get_statistics(self, name="iteration"):
         return self.data[name].describe()
@@ -89,23 +90,86 @@ class Batch(object):
         else:
             data = self.data
 
-        visualizer = Visualizer(
-            [(0, 1)],
-            [ProximityCost(self.info["l_params"][0]["car"], self.info["g_params"][0]["car"]), ObstacleDistCost(self.info["g_params"][0]["car"])],
-            ["-b", ".-r", ".-g"],
-            1,
-            False,
-            plot_lims=[-20, 75, -20,  100],
-            draw_cars = False
-        )
+        if "savefig" in kwargs.keys():
+            if kwargs["savefig"]:
+                summary_dir = os.path.join("result/" + self.batch_name, "summary")
+                if not os.path.exists(summary_dir):
+                    os.makedirs(summary_dir)
+                print("\t\t>> Save generated image at: {}".format(summary_dir))
+            else:
+                summary_dir = None
+        else:
+            summary_dir = None    
+    
+        if "style" in kwargs.keys():
+            style = kwargs["style"]
+        else:
+            style = "-b"
+        
+        if "overlay" not in kwargs.keys() or ("overlay" in kwargs.keys() and kwargs["overlay"] is False):
+            overlay = False
+        else:
+            overlay = True
+
+        if "suffix" in kwargs.keys():
+            suffix = kwargs["suffix"]
+        else:
+            suffix = None
+        
+        if "alpha" in kwargs.keys():
+            alpha = kwargs["alpha"]
+        else:
+            alpha = 0.4
+
+        if not overlay:
+            self.visualizer = Visualizer(
+                [(0, 1)],
+                [ProximityCost(self.info["l_params"][0]["car"], self.info["g_params"][0]["car"]), ObstacleDistCost(self.info["g_params"][0]["car"])],
+                [style, ".-r", ".-g"],
+                1,
+                False,
+                plot_lims=[-30, 50, 0, 75],
+                draw_cars = False
+            )
+        else:
+            self.visualizer._player_linestyles = [style, ".-r", ".-g"]
 
         for i in range(data.shape[0]):
             xs = data.iloc[i]["end_traj"]
-            visualizer.add_trajectory(None, {"xs": xs})
+            self.visualizer.add_trajectory(None, {"xs": xs})
             plt.scatter(np.array(xs)[[0]][0][0], np.array(xs)[[0]][0][1], color="firebrick", zorder=10)
             plt.scatter(np.array(xs)[[-1]][0][0], np.array(xs)[[-1]][0][1], color="aqua", zorder=10, alpha = 0.4)
-            # visualizer.draw_real_car(0, np.array(xs[i][-1])[[0]])
-            visualizer.plot(alpha = 0.4, base_size = 10.0)
+            # self.visualizer.draw_real_car(0, np.array(xs[i][-1])[[0]])
+            
+            self.visualizer.plot(alpha=alpha, base_size=10.0)
+        
+        if not overlay:
+            if summary_dir is not None:
+                if suffix is not None:
+                    plt.savefig(summary_dir + "/" + self.exp_suffix + "_summary_{}.svg".format(suffix), format="svg")
+                    plt.savefig(summary_dir + "/" + self.exp_suffix + "_summary_{}.png".format(suffix), format="png")
+                else:
+                    plt.savefig(summary_dir + "/" + self.exp_suffix + "_summary.svg", format="svg")
+                    plt.savefig(summary_dir + "/" + self.exp_suffix + "_summary.png", format="png")
+            plt.show()
+    
+    def savefig(self, **kwargs):
+        if "suffix" in kwargs.keys():
+            suffix = kwargs["suffix"]
+        else: 
+            suffix = None
+
+        summary_dir = os.path.join("result/" + self.batch_name, "summary")
+        if not os.path.exists(summary_dir):
+            os.makedirs(summary_dir)
+        print("\t\t>> Save generated image at: {}".format(summary_dir))
+        if summary_dir is not None:
+            if suffix is not None:
+                plt.savefig(summary_dir + "/" + self.exp_suffix + "_summary_{}.svg".format(suffix), format="svg")
+                plt.savefig(summary_dir + "/" + self.exp_suffix + "_summary_{}.png".format(suffix), format="png")
+            else:
+                plt.savefig(summary_dir + "/" + self.exp_suffix + "_summary.svg", format="svg")
+                plt.savefig(summary_dir + "/" + self.exp_suffix + "_summary.png", format="png")
         plt.show()
     
     def get_experiment_statistics(self):
