@@ -386,7 +386,7 @@ def final_rollout():
                         draw_real_car(index, [state])
 
             elif "ped" in player:
-                draw_real_human([state])
+                draw_real_human([state], i%2)
             
             if args.with_trajectory:
                 plt.plot(data["x0"], data["y0"], 'g', linewidth=2.0, zorder=10)

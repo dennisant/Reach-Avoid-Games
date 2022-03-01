@@ -57,7 +57,8 @@ class Batch(object):
     
     def get_statistical_dataframe(self):
         is_converged, start_traj, end_traj, terminal_cost, \
-        iteration, exp_list, first_negative_cost, value_func, func_key_list, first_t_star \
+        iteration, exp_list, first_negative_cost, value_func, \
+        func_key_list, first_t_star, all_traj \
             = self.get_experiment_statistics()
         
         df = pd.DataFrame(
@@ -71,7 +72,8 @@ class Batch(object):
                 "first_negative_cost": first_negative_cost,
                 "value_func": value_func,
                 "func_key_list": func_key_list,
-                "first_t_star": first_t_star
+                "first_t_star": first_t_star,
+                "all_traj": all_traj
             }
         )
         
@@ -127,6 +129,7 @@ class Batch(object):
         value_func = []
         func_key_list = []
         first_t_star = []
+        all_traj = []
 
         for exp in list_of_experiments:
             log_path = os.path.join("result", self.batch_name, exp, "logs", "{}.pkl".format(self.exp_suffix))
@@ -153,6 +156,7 @@ class Batch(object):
             if "xs" in data.keys():
                 start_traj.append(data["xs"][0])
                 end_traj.append(data["xs"][-1])
+                all_traj.append(data["xs"])
             else:
                 raise ValueError("Cannot find state data")
 
@@ -191,4 +195,5 @@ class Batch(object):
             else:
                 raise ValueError("Cannot find iteration information")
 
-        return is_converged, start_traj, end_traj, terminal_cost, iteration, experiment_list, first_negative_cost, value_func, func_key_list, first_t_star
+        return is_converged, start_traj, end_traj, terminal_cost, iteration, experiment_list \
+            ,first_negative_cost, value_func, func_key_list, first_t_star, all_traj
