@@ -1,0 +1,1 @@
+three player case time consistent with heading angle north northwest pi/2 + pi/8, run again
