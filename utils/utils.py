@@ -53,7 +53,7 @@ class MinFuncMux(object):
         else:
             return min(self.io, key = self.io.get), min(self.io.values())
 
-def draw_real_car(player_id, car_states, path=None):
+def draw_real_car(player_id, car_states, path=None, alpha=1.0):
     # TODO: change all the constants in the function to car_params
     car_params = {
         "wheelbase": 2.413, 
@@ -80,12 +80,12 @@ def draw_real_car(player_id, car_states, path=None):
                 interpolation='none',
                 origin='lower',
                 extent=[state[0] - 0.927, state[0] + 3.34, state[1] - 0.944, state[1] + 1.044],
-                alpha = 1.0, 
+                alpha = alpha, 
                 # alpha=(1.0/len(car_states))*i,
                 zorder = 10.0,
                 clip_on=True)
 
-def draw_real_human(states, variation=0):
+def draw_real_human(states, variation=0, alpha=1.0):
     for i in range(len(states)):
         state = states[i][10:]
         transform_data = Affine2D().rotate_deg_around(*(state[0], state[1]), (state[2] + np.pi * 0.5)/np.pi * 180) + plt.gca().transData
@@ -95,18 +95,19 @@ def draw_real_human(states, variation=0):
             interpolation='none',
             origin='lower',
             extent=[state[0] - 1.2, state[0] + 1.2, state[1] + 1.2, state[1] - 1.2],
-            zorder = 10.0,
-            clip_on=True
+            zorder = 15.0,
+            clip_on=True,
+            alpha=alpha
         )
 
-def draw_crosswalk(x, y, width, length, number_of_dashes = 5):
+def draw_crosswalk(x, y, width, length, number_of_dashes = 5, border_color="white"):
     per_length = length * 0.5 / number_of_dashes
     for i in range(number_of_dashes):
         crosswalk = plt.Rectangle(
-            [x + (2*i + 0.5)*per_length, y], width = per_length, height = width, color = "white", lw = 0, zorder = 0)
+            [x + (2*i + 0.5)*per_length, y], width = per_length, height = width, color = border_color, lw = 0, zorder = 0)
         plt.gca().add_patch(crosswalk)
 
-def plot_road_game(ped=False, adversarial=False):
+def plot_road_game(ped=False, adversarial=False, boundary_only=False):
         # Create game env
     ###################
     road_rules = {
@@ -193,7 +194,7 @@ def plot_road_game(ped=False, adversarial=False):
     _plot_lims = [-5, 25, 0, 40]
 
     ratio = (_plot_lims[1] - _plot_lims[0])/(_plot_lims[3] - _plot_lims[2])
-    plt.gcf().set_size_inches(ratio*8, 8)
+    plt.gcf().set_size_inches(ratio*10.0, 10.0)
 
     ax = plt.gca()
     plt.axis("off")
@@ -211,30 +212,38 @@ def plot_road_game(ped=False, adversarial=False):
     x_max = 25
     y_max = 40
 
-    grass = plt.Rectangle(
-        [-5, 0], width = 30, height = 40, color = "k", lw = 0, zorder = -2, alpha = 0.5)
-    plt.gca().add_patch(grass)
+    if not boundary_only:
+        grass = plt.Rectangle(
+            [-5, 0], width = 30, height = 40, color = "k", lw = 0, zorder = -2, alpha = 0.5)
+        plt.gca().add_patch(grass)
 
     # plot road rules
     x_center = road_rules["x_min"] + 0.5 * (road_rules["x_max"] - road_rules["x_min"])
     y_center = road_rules["y_min"] + 0.5 * (road_rules["y_max"] - road_rules["y_min"])
-    road = plt.Rectangle(
-        [road_rules["x_min"], 0], width = road_rules["x_max"] - road_rules["x_min"], height = y_max, color = "darkgray", lw = 0, zorder = -2)
-    plt.gca().add_patch(road)
-    road = plt.Rectangle(
-        [road_rules["x_max"], road_rules["y_min"]], width = x_max, height = road_rules["y_max"] - road_rules["y_min"], color = "darkgray", lw = 0, zorder = -2)
-    plt.gca().add_patch(road)
+
+    if not boundary_only:
+        road = plt.Rectangle(
+            [road_rules["x_min"], 0], width = road_rules["x_max"] - road_rules["x_min"], height = y_max, color = "darkgray", lw = 0, zorder = -2)
+        plt.gca().add_patch(road)
+        road = plt.Rectangle(
+            [road_rules["x_max"], road_rules["y_min"]], width = x_max, height = road_rules["y_max"] - road_rules["y_min"], color = "darkgray", lw = 0, zorder = -2)
+        plt.gca().add_patch(road)
+
+    if boundary_only:
+        border_color = "black"
+    else:
+        border_color = "white"
 
     crosswalk_width = 3
     crosswalk_length = road_rules["x_max"] - road_rules["x_min"]
-    draw_crosswalk(road_rules["x_min"], 30 - crosswalk_width*0.5, crosswalk_width, crosswalk_length)
+    draw_crosswalk(road_rules["x_min"], 30 - crosswalk_width*0.5, crosswalk_width, crosswalk_length, border_color=border_color)
 
-    ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c="white", linewidth = 2, zorder = -1)
-    ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
-    ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c="white", linewidth = 2, zorder = -1)
-    ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
-    ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c="white", linewidth = 2, zorder = -1)
-    ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c="white", linewidth = 2, zorder = -1)
-    ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c="white", linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_min"], road_rules["x_min"]], [0, y_max], c=border_color, linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_max"], road_rules["x_max"]], [0, road_rules["y_min"]], c=border_color, linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_max"], road_rules["x_max"]], [road_rules["y_max"], y_max], c=border_color, linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_min"], road_rules["y_min"]], c=border_color, linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_max"], x_max], [road_rules["y_min"], road_rules["y_min"]], c=border_color, linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_min"], road_rules["x_min"]], [road_rules["y_max"], road_rules["y_max"]], c=border_color, linewidth = 2, zorder = -1)
+    ax.plot([road_rules["x_max"], x_max], [road_rules["y_max"], road_rules["y_max"]], c=border_color, linewidth = 2, zorder = -1)
     ax.plot([x_center, x_center], [0, y_max], "--", c = 'white', linewidth = 5, dashes=(5, 5), zorder = -1)
     ax.plot([road_rules["x_max"], x_max], [y_center, y_center], "--", c = 'white', linewidth = 5, dashes=(5, 5), zorder = -1)

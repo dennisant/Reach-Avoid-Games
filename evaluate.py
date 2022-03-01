@@ -1,6 +1,7 @@
 # create the rollout animation of the three-player game using the log trajectory
 import argparse
 import pickle
+import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -21,11 +22,12 @@ from shapely.ops import cascaded_union, polygonize
 from descartes import PolygonPatch
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--evaluate",           help="Things to evaluate",       choices=["train", "rollout", "spectrum", "info"],        required=True)
+parser.add_argument("--evaluate",           help="Things to evaluate",       choices=["train", "rollout", "spectrum", "info", "trajectory", "train_then_rollout"],        required=True)
 parser.add_argument("--loadpath",           help="Path of experiment",       required=True)
 parser.add_argument("--iteration",          help="Iteration of experiment to evaluate",     type=int)
 parser.add_argument("--with_trajectory",    help="Plot trajectory of the chosen iteration out, used with evaluate=rollout",     action="store_true")
 parser.add_argument("--svg",                help="Create svg image",         action="store_true")
+parser.add_argument("--interpolation",      help="List of all the steps to plot players",   default=[0],    type=int,   nargs="*")
 args = parser.parse_args()
 
 loadpath = args.loadpath
@@ -122,7 +124,7 @@ def spectrum():
     # check game specs
     list_of_players = list(raw_data["g_params"][0].keys())
     no_of_players = len(list_of_players)
-    has_ped = "ped" in list_of_players
+    has_ped = "ped1" in list_of_players
 
     color_code = ["green", "red", "blue"]
 
@@ -216,9 +218,34 @@ def train_process():
     image_count = len([f for f in os.listdir(folder_path) if "plot-" in f])
     with imageio.get_writer('{}/evaluate_training.gif'.format(folder_path), mode='I') as writer:
         for i in range(image_count):
+            if args.iteration is not None and i > args.iteration:
+                break
             filename = "plot-{}.jpg".format(i)
             image = imageio.imread(os.path.join(folder_path, filename))
             writer.append_data(image)
+
+def train_then_rollout():
+    folder_path = os.path.join(loadpath, "figures")
+    output_path = os.path.join(loadpath, "evaluate")
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+    print("\t>> Output folder: " + output_path)
+
+    if not os.path.exists(folder_path):
+        raise ValueError("There is no such path: {}, please check again".format(folder_path))
+
+    # Build GIF
+    image_count = len([f for f in os.listdir(folder_path) if "plot-" in f])
+    with imageio.get_writer('{}/evaluate_training_then_rollout.gif'.format(output_path), mode='I') as writer:
+        for i in range(image_count):
+            if args.iteration is not None and i > args.iteration:
+                break
+            filename = "plot-{}.jpg".format(i)
+            image = imageio.imread(os.path.join(folder_path, filename))
+            writer.append_data(image)
+
+        final_rollout(writer, boundary_only=True, no_display=True)
 
 def plot_goal_with_obs_game(data):
     """
@@ -286,7 +313,10 @@ def info():
         for line in note.split("\n"):
             print("\t\t{}".format(line))
 
-def final_rollout():
+def final_rollout(writer=None, boundary_only=False, alpha=0.4, no_display=False):
+    if no_display:
+        matplotlib.use("Agg")
+
     # check to see if there is logs folder:
     if not ("logs" in os.listdir(loadpath)):
         raise ValueError("There is no log folder in this experiment")
@@ -317,7 +347,7 @@ def final_rollout():
     list_of_players = list(raw_data["g_params"][0].keys())
     no_of_players = len(list_of_players)
 
-    has_ped = "ped" in list_of_players
+    has_ped = "ped1" in list_of_players
 
     color_code = ["green", "red", "blue"]
     
@@ -372,7 +402,7 @@ def final_rollout():
         state = data.iloc[i].to_numpy()
 
         if raw_data["config"][0].env_type == "t_intersection":
-            plot_road_game(ped=has_ped, adversarial=adversarial)
+            plot_road_game(ped=has_ped, adversarial=adversarial, boundary_only=boundary_only)
         elif raw_data["config"][0].env_type == "goal_with_obs":
             plot_goal_with_obs_game(raw_data)
         else:
@@ -392,10 +422,10 @@ def final_rollout():
                 draw_real_human([state], i%2)
             
             if args.with_trajectory:
-                plt.plot(data["x0"], data["y0"], 'g', linewidth=2.0, zorder=10)
-                plt.plot(data["x1"], data["y1"], 'r', linewidth=2.0, zorder=10)
+                plt.plot(data["x0"], data["y0"], 'g', linewidth=2.0, zorder=10, alpha=0.4)
+                plt.plot(data["x1"], data["y1"], 'r', linewidth=2.0, zorder=10, alpha=0.4)
                 if no_of_players == 3:
-                    plt.plot(data["x2"], data["y2"], 'b', linewidth=2.0, zorder=10)
+                    plt.plot(data["x2"], data["y2"], 'b', linewidth=2.0, zorder=10, alpha=0.4)
         
         plt.pause(0.001)
         plt.savefig(os.path.join(output, 'step-{}.jpg'.format(i))) # Trying to save these plots
@@ -405,7 +435,16 @@ def final_rollout():
 
     # Build GIF
     image_count = len([f for f in os.listdir(output) if "step-" in f])
-    with imageio.get_writer(os.path.join(output, 'evaluate_rollout.gif'), mode='I') as writer:
+    if writer is None:
+        with imageio.get_writer(os.path.join(output, 'evaluate_rollout.gif'), mode='I') as writer:
+            try:
+                for i in range(image_count):
+                    filename = "step-{}.jpg".format(i)
+                    image = imageio.imread(os.path.join(output, filename))
+                    writer.append_data(image)
+            except FileNotFoundError:
+                pass
+    else:
         try:
             for i in range(image_count):
                 filename = "step-{}.jpg".format(i)
@@ -413,6 +452,110 @@ def final_rollout():
                 writer.append_data(image)
         except FileNotFoundError:
             pass
+
+def trajectory():
+    # check to see if there is logs folder:
+    if not ("logs" in os.listdir(loadpath)):
+        raise ValueError("There is no log folder in this experiment")
+
+    # get experiment file:
+    file_list = os.listdir(os.path.join(loadpath, "logs"))
+    print("\t>> Found {} file(s)".format(len(file_list)))
+
+    if len(file_list) > 1:
+        index = input("Please choose which log file to use: ")
+    else: 
+        index = 0
+
+    # Read log
+    file_path = os.path.join(loadpath, "logs", file_list[index])
+    with open(file_path, "rb") as log:
+        raw_data = pickle.load(log)
+    
+    if args.iteration is None:
+        print("\t>> Get the last iteration to render on top of spectrum")
+        iteration = np.array(raw_data["xs"]).shape[0] - 1
+    else:
+        iteration = args.iteration
+
+    print("\t>> Iteration to render on top: {}".format(iteration))
+
+    max_iteration = np.array(raw_data["xs"]).shape[0]
+
+    # check game specs
+    list_of_players = list(raw_data["g_params"][0].keys())
+    no_of_players = len(list_of_players)
+    has_ped = "ped1" in list_of_players
+
+    color_code = ["green", "red", "blue"]
+
+    if no_of_players == 1:
+        raise NotImplementedError("Spectrum analysis is not currently available for one-player game")
+    elif no_of_players == 2:
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0",
+                "x1", "y1", "theta1", "phi1", "vel1"
+            ]
+    elif no_of_players == 3:
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0",
+                "x1", "y1", "theta1", "phi1", "vel1",
+                "x2", "y2", "theta2", "vel2"
+            ]
+    else:
+        raise NotImplementedError("Unknown game")
+
+    # add in this to work with old data. Old arguments format have "adversarial" boolean flag. New arguments consider the value of t_react only
+    if "adversarial" in vars(raw_data["config"][0]):
+        if raw_data["config"][0].adversarial:
+            print("\t>> Adversarial run found!")
+            adversarial = True
+        else:
+            adversarial = False
+    elif raw_data["config"][0].t_react is not None:
+        print("\t>> Adversarial run found!")
+        adversarial = True
+    else:
+        adversarial = False
+
+    if adversarial:
+        t_react = raw_data["config"][0].t_react
+    
+    # create output folder
+    output = os.path.join(loadpath, "evaluate")
+    if not os.path.exists(output):
+        os.makedirs(output)
+    print("\t>> Output folder: " + output)
+
+    plot_road_game(ped=has_ped, adversarial=adversarial)
+
+    data = pd.DataFrame(
+        np.array(raw_data["xs"][iteration]).reshape((
+            len(raw_data["xs"][iteration]), len(data_columns)
+        )), columns = data_columns
+    )
+    
+    if args.with_trajectory:
+        plt.plot(data["x0"], data["y0"], 'g', linewidth=2.0, zorder=5)
+        plt.plot(data["x1"], data["y1"], 'r', linewidth=2.0, zorder=5)
+        if no_of_players == 3:
+            plt.plot(data["x2"], data["y2"], 'b', linewidth=2.0, zorder=5)              
+    
+    for index, inter in enumerate(args.interpolation):
+        initial_state = data.iloc[inter].to_numpy()
+        # alpha = 0.4 + (index/(len(args.interpolation) - 1)) * 0.6
+        alpha = 1.0
+
+        for i, player in enumerate(list_of_players):
+            if "car" in player:
+                draw_real_car(i, [initial_state], alpha = alpha)
+            elif "ped" in player:
+                draw_real_human([initial_state], alpha = alpha, variation=index%2)
+    
+    plt.savefig(os.path.join(output, "trajectory_{}.png".format(iteration)))
+    if args.svg:
+        plt.savefig(os.path.join(output, "trajectory_{}.svg".format(iteration)))
+    plt.show()
 
 if args.evaluate == "train":
     print("\t>> Evaluate the training process")
@@ -423,8 +566,14 @@ elif args.evaluate == "rollout":
 elif args.evaluate == "spectrum":
     print("\t>> Generate spectrum graph")
     spectrum()
+elif args.evaluate == "trajectory":
+    print("\t>> Generate graph with a single trajectory")
+    trajectory()
 elif args.evaluate == "info":
     print("\t>> Read experiment info")
     info()
+elif args.evaluate == "train_then_rollout":
+    print("\t>> Evaluate the training process then rollout at the final trajectory")
+    train_then_rollout()
 else:
     raise NotImplementedError("Choose another evaluation run, current choice not supported")
