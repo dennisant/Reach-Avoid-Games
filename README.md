@@ -117,8 +117,8 @@ python3 evaluate_batch.py --loadpath result/batch-2022-02-23/ --exp_suffix exp_t
 Output:
 
 <p float="left" style="text-align:center;">
-    <img src="./result/batch-2022-02-19/summary/exp_time_consistent_summary.png" width="300">
-    <img src="./result/batch-2022-02-19/summary/exp_time_inconsistent_summary.png" width="300">
+    <img src="./result/batch-2022-02-23/summary/exp_time_consistent_summary.png" width="300">
+    <img src="./result/batch-2022-02-23/summary/exp_time_inconsistent_summary.png" width="300">
 </p>
 
 # Adversarial
