@@ -102,7 +102,7 @@ python3 evaluate.py --loadpath result/experiment_2022-02-21-21_46_25 --evaluate 
 
 Output
 <p float="left" style="text-align:center;">
-    <img src="result/experiment_2022-02-21-21_46_25/evaluate/evaluate_training_then_rollout.gif
+    <img src="./result/experiment_2022-02-21-21_46_25/evaluate/evaluate_training_then_rollout.gif
 " width="300">
 </p>
 
@@ -117,7 +117,7 @@ python3 evaluate.py --loadpath result/experiment_2022-02-19-20_48_36 --evaluate 
 
 Output:
 <p float="left" style="text-align:center;">
-    <img src="result/experiment_2022-02-19-20_48_36/evaluate/trajectory_3.png" width="300">
+    <img src="./result/experiment_2022-02-19-20_48_36/evaluate/trajectory_3.png" width="300">
 </p>
 
 # Batch run
