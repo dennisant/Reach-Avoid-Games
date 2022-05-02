@@ -313,7 +313,7 @@ def info():
         for line in note.split("\n"):
             print("\t\t{}".format(line))
 
-def final_rollout(writer=None, boundary_only=False, alpha=0.4, no_display=False):
+def final_rollout(writer=None, boundary_only=True, alpha=0.4, no_display=False):
     if no_display:
         matplotlib.use("Agg")
 

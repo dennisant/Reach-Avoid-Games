@@ -59,6 +59,7 @@ sample_run_4 = "python3 run.py                                       \
                         20.0 35.0 3.0                               \
                         6.5 50.0 3.0                                \
                         2.5 50.0 2.0                                \
+                        11.5 46.0 2.0                               \
                 --goal 6.0 40.0 2.0                                 \
                 --alpha_scaling trust_region                        \
                 --trust_region_type ratio                           \
