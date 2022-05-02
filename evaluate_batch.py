@@ -25,16 +25,6 @@ print("\t\t>> Plot success runs")
 batch.visualize_all_runs(data=batch.get_success_run(), savefig=True, suffix="converged")
 
 no_of_runs = batch.data.shape[0]
-# Blue trajectories for runs that are reach-avoid (max(J) < 0)
-reach_avoid_runs = []
-for i in range(no_of_runs):
-    run = batch.data.iloc[i]
-    value_func = run["value_func"]
-    if np.max(value_func) > 0:
-        continue
-    else:
-        reach_avoid_runs.append(i)
-
 # Orange trajectories for runs that reach but then violates
 # J-0 < 0, with k \in [t_star, T], exist g_k > 0
 runs_successful_with_j0 = (batch.data["first_negative_cost"][np.array(np.where(batch.data["first_negative_cost"] > 0)).flatten()]).index
@@ -52,11 +42,15 @@ for i in runs_successful_with_j0:
 # Red trajectories for runs that never satisfy J_0
 runs_not_successful_with_j0 = sorted(list(set(range(no_of_runs)) - set(runs_successful_with_j0)))
 
-print("\t\t>> Check common set between blue and orange: {}".format(set(reach_avoid_runs) & set(runs_successful_with_j0_with_violation)))
-print("\t\t>> Check common set between red and orange: {}".format(set(runs_not_successful_with_j0) & set(runs_successful_with_j0_with_violation)))
-print("\t\t>> Check common set between blue and red: {}".format(set(reach_avoid_runs) & set(runs_not_successful_with_j0)))
+# Blue trajectories for runs that reach, then no violations afterward
+reach_then_no_violation_runs = sorted(list(set(range(no_of_runs)) - set(runs_successful_with_j0_with_violation) - set(runs_not_successful_with_j0)))
 
-blue_data = batch.data.iloc[reach_avoid_runs]
+print("\t\t>> Check common set between blue and orange: {}".format(set(reach_then_no_violation_runs) & set(runs_successful_with_j0_with_violation)))
+print("\t\t>> Check common set between red and orange: {}".format(set(runs_not_successful_with_j0) & set(runs_successful_with_j0_with_violation)))
+print("\t\t>> Check common set between blue and red: {}".format(set(reach_then_no_violation_runs) & set(runs_not_successful_with_j0)))
+print("\t\t>> Total run count: {}".format(len(runs_successful_with_j0_with_violation) + len(runs_not_successful_with_j0) + len(reach_then_no_violation_runs)))
+
+blue_data = batch.data.iloc[reach_then_no_violation_runs]
 orange_data = batch.data.iloc[runs_successful_with_j0_with_violation]
 red_data = batch.data.iloc[runs_not_successful_with_j0]
 

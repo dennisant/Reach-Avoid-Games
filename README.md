@@ -31,10 +31,12 @@ python3 evaluate.py --loadpath result/experiment_2022-02-20-11_58_33/ --evaluate
 ```
 You can specify which iteration you want to create GIF image by adding in ```--iteration <iteration>``` to the command.
 
-```evaluate.py``` supports three different runs:
+```evaluate.py``` supports five different runs:
 * Evaluate the training process (for all cases), ```--evaluate train```
 * Evaluate the rollout (for all cases), ```--evaluate rollout```
 * Evaluate the concave hull of all the trajectories created during the training process (for two and three-player case) ```--evaluate spectrum```
+* Evaluate the train then do rollout on the chosen terminal iteration (for all cases), ```--evaluate train_then_rollout```
+* Evaluate a single trajectory (for all cases) ```--evaluate trajectory```
 
 ## Run evaluate for train process
 When run evaluate for train process, all images generated throughout the run will be merged to a GIF file showing the training process. The following GIF is a sample output from this process. The flag ```--loadpath``` has to be an experiment directory with ```figures``` folder.
@@ -88,9 +90,35 @@ python3 evaluate.py --loadpath result/experiment_2022-02-21-21_46_25 --evaluate 
 You can also specify which iteration to plot on top of the concave hull by passing ```--iteration <number>```. If no iteration flag is passed, last iteration will be used.
 Output:
 
-<p style="text-align:center;"><img src="./result/experiment_2022-02-21-21_46_25/evaluate/spectrum.png" alt="drawing" width="500"/>
+<p style="text-align:center;"><img src="./result/experiment_2022-02-21-21_46_25/evaluate/spectrum.png" alt="drawing" width="400"/>
 
-**Note**: This only works for three-player case as of now.
+**Note**: This only works for two-player and three-player case as of now.
+
+## Run evaluate on training then execute rollout on the chosen trajectory
+A combination of running training then once a trajectory is chosen, via flag```--iteration``` or the max iteration will be used if flag is ```None```, do rollout.
+```
+python3 evaluate.py --loadpath result/experiment_2022-02-21-21_46_25 --evaluate train_then_rollout --iteration 84 --with_trajectory
+```
+
+Output
+<p float="left" style="text-align:center;">
+    <img src="./result/experiment_2022-02-21-21_46_25/evaluate/evaluate_training_then_rollout.gif
+" width="300">
+</p>
+
+## Run evaluate for a single trajectory
+Evaluate a single chosen trajectory on iteration defined by either the max iteration in log file or iteration given by ```--iteration```.
+
+You can choose where to plot the player(s) by using flag ```--interpolation``` with list of all indices.
+
+```
+python3 evaluate.py --loadpath result/experiment_2022-02-19-20_48_36 --evaluate trajectory --interpolation 0 5 10 15 20 25 30 35 40
+```
+
+Output:
+<p float="left" style="text-align:center;">
+    <img src="./result/experiment_2022-02-19-20_48_36/evaluate/trajectory_3.png" width="300">
+</p>
 
 # Batch run
 There is a ```run_batch.py``` file to help automatically generate randomized initialization data for multiple runs for one-player case. Change the initialization range in the script before running to match your targeted test cases. You can either choose to run only **time_consistent**, **time_inconsistent** or **both**. If **both** is chosen, the test cases across time consistetn and inconsistent will be the same. Each experiment in the batch will have its own log file and figures, there will also be a common batch log to record all commands used to run the experiments in the batch.
@@ -111,14 +139,14 @@ base_flag = "   python3 run.py                      \
 
 Once finish running, you can analyze the data in the batch by either running ```analyze.ipynb```. Each batch can be imported as a ```Batch``` object with certain functions. You can also quickly check on the convergence rate of the batch run and see the resulting plots by running ```evaluate_batch.py```.
 ```
-python3 evaluate_batch.py --loadpath result/batch-2022-02-19/ --exp_suffix exp_time_consistent
+python3 evaluate_batch.py --loadpath result/batch-2022-02-23/ --exp_suffix exp_time_consistent
 ```
 
 Output:
 
 <p float="left" style="text-align:center;">
-    <img src="./result/batch-2022-02-19/summary/exp_time_consistent_summary.png" width="300">
-    <img src="./result/batch-2022-02-19/summary/exp_time_inconsistent_summary.png" width="300">
+    <img src="./result/batch-2022-02-23/summary/exp_time_consistent_summary_three_color_plot.png" width="300">
+    <img src="./result/batch-2022-02-23/summary/exp_time_inconsistent_summary_three_color_plot.png" width="300">
 </p>
 
 # Adversarial

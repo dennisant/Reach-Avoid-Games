@@ -490,7 +490,9 @@ def trajectory():
     color_code = ["green", "red", "blue"]
 
     if no_of_players == 1:
-        raise NotImplementedError("Spectrum analysis is not currently available for one-player game")
+        data_columns = [
+                "x0", "y0", "theta0", "phi0", "vel0"
+            ]
     elif no_of_players == 2:
         data_columns = [
                 "x0", "y0", "theta0", "phi0", "vel0",
@@ -527,7 +529,12 @@ def trajectory():
         os.makedirs(output)
     print("\t>> Output folder: " + output)
 
-    plot_road_game(ped=has_ped, adversarial=adversarial)
+    if raw_data["config"][0].env_type == "t_intersection":
+        plot_road_game(ped=has_ped, adversarial=adversarial)
+    elif raw_data["config"][0].env_type == "goal_with_obs":
+        plot_goal_with_obs_game(raw_data)
+    else:
+        raise NotImplementedError("Type of environment not supported: {}".format(raw_data["config"].env_type))
 
     data = pd.DataFrame(
         np.array(raw_data["xs"][iteration]).reshape((
